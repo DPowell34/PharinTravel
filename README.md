@@ -1,5 +1,3 @@
-# Test paste
-Hello world
 # Pharin's Travel
 
 Three pieces that work together:
