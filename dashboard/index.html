@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pharin's Travel — CRM Dashboard</title>
+<style>
+  :root {
+    --teal: #0f766e; --teal-dark: #0b544e; --gold: #d4a017;
+    --bg: #f6f5f1; --ink: #1f2937; --muted: #6b7280; --border: #e5e7eb;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--ink);
+  }
+  header {
+    background: var(--teal-dark); color: white; padding: 20px 28px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  }
+  header h1 { font-size: 1.3rem; margin: 0; }
+  header h1 span { color: var(--gold); }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+  .settings {
+    background: white; border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px 22px; margin-bottom: 24px; display: flex; gap: 12px; flex-wrap: wrap; align-items: end;
+  }
+  .settings label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+  .settings input { padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; width: 260px; font-size: 0.9rem; }
+  .settings button {
+    background: var(--teal); color: white; border: none; padding: 10px 18px;
+    border-radius: 8px; font-weight: 600; cursor: pointer;
+  }
+  .settings button:hover { background: var(--teal-dark); }
+  .status { font-size: 0.85rem; color: var(--muted); margin-left: auto; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+  .tab {
+    padding: 9px 18px; border-radius: 999px; background: white; border: 1px solid var(--border);
+    cursor: pointer; font-weight: 600; color: var(--muted); font-size: 0.9rem;
+  }
+  .tab.active { background: var(--teal); color: white; border-color: var(--teal); }
+
+  .panel { display: none; background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .panel.active { display: block; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  th { background: #fafaf9; color: var(--muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fbfbfa; }
+
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
+  }
+  .badge.inquiry { background: #f3f4f6; color: #4b5563; }
+  .badge.quoted { background: #fef3c7; color: #92400e; }
+  .badge.booked { background: #dbeafe; color: #1e40af; }
+  .badge.deposit-paid { background: #fed7aa; color: #9a3412; }
+  .badge.paid-in-full { background: #ede9fe; color: #5b21b6; }
+  .badge.traveled { background: #d1fae5; color: #065f46; }
+  .badge.completed { background: #e7e5e4; color: #44403c; }
+  .badge.cancelled { background: #fee2e2; color: #991b1b; }
+
+  .empty, .error { padding: 40px 20px; text-align: center; color: var(--muted); }
+  .error { color: #b91c1c; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Pharin's <span>Travel</span> — CRM Dashboard</h1>
+  <div id="conn-indicator" class="status">Not connected</div>
+</header>
+
+<div class="container">
+
+  <div class="settings">
+    <div>
+      <label for="server-url">Server URL</label>
+      <input id="server-url" type="text" placeholder="https://your-server.example.com" />
+    </div>
+    <div>
+      <label for="api-key">API Key</label>
+      <input id="api-key" type="password" placeholder="DASHBOARD_API_KEY" />
+    </div>
+    <button id="connect-btn">Connect &amp; Load</button>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="trips">Trips</div>
+    <div class="tab" data-tab="clients">Clients</div>
+    <div class="tab" data-tab="suppliers">Suppliers</div>
+  </div>
+
+  <div class="panel active" id="panel-trips">
+    <table>
+      <thead>
+        <tr>
+          <th>Trip</th><th>Client</th><th>Destination</th><th>Departure</th>
+          <th>Travelers</th><th>Value</th><th>Commission</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="trips-body"><tr><td colspan="8" class="empty">Connect to load trips.</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="panel" id="panel-clients">
+    <table>
+      <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Passport Expiry</th><th>Referral Source</th></tr></thead>
+      <tbody id="clients-body"><tr><td colspan="5" class="empty">Connect to load clients.</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="panel" id="panel-suppliers">
+    <table>
+      <thead><tr><th>Name</th><th>Type</th><th>Website</th><th>Phone</th></tr></thead>
+      <tbody id="suppliers-body"><tr><td colspan="4" class="empty">Connect to load suppliers.</td></tr></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+  const els = {
+    serverUrl: document.getElementById('server-url'),
+    apiKey: document.getElementById('api-key'),
+    connectBtn: document.getElementById('connect-btn'),
+    connIndicator: document.getElementById('conn-indicator'),
+    tabs: document.querySelectorAll('.tab'),
+    panels: {
+      trips: document.getElementById('panel-trips'),
+      clients: document.getElementById('panel-clients'),
+      suppliers: document.getElementById('panel-suppliers'),
+    },
+    tripsBody: document.getElementById('trips-body'),
+    clientsBody: document.getElementById('clients-body'),
+    suppliersBody: document.getElementById('suppliers-body'),
+  };
+
+  // Remember server URL + key locally (this is a small internal tool; for anything
+  // beyond a solo agent, put this behind real auth instead of a shared API key).
+  els.serverUrl.value = localStorage.getItem('pharin_server_url') || '';
+  els.apiKey.value = localStorage.getItem('pharin_api_key') || '';
+
+  els.tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      els.tabs.forEach((t) => t.classList.remove('active'));
+      Object.values(els.panels).forEach((p) => p.classList.remove('active'));
+      tab.classList.add('active');
+      els.panels[tab.dataset.tab].classList.add('active');
+    });
+  });
+
+  function statusBadge(status) {
+    if (!status) return '';
+    const slug = status.toLowerCase().replace(/\s+/g, '-');
+    return `<span class="badge ${slug}">${status}</span>`;
+  }
+  function esc(v) {
+    if (v === null || v === undefined) return '';
+    return String(v).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+  function money(n) {
+    if (n === null || n === undefined || n === '') return '';
+    return '$' + Number(n).toLocaleString();
+  }
+
+  async function apiGet(path) {
+    const base = els.serverUrl.value.replace(/\/$/, '');
+    const res = await fetch(base + path, {
+      headers: { 'X-Api-Key': els.apiKey.value },
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`${res.status} ${res.statusText} ${text}`);
+    }
+    return res.json();
+  }
+
+  async function loadTrips() {
+    els.tripsBody.innerHTML = '<tr><td colspan="8" class="empty">Loading…</td></tr>';
+    try {
+      const { trips } = await apiGet('/api/trips');
+      if (!trips.length) {
+        els.tripsBody.innerHTML = '<tr><td colspan="8" class="empty">No trips yet.</td></tr>';
+        return;
+      }
+      els.tripsBody.innerHTML = trips.map((t) => `
+        <tr>
+          <td>${esc(t.trip_name)}</td>
+          <td>${esc(t.client_name)}</td>
+          <td>${esc(t.destination)}</td>
+          <td>${esc(t.departure_date)}</td>
+          <td>${esc(t.number_of_travelers)}</td>
+          <td>${money(t.trip_value)}</td>
+          <td>${money(t.commission)}</td>
+          <td>${statusBadge(t.booking_status)}</td>
+        </tr>
+      `).join('');
+    } catch (err) {
+      els.tripsBody.innerHTML = `<tr><td colspan="8" class="error">Failed to load trips: ${esc(err.message)}</td></tr>`;
+    }
+  }
+
+  async function loadClients() {
+    els.clientsBody.innerHTML = '<tr><td colspan="5" class="empty">Loading…</td></tr>';
+    try {
+      const { clients } = await apiGet('/api/clients');
+      if (!clients.length) {
+        els.clientsBody.innerHTML = '<tr><td colspan="5" class="empty">No clients yet.</td></tr>';
+        return;
+      }
+      els.clientsBody.innerHTML = clients.map((c) => `
+        <tr>
+          <td>${esc(c.name)}</td>
+          <td>${esc(c.email)}</td>
+          <td>${esc(c.phone)}</td>
+          <td>${esc(c.passport_expiry)}</td>
+          <td>${esc(c.referral_source)}</td>
+        </tr>
+      `).join('');
+    } catch (err) {
+      els.clientsBody.innerHTML = `<tr><td colspan="5" class="error">Failed to load clients: ${esc(err.message)}</td></tr>`;
+    }
+  }
+
+  async function loadSuppliers() {
+    els.suppliersBody.innerHTML = '<tr><td colspan="4" class="empty">Loading…</td></tr>';
+    try {
+      const { suppliers } = await apiGet('/api/suppliers');
+      if (!suppliers.length) {
+        els.suppliersBody.innerHTML = '<tr><td colspan="4" class="empty">No suppliers yet.</td></tr>';
+        return;
+      }
+      els.suppliersBody.innerHTML = suppliers.map((s) => `
+        <tr>
+          <td>${esc(s.name)}</td>
+          <td>${esc(s.supplier_type)}</td>
+          <td>${s.website ? `<a href="${esc(s.website)}" target="_blank" rel="noopener">${esc(s.website)}</a>` : ''}</td>
+          <td>${esc(s.phone)}</td>
+        </tr>
+      `).join('');
+    } catch (err) {
+      els.suppliersBody.innerHTML = `<tr><td colspan="4" class="error">Failed to load suppliers: ${esc(err.message)}</td></tr>`;
+    }
+  }
+
+  els.connectBtn.addEventListener('click', async () => {
+    localStorage.setItem('pharin_server_url', els.serverUrl.value);
+    localStorage.setItem('pharin_api_key', els.apiKey.value);
+    els.connIndicator.textContent = 'Loading…';
+    await Promise.all([loadTrips(), loadClients(), loadSuppliers()]);
+    els.connIndicator.textContent = 'Connected · ' + new Date().toLocaleTimeString();
+  });
+
+  // Auto-load if we already have saved settings.
+  if (els.serverUrl.value && els.apiKey.value) {
+    els.connectBtn.click();
+  }
+</script>
+
+</body>
+</html>
