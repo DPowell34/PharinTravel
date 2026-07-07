@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Pharin's Travel — CRM Dashboard</title>
+<title>Destined 4 Destinations — CRM Dashboard</title>
+<script src="auth-guard.js"></script>
 <style>
   :root {
-    --teal: #0f766e; --teal-dark: #0b544e; --gold: #d4a017;
+    --teal: #1fa3c9; --teal-dark: #0b3d6b; --gold: #1fa3c9;
     --bg: #f6f5f1; --ink: #1f2937; --muted: #6b7280; --border: #e5e7eb;
   }
   * { box-sizing: border-box; }
@@ -70,8 +71,11 @@
 <body>
 
 <header>
-  <h1>Pharin's <span>Travel</span> — CRM Dashboard</h1>
-  <div id="conn-indicator" class="status">Not connected</div>
+  <h1>Destined 4 <span>Destinations</span> — CRM Dashboard</h1>
+  <div style="display:flex; align-items:center; gap:16px;">
+    <div id="conn-indicator" class="status">Not connected</div>
+    <a href="#" id="logout-link" style="color:white; font-size:0.85rem; text-decoration:underline;">Log out</a>
+  </div>
 </header>
 
 <div class="container">
@@ -261,6 +265,12 @@
   if (els.serverUrl.value && els.apiKey.value) {
     els.connectBtn.click();
   }
+
+  document.getElementById('logout-link').addEventListener('click', function (e) {
+    e.preventDefault();
+    sessionStorage.removeItem('d4d_crm_authed');
+    window.location.href = 'login.html';
+  });
 </script>
 
 </body>

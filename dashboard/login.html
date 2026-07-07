@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Employee Login — Destined 4 Destinations CRM</title>
+<style>
+  :root {
+    --navy: #0b3d6b; --navy-dark: #082a4a; --sky: #1fa3c9; --sand: #faf8f3;
+    --ink: #1f2937; --muted: #5b6472; --border: #e2e8f0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .login-card {
+    background: white; border-radius: 18px; padding: 40px 36px; max-width: 380px; width: 100%;
+    box-shadow: 0 20px 45px rgba(0,0,0,0.25);
+  }
+  .logo-badge {
+    width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 16px;
+    background: linear-gradient(160deg, var(--sky) 0%, var(--navy) 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-family: Georgia, serif; font-size: 1.2rem;
+    border: 3px solid var(--navy);
+  }
+  h1 { text-align: center; font-size: 1.2rem; color: var(--navy); margin-bottom: 4px; font-family: Georgia, serif; }
+  .subtitle { text-align: center; color: var(--muted); font-size: 0.85rem; margin-bottom: 26px; }
+  form { display: flex; flex-direction: column; gap: 14px; }
+  label { font-size: 0.8rem; font-weight: 700; color: var(--navy); }
+  input {
+    padding: 11px 13px; border-radius: 9px; border: 1px solid var(--border);
+    font-size: 0.95rem; font-family: inherit; margin-top: 4px; width: 100%;
+  }
+  button {
+    background: var(--sky); color: white; border: none; padding: 13px;
+    border-radius: 9px; font-weight: 700; cursor: pointer; font-size: 0.95rem; margin-top: 6px;
+  }
+  button:hover { background: #1889a8; }
+  .error {
+    color: #b91c1c; font-size: 0.85rem; text-align: center; display: none;
+  }
+  .back-link { display: block; text-align: center; margin-top: 20px; color: var(--muted); font-size: 0.85rem; text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+  .notice {
+    margin-top: 22px; padding: 12px 14px; background: #fef3c7; border-radius: 8px;
+    color: #92400e; font-size: 0.78rem; line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<div class="login-card">
+  <div class="logo-badge">D4D</div>
+  <h1>Employee Login</h1>
+  <div class="subtitle">Destined 4 Destinations — CRM Dashboard</div>
+
+  <form id="login-form">
+    <div>
+      <label for="username">Username</label>
+      <input id="username" type="text" name="username" autocomplete="username" required />
+    </div>
+    <div>
+      <label for="password">Password</label>
+      <input id="password" type="password" name="password" autocomplete="current-password" required />
+    </div>
+    <div class="error" id="login-error">Incorrect username or password.</div>
+    <button type="submit">Log In</button>
+  </form>
+
+  <a class="back-link" href="../site/index.html">&larr; Back to main site</a>
+
+  <div class="notice">
+    <strong>Note for the site owner:</strong> this is a placeholder login screen —
+    credentials are checked in the browser against a value set in
+    <code>login.js</code>, which is fine to keep employees' casual visitors out but is
+    <strong>not real security</strong> (anyone who views the page source can find the
+    password). Swap this for a real auth provider (Netlify Identity, Auth0, or a
+    login endpoint on the bridge server) before storing anything sensitive behind it.
+  </div>
+</div>
+
+<script src="login.js"></script>
+</body>
+</html>

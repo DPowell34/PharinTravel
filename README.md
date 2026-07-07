@@ -1,12 +1,18 @@
-# Pharin's Travel
+# Destined 4 Destinations
 
 Three pieces that work together:
 
-- **`site/`** — the public-facing marketing site (single self-contained
-  `index.html`). Hero, services, about, and a contact inquiry form.
-- **`dashboard/`** — an internal CRM dashboard (also a single self-contained
+- **`site/`** — the public-facing marketing site: multiple static pages
+  (Home, About, Services, Travel Resources, Passport & Visa, Airline Rules,
+  Terms & Insurance Waiver, Contact, Request a Quote) sharing `assets/style.css`
+  and `assets/site.js`. Generated from `build_site.py` (run `python3
+  build_site.py` after editing content in that file, then commit the
+  regenerated `.html` files in `site/`).
+- **`dashboard/`** — an internal CRM dashboard (self-contained
   `index.html`) that reads Clients, Trips, and Suppliers from Notion through
-  the server's API and displays them in sortable tables.
+  the server's API and displays them in sortable tables. Gated behind a
+  placeholder employee login (`dashboard/login.html`) — see "Employee login"
+  below.
 - **`server/`** — an Express server that is both:
   1. A **TravelJoy <-> Notion bridge**: receives Zapier webhooks from
      TravelJoy (TravelJoy has no public API — Zapier is the only supported
@@ -31,11 +37,28 @@ The database IDs in `.env.example` are already filled in for the Pharin's
 Travel Notion workspace (Clients, Trips, Suppliers, Activities).
 
 Open `site/index.html` directly in a browser to preview the marketing site —
-no build step needed.
+no build step needed to view it (only needed if you edit `build_site.py`).
 
-Open `dashboard/index.html`, enter your running server's URL and the
-`DASHBOARD_API_KEY` you set in `.env`, and click **Connect & Load** to see
-live Clients/Trips/Suppliers data.
+Open `dashboard/login.html` first (default credentials below), then once
+logged in you'll land on `dashboard/index.html` — enter your running server's
+URL and the `DASHBOARD_API_KEY` you set in `.env`, and click **Connect &
+Load** to see live Clients/Trips/Suppliers data.
+
+## Employee login (placeholder)
+
+`dashboard/login.html` + `dashboard/login.js` implement a simple
+username/password gate so the CRM isn't wide open to the public:
+
+- Default username: `d4dstaff`
+- Default password: `ChangeMe2026!`
+
+**This is a placeholder, not real security** — the credentials live in
+client-side JavaScript (`dashboard/login.js`), so anyone who views the page
+source can read them. It's enough to stop casual visitors from landing on
+the CRM tables, but before storing real client data behind it, replace this
+with a real auth provider: Netlify Identity (invite-only), Auth0, or a login
+endpoint added to `server/` that issues a real session token. Change the
+default password in `dashboard/login.js` immediately either way.
 
 ## Deploying
 
