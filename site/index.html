@@ -78,7 +78,7 @@ section{padding:72px 24px}
 .section-inner{max-width:1200px;margin:0 auto}
 .section-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:10px}
 .section-title{font-size:clamp(1.6rem,3vw,2.4rem);font-weight:800;color:var(--navy);margin-bottom:16px}
-.section-sub{font-size:16px;color:var(--gray);max-width:640px;line-height:1.7}
+.section-sub{font-size:16px;color:var(--gray);max-width:640px;line-height:1.7;margin:0 auto;text-align:center}
 
 /* SERVICES */
 .services{background:#fff}
@@ -238,7 +238,7 @@ footer{background:var(--navy-dark);color:rgba(255,255,255,0.75);padding:48px 24p
 .testi-author .trip{font-size:11px;color:var(--gray)}
 
 /* CONTACT PAGE */
-.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;max-width:1000px;margin:0 auto;padding:64px 24px}
+.contact-grid{display:flex;justify-content:center;max-width:700px;margin:0 auto;padding:64px 24px;text-align:center}
 .contact-info h2{font-size:26px;font-weight:800;color:var(--navy);margin-bottom:16px}
 .contact-info p{font-size:15px;color:var(--gray);line-height:1.7;margin-bottom:24px}
 .contact-item{display:flex;gap:14px;align-items:flex-start;margin-bottom:20px}
@@ -309,7 +309,7 @@ footer{background:var(--navy-dark);color:rgba(255,255,255,0.75);padding:48px 24p
 @media(max-width:900px){
   .services-grid,.bi-grid,.why-grid,.promo-grid,.blog-grid,.testi-grid,.gallery-grid,.showcase-grid{grid-template-columns:1fr 1fr}
   .footer-grid{grid-template-columns:1fr 1fr}
-  .about-grid,.contact-grid{grid-template-columns:1fr}
+  .about-grid{grid-template-columns:1fr}
   .hero-cards-inner{grid-template-columns:1fr}
   .hero-card{border-right:none;border-bottom:1px solid rgba(74,184,213,0.2)}
   .hero-card:last-child{border-bottom:none}
@@ -379,8 +379,6 @@ footer{background:var(--navy-dark);color:rgba(255,255,255,0.75);padding:48px 24p
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- WHATSAPP FLOAT -->
-<a href="https://wa.me/13052066598" target="_blank" id="wa-btn" title="Chat on WhatsApp" style="position:fixed;bottom:28px;left:24px;z-index:9998;width:54px;height:54px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,0.5);text-decoration:none;font-size:26px;transition:transform .2s" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">💬</a>
 
 <!-- IMAGE LIGHTBOX -->
 <div id="lightbox" onclick="closeLightbox()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:10000;align-items:center;justify-content:center;padding:20px">
@@ -404,7 +402,7 @@ footer{background:var(--navy-dark);color:rgba(255,255,255,0.75);padding:48px 24p
 <nav id="main-nav">
   <div class="nav-top-row">
     <a class="nav-logo" onclick="showPage('home')">
-      <div id="nav-logo-img" style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#1B3464,#4AB8D5);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#fff;flex-shrink:0;overflow:hidden">D4D</div>
+      <div id="nav-logo-img" style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#1B3464,#4AB8D5);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#fff;flex-shrink:0;overflow:hidden"><img src="assets/logo.png" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>
       <div class="nav-logo-text" id="nav-logo-text">Destined 4 Destinations<span>YOUR JOURNEY BEGINS HERE</span></div>
     </a>
     <div class="hamburger" id="hamburger" onclick="toggleMenu()">
@@ -831,17 +829,6 @@ footer{background:var(--navy-dark);color:rgba(255,255,255,0.75);padding:48px 24p
       </div>
       <div style="margin-top:28px">
         <button class="btn-coral" onclick="scrollToForm()">Fill Out Travel Inquiry →</button>
-      </div>
-    </div>
-    <div>
-      <div class="admin-card" style="border-radius:12px">
-        <h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:16px">Send a Quick Message</h3>
-        <form onsubmit="submitContact(event)">
-          <div class="form-group" style="margin-bottom:12px"><label>Your Name</label><input type="text" required placeholder="Full name"></div>
-          <div class="form-group" style="margin-bottom:12px"><label>Email</label><input type="email" required placeholder="your@email.com"></div>
-          <div class="form-group" style="margin-bottom:12px"><label>Message</label><textarea required placeholder="Tell us about your dream vacation..." style="min-height:120px"></textarea></div>
-          <button type="submit" class="btn-submit" style="max-width:none">Send Message</button>
-        </form>
       </div>
     </div>
   </div>
@@ -1491,7 +1478,7 @@ footer{background:var(--navy-dark);color:rgba(255,255,255,0.75);padding:48px 24p
               <input type="file" id="s-logo-file" accept="image/*" onchange="readLogoFile(this)">
             </div>
             <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
-              <div id="logo-preview-box" style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#1B3464,#4AB8D5);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;overflow:hidden;flex-shrink:0">D4D</div>
+              <div id="logo-preview-box" style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#1B3464,#4AB8D5);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;overflow:hidden;flex-shrink:0"><img src="assets/logo.png" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>
               <div>
                 <div style="font-size:12px;color:var(--gray)">Current logo preview. Upload a new image to replace.</div>
                 <button class="btn-sm btn-del" style="margin-top:6px" onclick="removeLogo()">Remove Logo</button>
@@ -2579,18 +2566,16 @@ function readLogoFile(input) {
   reader.readAsDataURL(file);
 }
 
+const DEFAULT_LOGO_DATA = "assets/logo.png";
+
 function applyLogo(data) {
   const nb = document.getElementById('nav-logo-img');
   if (!nb) return;
-  if (data) {
-    nb.innerHTML = `<img src="${data}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
-  } else {
-    nb.innerHTML = 'D4D';
-  }
+  nb.innerHTML = `<img src="${data || DEFAULT_LOGO_DATA}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
   // preview box in settings
   const pb = document.getElementById('logo-preview-box');
   if (pb) {
-    pb.innerHTML = data ? `<img src="${data}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : 'D4D';
+    pb.innerHTML = `<img src="${data || DEFAULT_LOGO_DATA}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
   }
 }
 
@@ -3620,7 +3605,7 @@ function flashMsg(id) {
 function init() {
   // Restore logo
   const logo = store.get('logo', null);
-  if (logo) applyLogo(logo);
+  applyLogo(logo || DEFAULT_LOGO_DATA);
   // Hero slideshow
   renderSlideshow();
   // Photo gallery
