@@ -27,14 +27,14 @@ def render_nav(active):
         items.append(f'<a href="{href}"{cls}>{label}</a>')
     # Primary CTA + employee login always appended
     items.append('<a href="quote.html" class="cta">Request a Quote</a>')
-    items.append('<a href="../dashboard/login.html" class="employee-link">Employee Login</a>')
+    items.append('<a href="https://d4dtravel.app/login.html" class="employee-link">Employee Login</a>')
     return "\n      ".join(items)
 
 def header(active):
     return f"""<header class="site-header">
   <div class="container nav-row">
     <a href="index.html" class="brand">
-      <div class="logo-badge">D4D</div>
+      <img src="assets/img/logo.png" alt="Destined 4 Destinations logo" class="logo-badge" width="46" height="46" />
       <div class="brand-name">Destined 4 Destinations<small>Your Journey Begins Here</small></div>
     </a>
     <button id="nav-toggle" class="nav-toggle" aria-label="Toggle menu">&#9776;</button>
@@ -48,6 +48,7 @@ FOOTER = """<footer class="site-footer">
   <div class="container">
     <div class="footer-grid">
       <div>
+        <img src="assets/img/logo.png" alt="Destined 4 Destinations logo" class="footer-logo" width="56" height="56" />
         <h4>Destined 4 Destinations</h4>
         <p>Organized, beautiful, stress-free vacation planning for families, couples, groups, and solo travelers — cruises, resorts, Disney &amp; Universal, honeymoons, and more.</p>
       </div>
@@ -69,24 +70,92 @@ FOOTER = """<footer class="site-footer">
           <li><a href="quote.html">Request a Travel Quote</a></li>
         </ul>
       </div>
+      <div>
+        <h4>Follow Us</h4>
+        <div class="social-links">
+          <a href="https://www.facebook.com/Destined4Destinations" target="_blank" rel="noopener" class="social-link" aria-label="Destined 4 Destinations on Facebook">
+            <span class="social-icon">
+              <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true">
+                <circle cx="12" cy="12" r="12" fill="currentColor"/>
+                <path d="M13.6 8.7h1.6V6.2c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 3.9v2.1H6.9v2.8h2.2V19h2.8v-6.1h2.3l.3-2.8h-2.6V10.3c0-.8.2-1.6 1.7-1.6z" fill="#0b3d6b"/>
+              </svg>
+            </span>
+            <span>@Destined4Destinations</span>
+          </a>
+          <a href="https://www.instagram.com/destined4destinations" target="_blank" rel="noopener" class="social-link" aria-label="Destined 4 Destinations on Instagram">
+            <span class="social-icon">
+              <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true">
+                <circle cx="12" cy="12" r="12" fill="currentColor"/>
+                <rect x="7" y="7" width="10" height="10" rx="3" fill="none" stroke="#0b3d6b" stroke-width="1.4"/>
+                <circle cx="12" cy="12" r="2.6" fill="none" stroke="#0b3d6b" stroke-width="1.4"/>
+                <circle cx="15.3" cy="8.7" r="0.7" fill="#0b3d6b"/>
+              </svg>
+            </span>
+            <span>@destined4destinations</span>
+          </a>
+        </div>
+      </div>
     </div>
     <div class="footer-bottom">
       <div>&copy; <span id="year"></span> Destined 4 Destinations. All rights reserved.</div>
-      <div><a href="../dashboard/login.html">Employee Login</a></div>
+      <div><a href="https://d4dtravel.app/login.html">Employee Login</a></div>
     </div>
   </div>
 </footer>
-<script src="assets/site.js"></script>"""
+<script src="assets/site.js?v=2"></script>"""
 
-def page(title, description, active, body):
+def page(title, description, active, body, filename="index.html"):
+    canonical_path = "" if filename == "index.html" else filename
+    canonical_url = f"https://d4dtravel.com/{canonical_path}"
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-T2THZ9D0D6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+
+  gtag('config', 'G-T2THZ9D0D6');
+</script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>{title} — Destined 4 Destinations</title>
 <meta name="description" content="{description}" />
-<link rel="stylesheet" href="assets/style.css" />
+<link rel="canonical" href="{canonical_url}" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Destined 4 Destinations" />
+<meta property="og:title" content="{title} — Destined 4 Destinations" />
+<meta property="og:description" content="{description}" />
+<meta property="og:url" content="{canonical_url}" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="{title} — Destined 4 Destinations" />
+<meta name="twitter:description" content="{description}" />
+<link rel="icon" href="/favicon.ico?v=2" sizes="any" />
+<link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
+<meta property="og:image" content="https://d4dtravel.com/assets/img/og-image.jpg" />
+<meta name="twitter:image" content="https://d4dtravel.com/assets/img/og-image.jpg" />
+<link rel="stylesheet" href="assets/style.css?v=7" />
+<script type="application/ld+json">
+{{
+  "@context": "https://schema.org",
+  "@type": "TravelAgency",
+  "name": "Destined 4 Destinations",
+  "url": "https://d4dtravel.com/",
+  "email": "Destined4Destinations@gmail.com",
+  "telephone": "+1-305-206-6598",
+  "logo": "https://d4dtravel.com/assets/img/logo.png",
+  "image": "https://d4dtravel.com/assets/img/og-image.jpg",
+  "description": "{description}",
+  "areaServed": "US",
+  "sameAs": [
+    "https://www.facebook.com/Destined4Destinations",
+    "https://www.instagram.com/destined4destinations"
+  ]
+}}
+</script>
 </head>
 <body>
 {header(active)}
@@ -99,6 +168,7 @@ def page(title, description, active, body):
 # ---------------------------------------------------------------- HOME
 home_body = """
 <section class="home-hero">
+  <video class="hero-video-bg" autoplay muted loop playsinline poster="assets/img/hero/ocean-poster.jpg"><source src="assets/video/hero-loop-v2.mp4" type="video/mp4"></video>
   <div class="container home-hero-grid">
     <div>
       <div class="eyebrow">Luxury Travel Planning &middot; Cruises &middot; Resorts &middot; Groups</div>
@@ -109,11 +179,11 @@ home_body = """
       <div class="btn-row">
         <a href="quote.html" class="btn btn-primary">Request a Travel Quote</a>
         <a href="services.html" class="btn btn-secondary">Our Services</a>
-        <a href="terms.html" class="btn btn-outline">Terms &amp; Insurance Waiver</a>
       </div>
+      <a href="terms.html" class="hero-subtext-link">Terms &amp; Insurance Waiver</a>
     </div>
     <div class="hero-card">
-      <div class="logo-badge-lg">D4D</div>
+      <img src="assets/img/logo.png" alt="Destined 4 Destinations logo" class="logo-badge-lg" width="96" height="96" />
       <h3>Destined 4 Destinations</h3>
       <div class="tagline">Your Journey Begins Here</div>
       <div class="contact-line">Destined4Destinations@gmail.com</div>
@@ -131,6 +201,7 @@ home_body = """
     </div>
     <div class="grid-3">
       <div class="card">
+        <div class="card-icon">'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg>'</div>
         <h3>Vacation Quotes</h3>
         <ul>
           <li>Destination research</li>
@@ -140,6 +211,7 @@ home_body = """
         </ul>
       </div>
       <div class="card">
+        <div class="card-icon">'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.2 19.2c0-3.4 2.5-5.6 5.8-5.6s5.8 2.2 5.8 5.6"/><circle cx="17.3" cy="9.2" r="2.5"/><path d="M14.9 13.7c2.6.2 4.7 2.3 4.7 5.5"/></svg>'</div>
         <h3>Group Travel</h3>
         <ul>
           <li>Birthday trips</li>
@@ -150,6 +222,7 @@ home_body = """
         </ul>
       </div>
       <div class="card">
+        <div class="card-icon">'<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M12 2.5l2.1 6.9 6.9 2.1-6.9 2.1L12 21.5l-2.1-6.9L3 12.5l6.9-2.1z"/></svg>'</div>
         <h3>Specialty Travel</h3>
         <ul>
           <li>Disney and Universal vacations</li>
@@ -189,6 +262,39 @@ home_body = """
   </div>
 </section>
 
+
+<section id="reviews" style="background:white;">
+  <div class="container">
+    <div class="section-title">
+      <h2>What Travelers Are Saying</h2>
+      <p>Real feedback from the families, couples, and groups we've helped plan trips for.</p>
+    </div>
+    <div id="reviews-summary" class="reviews-summary"></div>
+    <div id="reviews-list" class="reviews-list"></div>
+    <div class="contact-card review-form-card">
+      <h3>Leave a Review</h3>
+      <p>Traveled with us? Share your experience.</p>
+      <form id="review-form">
+        <label for="review-name">Name</label>
+        <input type="text" id="review-name" name="name" maxlength="80" required />
+        <label>Rating</label>
+        <div class="star-input" id="star-input">
+          <span class="star" data-value="1"><svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="M12 2.5l2.98 6.44 7.02.7-5.25 4.9 1.5 6.96L12 17.9l-6.25 3.6 1.5-6.96L2 9.64l7.02-.7z"/></svg></span>
+          <span class="star" data-value="2"><svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="M12 2.5l2.98 6.44 7.02.7-5.25 4.9 1.5 6.96L12 17.9l-6.25 3.6 1.5-6.96L2 9.64l7.02-.7z"/></svg></span>
+          <span class="star" data-value="3"><svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="M12 2.5l2.98 6.44 7.02.7-5.25 4.9 1.5 6.96L12 17.9l-6.25 3.6 1.5-6.96L2 9.64l7.02-.7z"/></svg></span>
+          <span class="star" data-value="4"><svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="M12 2.5l2.98 6.44 7.02.7-5.25 4.9 1.5 6.96L12 17.9l-6.25 3.6 1.5-6.96L2 9.64l7.02-.7z"/></svg></span>
+          <span class="star" data-value="5"><svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path fill="currentColor" d="M12 2.5l2.98 6.44 7.02.7-5.25 4.9 1.5 6.96L12 17.9l-6.25 3.6 1.5-6.96L2 9.64l7.02-.7z"/></svg></span>
+        </div>
+        <input type="hidden" id="review-rating" name="rating" value="0" required />
+        <label for="review-text">Your Review</label>
+        <textarea id="review-text" name="text" maxlength="1000" required></textarea>
+        <button type="submit">Submit Review</button>
+      </form>
+      <div id="review-form-result" class="form-note" style="display:none;"></div>
+    </div>
+  </div>
+</section>
+
 <div class="cta-band">
   <div class="container">
     <h2>Ready to start planning?</h2>
@@ -201,6 +307,7 @@ home_body = """
 # ---------------------------------------------------------------- ABOUT
 about_body = """
 <section class="page-hero">
+  <video class="hero-video-bg" autoplay muted loop playsinline poster="assets/img/hero/ocean-poster.jpg"><source src="assets/video/hero-loop-v2.mp4" type="video/mp4"></video>
   <div class="container">
     <h1>About Us</h1>
     <p>Destined 4 Destinations helps travelers turn vacation dreams into organized, bookable travel plans.</p>
@@ -221,9 +328,21 @@ about_body = """
       <a href="quote.html" class="btn btn-primary" style="margin-top:8px;">Request a Quote</a>
     </div>
     <div class="hero-card" style="box-shadow:0 20px 45px rgba(8,42,74,0.15);">
-      <div class="logo-badge-lg">D4D</div>
+      <img src="assets/img/logo.png" alt="Destined 4 Destinations logo" class="logo-badge-lg" width="96" height="96" />
       <h3>Destined 4 Destinations</h3>
       <div class="tagline">Your Journey Begins Here</div>
+    </div>
+  </div>
+</section>
+
+<section class="agent-band">
+  <div class="container">
+    <div class="section-title">
+      <h2>Meet Your Travel Agent</h2>
+      <p>Personal, hands-on planning from a dedicated agent \u2014 not a call center.</p>
+    </div>
+    <div class="agent-card-frame">
+      <img src="assets/img/business-card.jpg" alt="Pharin Walker, Owner and Travel Agent, Destined 4 Destinations \u2014 305-206-6598, Destined4Destinations@gmail.com" class="agent-card-img" loading="lazy" />
     </div>
   </div>
 </section>
@@ -231,7 +350,8 @@ about_body = """
 
 # ---------------------------------------------------------------- SERVICES
 services_body = """
-<section class="page-hero">
+<section class="page-hero hero-services">
+  <video class="hero-video-bg" autoplay muted loop playsinline poster="assets/img/hero/ocean-poster.jpg"><source src="assets/video/hero-loop-v2.mp4" type="video/mp4"></video>
   <div class="container">
     <h1>Our Services</h1>
     <p>Detailed travel planning services for cruises, resorts, theme parks, groups, families,
@@ -243,6 +363,7 @@ services_body = """
   <div class="container">
     <div class="grid-3">
       <div class="card">
+        <div class="card-icon">'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg>'</div>
         <h3>Vacation Quotes</h3>
         <ul>
           <li>Destination research</li>
@@ -252,6 +373,7 @@ services_body = """
         </ul>
       </div>
       <div class="card">
+        <div class="card-icon">'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.2 19.2c0-3.4 2.5-5.6 5.8-5.6s5.8 2.2 5.8 5.6"/><circle cx="17.3" cy="9.2" r="2.5"/><path d="M14.9 13.7c2.6.2 4.7 2.3 4.7 5.5"/></svg>'</div>
         <h3>Group Travel</h3>
         <ul>
           <li>Birthday trips</li>
@@ -262,6 +384,7 @@ services_body = """
         </ul>
       </div>
       <div class="card">
+        <div class="card-icon">'<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M12 2.5l2.1 6.9 6.9 2.1-6.9 2.1L12 21.5l-2.1-6.9L3 12.5l6.9-2.1z"/></svg>'</div>
         <h3>Specialty Travel</h3>
         <ul>
           <li>Disney and Universal vacations</li>
@@ -287,6 +410,7 @@ services_body = """
 # ---------------------------------------------------------------- RESOURCES
 resources_body = """
 <section class="page-hero">
+  <video class="hero-video-bg" autoplay muted loop playsinline poster="assets/img/hero/ocean-poster.jpg"><source src="assets/video/hero-loop-v2.mp4" type="video/mp4"></video>
   <div class="container">
     <h1>Travel Resources</h1>
     <p>Helpful reminders and links to keep your trip on track from booking to boarding.</p>
@@ -326,6 +450,7 @@ resources_body = """
 # ---------------------------------------------------------------- PASSPORT & VISA
 passport_body = """
 <section class="page-hero">
+  <video class="hero-video-bg" autoplay muted loop playsinline poster="assets/img/hero/ocean-poster.jpg"><source src="assets/video/hero-loop-v2.mp4" type="video/mp4"></video>
   <div class="container">
     <h1>Passport &amp; Visa</h1>
     <p>Entry requirements vary by destination and change over time — always verify directly
@@ -360,6 +485,7 @@ passport_body = """
 # ---------------------------------------------------------------- AIRLINE RULES (linked from resources; add to nav minimally via footer only)
 airline_body = """
 <section class="page-hero">
+  <video class="hero-video-bg" autoplay muted loop playsinline poster="assets/img/hero/ocean-poster.jpg"><source src="assets/video/hero-loop-v2.mp4" type="video/mp4"></video>
   <div class="container">
     <h1>Airline Rules</h1>
     <p>Baggage, check-in, and carry-on policies vary by airline and fare class — always confirm
@@ -393,6 +519,7 @@ airline_body = """
 # ---------------------------------------------------------------- TERMS
 terms_body = """
 <section class="page-hero">
+  <video class="hero-video-bg" autoplay muted loop playsinline poster="assets/img/hero/ocean-poster.jpg"><source src="assets/video/hero-loop-v2.mp4" type="video/mp4"></video>
   <div class="container">
     <h1>Terms &amp; Insurance Waiver</h1>
     <p>Please review before booking. Contact us with any questions.</p>
@@ -430,6 +557,7 @@ terms_body = """
 # ---------------------------------------------------------------- CONTACT
 contact_body = """
 <section class="page-hero">
+  <video class="hero-video-bg" autoplay muted loop playsinline poster="assets/img/hero/ocean-poster.jpg"><source src="assets/video/hero-loop-v2.mp4" type="video/mp4"></video>
   <div class="container">
     <h1>Contact</h1>
     <p>We'll follow up within one business day.</p>
@@ -453,6 +581,7 @@ contact_body = """
 # ---------------------------------------------------------------- QUOTE FORM
 quote_body = """
 <section class="page-hero">
+  <video class="hero-video-bg" autoplay muted loop playsinline poster="assets/img/hero/ocean-poster.jpg"><source src="assets/video/hero-loop-v2.mp4" type="video/mp4"></video>
   <div class="container">
     <h1>Request a Travel Quote</h1>
     <p>Share a few details and we'll follow up with curated options within one business day.</p>
@@ -461,36 +590,15 @@ quote_body = """
 
 <section>
   <div class="container">
-    <div class="contact-card">
-      <form id="quote-form">
-        <label for="name">Name</label>
-        <input id="name" type="text" name="name" placeholder="Your name" required />
-
-        <label for="email">Email</label>
-        <input id="email" type="email" name="email" placeholder="Email address" required />
-
-        <label for="phone">Phone (optional)</label>
-        <input id="phone" type="tel" name="phone" placeholder="Phone number" />
-
-        <label for="destination">Destination Ideas</label>
-        <input id="destination" type="text" name="destination" placeholder="Dream destination(s)" />
-
-        <label for="dates">Travel Dates (optional)</label>
-        <input id="dates" type="text" name="dates" placeholder="e.g. Late July 2026, flexible +/- 3 days" />
-
-        <label for="travelers">Number of Travelers</label>
-        <input id="travelers" type="number" name="travelers" min="1" placeholder="e.g. 4" />
-
-        <label for="budget">Budget Range (optional)</label>
-        <input id="budget" type="text" name="budget" placeholder="e.g. $3,000–$5,000 total" />
-
-        <label for="message">Tell us about your trip</label>
-        <textarea id="message" name="message" placeholder="Vacation style, occasion, must-haves..." required></textarea>
-
-        <button type="submit">Send Request</button>
-      </form>
-      <div id="form-result" class="form-note" style="display:none;"></div>
-      <div class="form-note">
+    <div class="contact-card" style="text-align:center;">
+      <h3 style="margin-bottom:10px;">Ready to start planning?</h3>
+      <p style="color:var(--muted); max-width:480px; margin:0 auto 24px;">
+        Click below to fill out our secure travel quote form. It only takes a
+        few minutes, and we&rsquo;ll follow up with curated options within one
+        business day.
+      </p>
+      <a href="https://traveljoy.com/groups/rN3y8uGYi3cjcXTApbN551uz/forms/zFdh1g6Ycf5KadT7bXh3qDay" target="_blank" rel="noopener" class="btn btn-primary" style="display:inline-block;">Continue to Quote Form</a>
+      <div class="form-note" style="margin-top:26px;">
         Prefer email or text? Reach us at
         <strong>Destined4Destinations@gmail.com</strong> &middot; <strong>Text 305-206-6598</strong>
       </div>
@@ -514,11 +622,34 @@ PAGES = [
 def main():
     os.makedirs(OUT_DIR, exist_ok=True)
     for filename, title, description, active, body in PAGES:
-        html = page(title, description, active, body)
+        html = page(title, description, active, body, filename)
         path = os.path.join(OUT_DIR, filename)
         with open(path, "w", encoding="utf-8") as f:
             f.write(html)
         print(f"wrote {path}")
+
+    # ---- robots.txt ----
+    robots_txt = "User-agent: *\nAllow: /\n\nSitemap: https://d4dtravel.com/sitemap.xml\n"
+    with open(os.path.join(OUT_DIR, "robots.txt"), "w", encoding="utf-8") as f:
+        f.write(robots_txt)
+    print("wrote robots.txt")
+
+    # ---- sitemap.xml ----
+    from datetime import date
+    today = date.today().isoformat()
+    urls = []
+    for filename, title, description, active, body in PAGES:
+        loc = "https://d4dtravel.com/" if filename == "index.html" else f"https://d4dtravel.com/{filename}"
+        priority = "1.0" if filename == "index.html" else "0.7"
+        urls.append(f"  <url>\n    <loc>{loc}</loc>\n    <lastmod>{today}</lastmod>\n    <priority>{priority}</priority>\n  </url>")
+    sitemap_xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + "\n".join(urls) + "\n</urlset>\n"
+    )
+    with open(os.path.join(OUT_DIR, "sitemap.xml"), "w", encoding="utf-8") as f:
+        f.write(sitemap_xml)
+    print("wrote sitemap.xml")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Booking — Destined 4 Destinations</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; font-size: 14px; color: #2d3748; }
+
+/* ── Top bar ── */
+.topbar { background: #1a2744; color: #fff; padding: 14px 24px 0; }
+.topbar-back { display:inline-flex;align-items:center;gap:6px;background:#2c3e6b;border:none;color:#cdd5e0;padding:5px 12px;border-radius:5px;font-size:12px;cursor:pointer;margin-bottom:10px; }
+.topbar-back:hover { background:#3a4f88; }
+.booking-title-wrap { display:flex;align-items:center;gap:8px;margin-bottom:2px; }
+.booking-title { font-size:18px;font-weight:600;background:transparent;border:none;color:#fff;outline:none;border-bottom:2px solid transparent;padding:2px 4px;border-radius:3px;min-width:200px;transition:border-color .15s,background .15s;cursor:pointer; }
+.booking-title:hover { border-bottom-color:rgba(77,184,232,.5); }
+.booking-title:focus { border-bottom-color:#4db8e8;background:rgba(77,184,232,.08);cursor:text; }
+.edit-icon { font-size:12px;color:#8fa3c8;cursor:pointer;opacity:.7; }
+.edit-icon:hover { opacity:1;color:#4db8e8; }
+.topbar-meta { font-size:12px;color:#8fa3c8;margin-bottom:12px; }
+.nav { display:flex;gap:0;border-top:1px solid rgba(255,255,255,0.1); }
+.nav button { padding:11px 18px;color:#8fa3c8;background:none;border:none;border-bottom:3px solid transparent;font-size:13px;cursor:pointer;transition:color .15s; }
+.nav button:hover { color:#fff; }
+.nav button.active { color:#4db8e8;border-bottom-color:#4db8e8; }
+
+/* ── Page ── */
+.page { padding:24px;max-width:1160px; }
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+/* ── Cards ── */
+.card { background:#fff;border-radius:10px;border:1px solid #e2e8f0;margin-bottom:20px;overflow:visible; }
+.card-header { padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between; }
+.card-title { font-size:15px;font-weight:600;color:#1a2744; }
+.card-subtitle { font-size:12px;color:#718096;margin-top:2px; }
+
+/* ── Buttons ── */
+.btn { display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s; }
+.btn-primary { background:#4db8e8;color:#fff; }
+.btn-primary:hover { background:#3aa8d8; }
+.btn-outline { background:#fff;color:#4a5568;border:1px solid #cbd5e0; }
+.btn-outline:hover { background:#f7fafc;border-color:#a0aec0; }
+.btn-ghost { background:transparent;color:#718096;border:none;padding:4px 7px; }
+.btn-ghost:hover { color:#e53e3e;background:#fff5f5;border-radius:4px; }
+.btn-dark { background:#1a2744;color:#fff; }
+.btn-dark:hover { background:#2c3e6b; }
+.btn-sm { padding:4px 10px;font-size:12px; }
+.btn-send-notify { display:inline-flex;align-items:center;gap:4px;background:#ebf8ff;color:#2b6cb0;border:1px solid #bee3f8;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap; }
+.btn-send-notify:hover { background:#bee3f8; }
+.btn-send-notify.sent { background:#f0fff4;color:#276749;border-color:#9ae6b4;pointer-events:none; }
+
+/* ── Summary bar ── */
+.summary-bar { display:flex;align-items:center;gap:20px;padding:12px 20px;background:#f7fafc;border-radius:8px;margin-bottom:20px; }
+.summary-num { font-size:22px;font-weight:700;color:#1a2744; }
+.summary-label { font-size:11px;color:#718096;line-height:1.3; }
+.summary-divider { width:1px;height:36px;background:#e2e8f0; }
+
+/* ── Traveler rows ── */
+.traveler-list { padding:0; }
+.traveler-row { display:flex;align-items:center;padding:13px 20px;gap:12px;border-bottom:1px solid #f0f4f8;transition:background .1s; }
+.traveler-row:last-child { border-bottom:none; }
+.traveler-row:hover { background:#fafbfd; }
+.avatar { width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0; }
+.av-blue{background:#4299e1;}.av-teal{background:#38b2ac;}.av-purple{background:#805ad5;}
+.traveler-info { flex:1;min-width:0; }
+.traveler-name { font-weight:600;color:#1a2744; }
+.traveler-meta { font-size:12px;color:#718096;margin-top:1px; }
+.traveler-badge { font-size:11px;padding:2px 7px;border-radius:20px;font-weight:500; }
+.badge-client{background:#ebf8ff;color:#2b6cb0;}
+.badge-guest{background:#f0fff4;color:#276749;}
+
+/* ── Requirements matrix ── */
+.req-matrix { padding:0 20px 4px; }
+.req-section-head { display:flex;align-items:center;gap:10px;padding:14px 0 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#a0aec0;border-top:1px solid #edf2f7; }
+.req-section-head:first-of-type { border-top:none; }
+.req-section-line { flex:1;height:1px;background:#edf2f7; }
+.matrix-header { display:grid;grid-template-columns:230px repeat(var(--tc,2),1fr) 90px;gap:0;padding:8px 0;border-bottom:2px solid #e2e8f0; }
+.matrix-header-cell { font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#718096;padding:0 6px;text-align:center; }
+.matrix-header-cell:first-child { text-align:left;padding-left:0; }
+.th-avatar { width:26px;height:26px;border-radius:50%;color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-bottom:2px; }
+.matrix-row { display:grid;grid-template-columns:230px repeat(var(--tc,2),1fr) 90px;gap:0;padding:11px 0;border-bottom:1px solid #f0f4f8;align-items:center; }
+.matrix-row:last-child { border-bottom:none; }
+.matrix-row:hover { background:#fafbfd;margin:0 -20px;padding:11px 20px; }
+.req-label { display:flex;align-items:center;gap:8px;font-weight:500;color:#2d3748;padding-right:10px; }
+.req-icon { width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0; }
+.traveler-cell { display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 4px; }
+.status-pill { display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap; }
+.status-dot { width:6px;height:6px;border-radius:50%; }
+.pill-pending{background:#fffbeb;color:#b7791f;} .pill-pending .status-dot{background:#f6ad55;}
+.pill-uploaded{background:#f0fff4;color:#276749;} .pill-uploaded .status-dot{background:#48bb78;}
+.pill-unassigned{background:#f7fafc;color:#a0aec0;} .pill-unassigned .status-dot{background:#cbd5e0;}
+.assign-toggle { display:inline-flex;align-items:center;gap:3px;font-size:11px;color:#4db8e8;cursor:pointer;background:none;border:none;padding:0; }
+.assign-toggle.unassign { color:#a0aec0; }
+.actions-cell { display:flex;justify-content:flex-end;padding-right:4px; }
+.portal-footer { display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-top:1px solid #e2e8f0;background:#f7fafc;border-radius:0 0 10px 10px; }
+.portal-footer-note { font-size:12px;color:#718096; }
+
+/* ── Add panel ── */
+.add-panel { padding:16px 20px;border-top:1px solid #e2e8f0;background:#fafbfd;border-radius:0 0 10px 10px;display:none; }
+.add-panel.open { display:block; }
+.add-panel-row { display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap; }
+.form-group { display:flex;flex-direction:column;gap:4px; }
+.form-label { font-size:11px;font-weight:600;color:#718096;text-transform:uppercase;letter-spacing:.05em; }
+.form-input,.form-select { padding:8px 12px;border:1px solid #cbd5e0;border-radius:6px;font-size:13px;color:#2d3748;background:#fff;outline:none; }
+.form-input:focus,.form-select:focus { border-color:#4db8e8;box-shadow:0 0 0 3px rgba(77,184,232,.15); }
+.divider-or { padding:8px 10px;color:#a0aec0;font-size:12px;align-self:flex-end;margin-bottom:8px; }
+
+/* ── INVOICE ── */
+.invoice-wrap { padding:24px; }
+.invoice-header-row { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px; }
+.inv-logo { font-size:20px;font-weight:800;color:#1a2744;letter-spacing:-.5px; }
+.inv-logo span { color:#4db8e8; }
+.inv-meta { text-align:right;font-size:13px;color:#718096;line-height:1.8; }
+.inv-meta strong { color:#1a2744; }
+.inv-divider { border:none;border-top:2px solid #e2e8f0;margin:0 0 24px; }
+
+/* Trip summary row */
+.inv-trip { display:flex;gap:0;background:#f7fafc;border-radius:8px;overflow:hidden;margin-bottom:24px; }
+.inv-trip-cell { flex:1;padding:14px 18px;border-right:1px solid #e2e8f0; }
+.inv-trip-cell:last-child { border-right:none; }
+.inv-trip-label { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#a0aec0;margin-bottom:3px; }
+.inv-trip-val { font-size:14px;font-weight:600;color:#1a2744; }
+
+/* Line items table */
+.inv-table { width:100%;border-collapse:collapse;margin-bottom:8px; }
+.inv-table th { font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#718096;padding:8px 12px;text-align:left;border-bottom:2px solid #e2e8f0; }
+.inv-table th:last-child,.inv-table td:last-child { text-align:right; }
+.inv-table td { padding:11px 12px;border-bottom:1px solid #f0f4f8;font-size:13px;vertical-align:middle; }
+.inv-table tr:last-child td { border-bottom:none; }
+.inv-table tr:hover td { background:#fafbfd; }
+.inv-editable { background:transparent;border:none;outline:none;font-size:13px;color:#2d3748;width:100%;padding:0; }
+.inv-editable:focus { background:#ebf8ff;border-radius:3px;padding:2px 4px; }
+.inv-amount { background:transparent;border:none;outline:none;font-size:13px;color:#2d3748;text-align:right;width:80px;padding:0; }
+.inv-amount:focus { background:#ebf8ff;border-radius:3px;padding:2px 4px; }
+.inv-add-row { display:flex;align-items:center;gap:8px;padding:8px 0; }
+
+/* Totals */
+.inv-totals { display:flex;justify-content:flex-end;margin:8px 0 24px; }
+.inv-totals-box { min-width:280px; }
+.inv-total-row { display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid #f0f4f8; }
+.inv-total-row:last-child { border-bottom:none;font-size:15px;font-weight:700;color:#1a2744;padding-top:10px; }
+
+/* Per-guest payment */
+.per-guest-section { margin-bottom:24px; }
+.per-guest-title { font-size:13px;font-weight:700;color:#1a2744;margin-bottom:12px;display:flex;align-items:center;gap:8px; }
+.guest-payment-table { width:100%;border-collapse:collapse; }
+.guest-payment-table th { font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#718096;padding:8px 12px;text-align:left;border-bottom:2px solid #e2e8f0; }
+.guest-payment-table th:nth-child(2),.guest-payment-table th:nth-child(3),.guest-payment-table th:nth-child(4) { text-align:right; }
+.guest-payment-table td { padding:11px 12px;border-bottom:1px solid #f0f4f8;font-size:13px;vertical-align:middle; }
+.guest-payment-table tr:last-child td { border-bottom:none; }
+.guest-payment-table td:nth-child(2),.guest-payment-table td:nth-child(3),.guest-payment-table td:nth-child(4) { text-align:right; }
+.guest-avatar { width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:#fff;margin-right:8px;vertical-align:middle; }
+.editable-amount { background:transparent;border:1px solid transparent;border-radius:4px;font-size:13px;color:#2d3748;text-align:right;padding:3px 6px;width:90px;outline:none;transition:border-color .15s; }
+.editable-amount:hover { border-color:#cbd5e0; }
+.editable-amount:focus { border-color:#4db8e8;background:#ebf8ff; }
+.balance-due { font-weight:600; }
+.balance-paid { color:#276749;font-weight:600; }
+.balance-owed { color:#c05621;font-weight:600; }
+
+/* Notes */
+.inv-notes-area { width:100%;min-height:90px;padding:12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;color:#2d3748;font-family:inherit;resize:vertical;outline:none;transition:border-color .15s; }
+.inv-notes-area:focus { border-color:#4db8e8;box-shadow:0 0 0 3px rgba(77,184,232,.12); }
+
+/* ── Payment schedule & history ── */
+.pay-field-label { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#718096;margin-bottom:4px; }
+.pay-field-input { width:100%;padding:7px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;color:#2d3748;background:#fff;outline:none;transition:border-color .15s; }
+.pay-field-input:focus { border-color:#4db8e8;box-shadow:0 0 0 2px rgba(77,184,232,.15); }
+.pay-history-card:hover { border-color:#bee3f8 !important;background:#f0f8ff !important; }
+.sched-row { display:grid;grid-template-columns:1fr 140px 160px 1fr 90px;gap:0;padding:10px 0;border-bottom:1px solid #f0f4f8;align-items:center;font-size:13px; }
+.sched-row:last-child { border-bottom:none; }
+.sched-row > div { padding:0 10px; }
+.sched-status-paid { background:#f0fff4;color:#276749;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px; }
+.sched-status-due  { background:#fffbeb;color:#b7791f;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px; }
+.sched-status-upcoming { background:#f7fafc;color:#718096;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px; }
+.inv-notes-area:focus { border-color:#4db8e8;box-shadow:0 0 0 3px rgba(77,184,232,.12); }
+.section-label { font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#a0aec0;margin-bottom:8px; }
+
+/* ── Placeholder tabs ── */
+.placeholder-tab { text-align:center;padding:80px 40px;color:#a0aec0; }
+.placeholder-tab .ph-icon { font-size:40px;margin-bottom:12px; }
+.placeholder-tab .ph-title { font-size:16px;font-weight:600;color:#718096;margin-bottom:6px; }
+
+/* ── Toast ── */
+#toast { position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a2744;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;opacity:0;transition:all .25s;pointer-events:none;z-index:999;display:flex;align-items:center;gap:8px; }
+#toast.show { opacity:1;transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- ── Top bar ── -->
+<div class="topbar">
+  <button class="topbar-back">← Back</button>
+  <div class="booking-title-wrap">
+    <input class="booking-title" id="bookingTitle" value="Norwegian Breakaway — Bahamas &amp; Caribbean">
+    <span class="edit-icon" onclick="document.getElementById('bookingTitle').focus()">✏️</span>
+  </div>
+  <div class="topbar-meta">09/14/2026 → 09/21/2026 &nbsp;·&nbsp; 2 travelers</div>
+  <nav class="nav" id="mainNav">
+    <button onclick="showTab('overview')">Overview</button>
+    <button onclick="showTab('requirements')" class="active">Requirements</button>
+    <button onclick="showTab('documents')">Documents</button>
+    <button onclick="showTab('invoice')">Invoice</button>
+    <button onclick="showTab('message')">Message</button>
+    <button onclick="showTab('forms')">Forms</button>
+    <button onclick="showTab('proposals')">Proposals</button>
+    <button onclick="showTab('portal')">Client Portal</button>
+  </nav>
+</div>
+
+<div class="page">
+
+<!-- ════════════════════════════════════ REQUIREMENTS TAB ════ -->
+<div id="tab-requirements" class="tab-content active">
+
+  <div class="summary-bar">
+    <div><div class="summary-num" id="sumTravelers">2</div><div class="summary-label">Travelers</div></div>
+    <div class="summary-divider"></div>
+    <div><div class="summary-num" id="sumPending" style="color:#b7791f">4</div><div class="summary-label">Pending<br>items</div></div>
+    <div class="summary-divider"></div>
+    <div><div class="summary-num" id="sumUploaded" style="color:#48bb78">1</div><div class="summary-label">Completed<br>items</div></div>
+    <div class="summary-divider"></div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+      <span style="font-size:12px;color:#718096">Portal last sent:</span>
+      <span style="font-size:12px;font-weight:600;color:#2d3748">Aug 1, 2026</span>
+    </div>
+  </div>
+
+  <!-- Traveler roster -->
+  <div class="card">
+    <div class="card-header">
+      <div><div class="card-title">Travelers on this Booking</div><div class="card-subtitle">Add from your Clients list or enter a guest directly</div></div>
+      <button class="btn btn-outline" onclick="toggleAddPanel()">+ Add Traveler</button>
+    </div>
+    <div class="traveler-list" id="travelerList">
+      <div class="traveler-row">
+        <div class="avatar av-blue">MT</div>
+        <div class="traveler-info"><div class="traveler-name">Marcus Thomas</div><div class="traveler-meta">marcust@email.com</div></div>
+        <span class="traveler-badge badge-client">Existing Client</span>
+        <button class="btn btn-ghost btn-sm" onclick="removeTraveler(this)">✕</button>
+      </div>
+      <div class="traveler-row">
+        <div class="avatar av-teal">SL</div>
+        <div class="traveler-info"><div class="traveler-name">Sandra Lewis</div><div class="traveler-meta">sandra.lewis@gmail.com · Guest</div></div>
+        <span class="traveler-badge badge-guest">Guest</span>
+        <button class="btn btn-ghost btn-sm" onclick="removeTraveler(this)">✕</button>
+      </div>
+    </div>
+    <div class="add-panel" id="addPanel">
+      <div class="add-panel-row">
+        <div class="form-group"><label class="form-label">Search existing clients</label>
+          <input class="form-input" id="clientSearch" list="clientOptions" placeholder="Type a name…" style="min-width:200px">
+          <datalist id="clientOptions"><option value="Rachel Monroe"><option value="David Park"><option value="Alicia Vega"></datalist>
+        </div>
+        <button class="btn btn-primary" onclick="addFromClient()">Add Client</button>
+        <div class="divider-or">— or —</div>
+        <div class="form-group"><label class="form-label">First</label><input class="form-input" id="guestFirst" placeholder="First" style="min-width:100px"></div>
+        <div class="form-group"><label class="form-label">Last</label><input class="form-input" id="guestLast" placeholder="Last" style="min-width:100px"></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="guestEmail" type="email" placeholder="email@example.com" style="min-width:180px"></div>
+        <button class="btn btn-primary" onclick="addGuest()">Add Guest</button>
+        <button class="btn btn-outline" onclick="toggleAddPanel()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Requirements matrix -->
+  <div class="card">
+    <div class="card-header">
+      <div><div class="card-title">Requirement Requests</div><div class="card-subtitle">Assign items to specific travelers — use 📨 to send an individual reminder</div></div>
+    </div>
+    <div class="req-matrix" id="reqMatrix" style="--tc:2">
+      <div class="matrix-header" id="matrixHeader">
+        <div class="matrix-header-cell"></div>
+        <div class="matrix-header-cell"><div class="th-avatar" style="background:#4299e1">MT</div><div>Marcus T.</div></div>
+        <div class="matrix-header-cell"><div class="th-avatar" style="background:#38b2ac">SL</div><div>Sandra L.</div></div>
+        <div class="matrix-header-cell" style="text-align:right;padding-right:4px">Assign All</div>
+      </div>
+
+      <div class="req-section-head"><span>Uploads</span><span class="req-section-line"></span></div>
+
+      <div class="matrix-row">
+        <div class="req-label"><div class="req-icon" style="background:#ebf8ff">🛂</div>Passport Photo Upload</div>
+        <div class="traveler-cell">
+          <span class="status-pill pill-uploaded"><span class="status-dot"></span>Uploaded</span>
+          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center">
+            <button class="assign-toggle unassign btn" style="font-size:11px;padding:0;background:none;border:none;color:#a0aec0" onclick="toggleAssign(this,'unassign')">✕ Unassign</button>
+          </div>
+        </div>
+        <div class="traveler-cell">
+          <span class="status-pill pill-pending"><span class="status-dot"></span>Pending</span>
+          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center">
+            <button class="assign-toggle unassign btn" style="font-size:11px;padding:0;background:none;border:none;color:#a0aec0" onclick="toggleAssign(this,'unassign')">✕ Unassign</button>
+            <button class="btn-send-notify" onclick="sendReminder(this,'Sandra Lewis','Passport Photo Upload')">📨 Send</button>
+          </div>
+        </div>
+        <div class="actions-cell"><button class="btn btn-outline btn-sm" onclick="assignAll(this)">Assign All</button></div>
+      </div>
+
+      <div class="matrix-row">
+        <div class="req-label"><div class="req-icon" style="background:#faf5ff">📋</div>Guest / Traveler Info</div>
+        <div class="traveler-cell">
+          <span class="status-pill pill-pending"><span class="status-dot"></span>Pending</span>
+          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center">
+            <button class="assign-toggle unassign btn" style="font-size:11px;padding:0;background:none;border:none;color:#a0aec0" onclick="toggleAssign(this,'unassign')">✕ Unassign</button>
+            <button class="btn-send-notify" onclick="sendReminder(this,'Marcus Thomas','Guest / Traveler Info')">📨 Send</button>
+          </div>
+        </div>
+        <div class="traveler-cell">
+          <span class="status-pill pill-unassigned"><span class="status-dot"></span>Not assigned</span>
+          <button class="assign-toggle btn" style="font-size:11px;padding:0;background:none;border:none;color:#4db8e8" onclick="toggleAssign(this,'assign')">+ Assign</button>
+        </div>
+        <div class="actions-cell"><button class="btn btn-outline btn-sm" onclick="assignAll(this)">Assign All</button></div>
+      </div>
+
+      <div class="matrix-row">
+        <div class="req-label"><div class="req-icon" style="background:#f0fff4">💉</div>COVID-19 Vaccine</div>
+        <div class="traveler-cell">
+          <span class="status-pill pill-unassigned"><span class="status-dot"></span>Not assigned</span>
+          <button class="assign-toggle btn" style="font-size:11px;padding:0;background:none;border:none;color:#4db8e8" onclick="toggleAssign(this,'assign')">+ Assign</button>
+        </div>
+        <div class="traveler-cell">
+          <span class="status-pill pill-unassigned"><span class="status-dot"></span>Not assigned</span>
+          <button class="assign-toggle btn" style="font-size:11px;padding:0;background:none;border:none;color:#4db8e8" onclick="toggleAssign(this,'assign')">+ Assign</button>
+        </div>
+        <div class="actions-cell"><button class="btn btn-outline btn-sm" onclick="assignAll(this)">Assign All</button></div>
+      </div>
+
+      <!-- Add custom upload row -->
+      <div id="uploadRows"></div>
+      <div style="padding:6px 0 14px;display:flex;align-items:center;gap:10px">
+        <input class="form-input" id="newUploadName" placeholder="Add a custom upload requirement…" style="min-width:260px;font-size:12px;padding:6px 10px">
+        <button class="btn btn-outline btn-sm" onclick="addCustomUpload()">+ Add Upload</button>
+      </div>
+
+      <div class="req-section-head"><span>Forms</span><span class="req-section-line"></span></div>
+
+      <div class="matrix-row">
+        <div class="req-label"><div class="req-icon" style="background:#fff5f5">📝</div>Client Onboarding Form</div>
+        <div class="traveler-cell">
+          <span class="status-pill pill-uploaded"><span class="status-dot"></span>Completed</span>
+          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center">
+            <button class="assign-toggle unassign btn" style="font-size:11px;padding:0;background:none;border:none;color:#a0aec0" onclick="toggleAssign(this,'unassign')">✕ Unassign</button>
+          </div>
+        </div>
+        <div class="traveler-cell">
+          <span class="status-pill pill-pending"><span class="status-dot"></span>Pending</span>
+          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center">
+            <button class="assign-toggle unassign btn" style="font-size:11px;padding:0;background:none;border:none;color:#a0aec0" onclick="toggleAssign(this,'unassign')">✕ Unassign</button>
+            <button class="btn-send-notify" onclick="sendReminder(this,'Sandra Lewis','Client Onboarding Form')">📨 Send</button>
+          </div>
+        </div>
+        <div class="actions-cell"><button class="btn btn-outline btn-sm" onclick="assignAll(this)">Assign All</button></div>
+      </div>
+
+      <div class="matrix-row">
+        <div class="req-label"><div class="req-icon" style="background:#fffbeb">🔄</div>Profile Update Form</div>
+        <div class="traveler-cell">
+          <span class="status-pill pill-unassigned"><span class="status-dot"></span>Not assigned</span>
+          <button class="assign-toggle btn" style="font-size:11px;padding:0;background:none;border:none;color:#4db8e8" onclick="toggleAssign(this,'assign')">+ Assign</button>
+        </div>
+        <div class="traveler-cell">
+          <span class="status-pill pill-unassigned"><span class="status-dot"></span>Not assigned</span>
+          <button class="assign-toggle btn" style="font-size:11px;padding:0;background:none;border:none;color:#4db8e8" onclick="toggleAssign(this,'assign')">+ Assign</button>
+        </div>
+        <div class="actions-cell"><button class="btn btn-outline btn-sm" onclick="assignAll(this)">Assign All</button></div>
+      </div>
+
+      <div id="formRows"></div>
+
+      <div style="padding:10px 0 16px;display:flex;align-items:center;gap:10px">
+        <input class="form-input" id="newFormName" placeholder="Add a form from the Forms tab…" style="min-width:280px;font-size:12px;padding:6px 10px">
+        <button class="btn btn-outline btn-sm" onclick="addCustomForm()">+ Add Form</button>
+      </div>
+    </div>
+
+    <div class="portal-footer">
+      <div class="portal-footer-note">🔗 Each traveler receives their own portal link showing only their assigned items.</div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-outline">Preview Portal</button>
+        <button class="btn btn-dark" onclick="sendPortal()">✉ Send / Resend Portal Links</button>
+      </div>
+    </div>
+  </div>
+</div><!-- /requirements -->
+
+<!-- ════════════════════════════════════ INVOICE TAB ════ -->
+<div id="tab-invoice" class="tab-content">
+  <div class="card">
+    <div class="invoice-wrap">
+
+      <!-- Header -->
+      <div class="invoice-header-row">
+        <div>
+          <div class="inv-logo">Destined<span>4</span>Destinations</div>
+          <div style="font-size:12px;color:#718096;margin-top:4px">Luxury Travel Planning</div>
+        </div>
+        <div class="inv-meta">
+          <div><strong>Invoice #</strong> D4D-2026-0417</div>
+          <div><strong>Date:</strong> August 8, 2026</div>
+          <div><strong>Due:</strong> September 1, 2026</div>
+          <div style="margin-top:6px"><strong>Client:</strong> Marcus Thomas</div>
+        </div>
+      </div>
+      <hr class="inv-divider">
+
+      <!-- Trip summary -->
+      <div class="inv-trip">
+        <div class="inv-trip-cell"><div class="inv-trip-label">Trip</div><div class="inv-trip-val">Norwegian Breakaway — Bahamas &amp; Caribbean</div></div>
+        <div class="inv-trip-cell"><div class="inv-trip-label">Dates</div><div class="inv-trip-val">Sep 14 – Sep 21, 2026</div></div>
+        <div class="inv-trip-cell"><div class="inv-trip-label">Travelers</div><div class="inv-trip-val">2 guests</div></div>
+        <div class="inv-trip-cell"><div class="inv-trip-label">Status</div><div class="inv-trip-val" style="color:#b7791f">⏳ Deposit Paid</div></div>
+      </div>
+
+      <!-- Line items -->
+      <table class="inv-table" id="lineItemsTable">
+        <thead>
+          <tr>
+            <th style="width:40%">Description</th>
+            <th style="width:20%">Qty</th>
+            <th style="width:20%">Unit Price</th>
+            <th style="width:20%">Amount</th>
+            <th style="width:40px"></th>
+          </tr>
+        </thead>
+        <tbody id="lineItemsBody">
+          <tr>
+            <td><input class="inv-editable" value="Norwegian Breakaway Cruise Cabin (Balcony)"></td>
+            <td><input class="inv-editable" value="1" style="width:50px"></td>
+            <td><input class="inv-amount" value="$3,200.00" oninput="recalc()"></td>
+            <td class="line-total">$3,200.00</td>
+            <td><button class="btn btn-ghost btn-sm" onclick="removeLineItem(this)">✕</button></td>
+          </tr>
+          <tr>
+            <td><input class="inv-editable" value="Shore Excursion Package"></td>
+            <td><input class="inv-editable" value="2" style="width:50px"></td>
+            <td><input class="inv-amount" value="$350.00" oninput="recalc()"></td>
+            <td class="line-total">$700.00</td>
+            <td><button class="btn btn-ghost btn-sm" onclick="removeLineItem(this)">✕</button></td>
+          </tr>
+          <tr>
+            <td><input class="inv-editable" value="Travel Agency Service Fee"></td>
+            <td><input class="inv-editable" value="1" style="width:50px"></td>
+            <td><input class="inv-amount" value="$250.00" oninput="recalc()"></td>
+            <td class="line-total">$250.00</td>
+            <td><button class="btn btn-ghost btn-sm" onclick="removeLineItem(this)">✕</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="inv-add-row">
+        <button class="btn btn-outline btn-sm" onclick="addLineItem()">+ Add Line Item</button>
+      </div>
+
+      <!-- Totals -->
+      <div class="inv-totals">
+        <div class="inv-totals-box">
+          <div class="inv-total-row"><span>Subtotal</span><span id="subtotal">$4,150.00</span></div>
+          <div class="inv-total-row"><span style="color:#718096">Deposit Paid</span><span style="color:#276749">−$500.00</span></div>
+          <div class="inv-total-row"><span>Balance Due</span><span id="balanceDue" style="color:#c05621">$3,650.00</span></div>
+        </div>
+      </div>
+      <hr class="inv-divider">
+
+      <!-- ══ PER-GUEST PAYMENT BREAKDOWN ══ -->
+      <div class="per-guest-section">
+        <div class="per-guest-title">👥 Per-Guest Payment Breakdown
+          <span style="font-size:11px;font-weight:400;color:#a0aec0;margin-left:4px">— click any amount to edit</span>
+        </div>
+        <table class="guest-payment-table" id="guestTable">
+          <thead>
+            <tr>
+              <th>Traveler</th>
+              <th>Total Due</th>
+              <th>Amount Paid</th>
+              <th>Balance Owed</th>
+              <th style="width:110px;text-align:center">Status</th>
+            </tr>
+          </thead>
+          <tbody id="guestPaymentBody">
+            <!-- Marcus Thomas -->
+            <tr>
+              <td><span class="guest-avatar av-blue">MT</span>Marcus Thomas</td>
+              <td><input class="editable-amount" value="$2,491.00" oninput="updateGuestBalance(this)"></td>
+              <td><input class="editable-amount" value="$500.00" oninput="updateGuestBalance(this)"></td>
+              <td class="balance-owed guest-balance">$1,991.00</td>
+              <td style="text-align:center"><span style="font-size:11px;background:#fffbeb;color:#b7791f;padding:3px 8px;border-radius:20px;font-weight:600">⏳ Partial</span></td>
+            </tr>
+            <!-- Sandra Lewis -->
+            <tr>
+              <td><span class="guest-avatar av-teal">SL</span>Sandra Lewis</td>
+              <td><input class="editable-amount" value="$1,491.00" oninput="updateGuestBalance(this)"></td>
+              <td><input class="editable-amount" value="$0.00" oninput="updateGuestBalance(this)"></td>
+              <td class="balance-owed guest-balance">$1,491.00</td>
+              <td style="text-align:center"><span style="font-size:11px;background:#fff5f5;color:#c53030;padding:3px 8px;border-radius:20px;font-weight:600">❌ Unpaid</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="margin-top:10px">
+          <button class="btn btn-outline btn-sm" onclick="addGuestRow()">+ Add Guest Payment Row</button>
+        </div>
+      </div>
+      <hr class="inv-divider">
+
+      <!-- ══ PAYMENT SCHEDULE & TRACKER ══ -->
+      <div style="margin-bottom:28px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div class="section-label">Payment Schedule &amp; Tracker</div>
+          <button onclick="openAddMilestone()" style="background:none;border:none;color:#2d3748;font-size:12px;font-weight:600;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px">+ Add Milestone</button>
+        </div>
+        <div style="height:1px;background:#e2e8f0;margin-bottom:14px"></div>
+
+        <!-- Add milestone inline form -->
+        <div id="milestoneForm" style="display:none;background:#f7fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:14px">
+          <div style="display:grid;grid-template-columns:1fr 130px 150px 1fr 44px 44px;gap:10px;align-items:end">
+            <div><div class="pay-field-label">Label</div>
+              <select id="msLabel" style="width:100%;padding:8px 10px;border:1px solid #cbd5e0;border-radius:6px;font-size:13px;color:#2d3748;background:#fff;outline:none">
+                <option>Deposit</option><option>Partial Payment</option><option>Final Payment</option><option>Custom…</option>
+              </select>
+            </div>
+            <div><div class="pay-field-label">Amount Due ($)</div><input id="msAmt" type="number" min="0" step="0.01" placeholder="0.00" style="width:100%;padding:8px 10px;border:1px solid #cbd5e0;border-radius:6px;font-size:13px;outline:none"></div>
+            <div><div class="pay-field-label">Due Date</div><input id="msDate" type="date" style="width:100%;padding:8px 10px;border:1px solid #cbd5e0;border-radius:6px;font-size:13px;outline:none"></div>
+            <div><div class="pay-field-label">Notes</div><input id="msNote" type="text" placeholder="Optional note…" style="width:100%;padding:8px 10px;border:1px solid #cbd5e0;border-radius:6px;font-size:13px;outline:none"></div>
+            <button onclick="saveMilestone()" style="background:#1a2744;border:none;color:#fff;border-radius:6px;height:38px;font-size:16px;cursor:pointer;width:100%">✓</button>
+            <button onclick="closeMilestoneForm()" style="background:#e2e8f0;border:none;color:#718096;border-radius:6px;height:38px;font-size:15px;cursor:pointer;width:100%">✕</button>
+          </div>
+        </div>
+
+        <!-- Schedule + Tracker TABLE -->
+        <table id="payTracker" style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="background:#f7fafc;border-bottom:2px solid #e2e8f0">
+              <th style="padding:9px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#718096">Milestone</th>
+              <th style="padding:9px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#718096;white-space:nowrap">Due Date</th>
+              <th style="padding:9px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#718096;white-space:nowrap">Amount Due</th>
+              <th style="padding:9px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#718096;white-space:nowrap">Amount Paid</th>
+              <th style="padding:9px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#718096;white-space:nowrap">Date Paid</th>
+              <th style="padding:9px 12px;text-align:center;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#718096">Status</th>
+              <th style="padding:9px 12px;text-align:center;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#1a2744;white-space:nowrap">$$</th>
+            </tr>
+          </thead>
+          <tbody id="trackerBody">
+
+            <!-- ── ROW 1: Deposit — PAID ── -->
+            <tr class="tracker-main-row" style="border-bottom:1px solid #e2e8f0">
+              <td style="padding:11px 12px">
+                <div style="font-weight:600;color:#1a2744">Deposit</div>
+                <div style="font-size:11px;color:#718096;margin-top:1px">Initial deposit via credit card</div>
+              </td>
+              <td style="padding:11px 12px;text-align:right;color:#2d3748">05/01/2026</td>
+              <td style="padding:11px 12px;text-align:right;color:#2d3748">$500.00</td>
+              <td style="padding:11px 12px;text-align:right;color:#2d3748">$500.00</td>
+              <td style="padding:11px 12px;text-align:right;color:#718096">05/10/2026</td>
+              <td style="padding:11px 12px;text-align:center"><span style="background:#c6f6d5;color:#276749;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap">✅ Paid in Full</span></td>
+              <td style="padding:11px 12px;text-align:center">
+                <button onclick="toggleSchedDetail('dep-detail',this)" title="View payment details" style="background:#e6fffa;border:1px solid #81e6d9;color:#2c7a7b;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">💳 $$</button>
+              </td>
+            </tr>
+            <!-- CC Detail row for Deposit -->
+            <tr id="dep-detail" style="display:none;background:#f7fafc">
+              <td colspan="7" style="padding:0">
+                <div style="padding:16px 20px 16px 18px;border-top:2px solid #81e6d9;border-bottom:1px solid #e2e8f0">
+                  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#718096;margin-bottom:12px">💳 Payment Details — Deposit</div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin-bottom:12px">
+                    <div><div class="pay-field-label">Cardholder Name</div><input class="pay-field-input" value="Marcus Thomas"></div>
+                    <div><div class="pay-field-label">Card Number</div><input class="pay-field-input" type="text" value="4111 1111 1111 4242" maxlength="19" oninput="formatCard(this)"></div>
+                    <div><div class="pay-field-label">Expiry (MM/YY)</div><input class="pay-field-input" value="08/28" maxlength="5" oninput="formatExpiry(this)"></div>
+                    <div><div class="pay-field-label">CVV</div><input class="pay-field-input" type="text" value="382" maxlength="4"></div>
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:12px">
+                    <div><div class="pay-field-label">Billing Address</div><input class="pay-field-input" value="1420 Harbor View Dr"></div>
+                    <div><div class="pay-field-label">City</div><input class="pay-field-input" value="Miami"></div>
+                    <div><div class="pay-field-label">ZIP</div><input class="pay-field-input" value="33101"></div>
+                  </div>
+                  <div style="display:grid;grid-template-columns:160px 160px 1fr;gap:14px">
+                    <div><div class="pay-field-label">Amount Charged</div><input class="pay-field-input" value="$500.00"></div>
+                    <div><div class="pay-field-label">Transaction ID</div><input class="pay-field-input" value="txn_3Qa8Lx2eZ"></div>
+                    <div><div class="pay-field-label">Notes</div><input class="pay-field-input" value="Initial deposit — booking confirmed"></div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+
+            <!-- ── ROW 2: Final Payment — UPCOMING ── -->
+            <tr class="tracker-main-row" style="border-bottom:1px solid #e2e8f0">
+              <td style="padding:11px 12px">
+                <div style="font-weight:600;color:#1a2744">Final Payment</div>
+                <div style="font-size:11px;color:#718096;margin-top:1px">Full balance due before departure</div>
+              </td>
+              <td style="padding:11px 12px;text-align:right;color:#2d3748">09/01/2026</td>
+              <td style="padding:11px 12px;text-align:right;color:#2d3748">$3,650.00</td>
+              <td style="padding:11px 12px;text-align:right;color:#a0aec0">—</td>
+              <td style="padding:11px 12px;text-align:right;color:#a0aec0">—</td>
+              <td style="padding:11px 12px;text-align:center"><span style="background:#fffbeb;color:#b7791f;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap">📅 Upcoming</span></td>
+              <td style="padding:11px 12px;text-align:center">
+                <button class="open-log-btn" onclick="openLogPayment(this)" style="background:#1a2744;color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">+ Log $</button>
+              </td>
+            </tr>
+            <!-- Log payment row for Final Payment -->
+            <tr class="log-payment-row" style="display:none;background:#fffbf0">
+              <td colspan="7" style="padding:0">
+                <div style="padding:16px 20px 16px 18px;border-top:2px solid #fbd38d;border-bottom:1px solid #e2e8f0">
+                  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#718096;margin-bottom:12px">💳 Log Incoming Payment — Final Payment</div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin-bottom:12px">
+                    <div><div class="pay-field-label">Cardholder Name</div><input class="pay-field-input log-name" placeholder="Name on card"></div>
+                    <div><div class="pay-field-label">Card Number</div><input class="pay-field-input log-card" type="text" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCard(this)"></div>
+                    <div><div class="pay-field-label">Expiry (MM/YY)</div><input class="pay-field-input log-expiry" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)"></div>
+                    <div><div class="pay-field-label">CVV</div><input class="pay-field-input log-cvv" type="text" placeholder="123" maxlength="4"></div>
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:12px">
+                    <div><div class="pay-field-label">Billing Address</div><input class="pay-field-input log-addr" placeholder="Street address"></div>
+                    <div><div class="pay-field-label">City</div><input class="pay-field-input" placeholder="City"></div>
+                    <div><div class="pay-field-label">ZIP</div><input class="pay-field-input" placeholder="ZIP"></div>
+                  </div>
+                  <div style="display:grid;grid-template-columns:160px 160px 160px 1fr;gap:14px;margin-bottom:14px">
+                    <div><div class="pay-field-label">Amount Received</div><input class="pay-field-input log-amt" placeholder="$0.00"></div>
+                    <div><div class="pay-field-label">Date Received</div><input class="pay-field-input log-date" type="date"></div>
+                    <div><div class="pay-field-label">Transaction ID</div><input class="pay-field-input log-txn" placeholder="txn_…"></div>
+                    <div><div class="pay-field-label">Notes</div><input class="pay-field-input log-note" placeholder="Optional notes"></div>
+                  </div>
+                  <div style="display:flex;gap:10px">
+                    <button onclick="markPaidRow(this)" style="background:#276749;border:none;color:#fff;padding:8px 20px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">✅ Mark as Paid</button>
+                    <button onclick="closeLogPayment(this)" style="background:#e2e8f0;border:none;color:#718096;padding:8px 14px;border-radius:6px;font-size:13px;cursor:pointer">Cancel</button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+      <hr class="inv-divider">
+
+      <!-- Notes -->
+      <div style="margin-bottom:24px">
+        <div class="section-label">📝 Invoice Notes</div>
+        <textarea class="inv-notes-area" placeholder="Add notes for the client — payment instructions, cancellation policy, reminders…">Final balance due by September 1, 2026. Payment can be made via Zelle, credit card, or bank transfer. Please contact us if you have any questions. Cancellation policy: 60 days prior to departure — full refund. 30–59 days — 50% refund. Under 30 days — no refund.</textarea>
+      </div>
+
+      <!-- Internal notes -->
+      <div style="margin-bottom:24px">
+        <div class="section-label">🔒 Internal Notes <span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:#a0aec0">(not visible to client)</span></div>
+        <textarea class="inv-notes-area" style="min-height:60px;background:#fffbeb;border-color:#fbd38d" placeholder="Internal notes about this booking — commissions, supplier contacts, reminders…"></textarea>
+      </div>
+
+    </div><!-- /invoice-wrap -->
+
+    <div class="portal-footer" style="justify-content:flex-end;gap:10px">
+      <button class="btn btn-outline">🖨 Print / PDF</button>
+      <button class="btn btn-outline">✉ Email Invoice</button>
+      <button class="btn btn-dark">💾 Save Invoice</button>
+    </div>
+  </div>
+</div><!-- /invoice -->
+
+<!-- ════════ OVERVIEW TAB ════ -->
+<div id="tab-overview" class="tab-content">
+
+  <!-- Trip Info + Booking & Commission -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Trip Details</div>
+        <div class="card-subtitle">Core booking information and commission tracking</div>
+      </div>
+      <button class="btn btn-outline btn-sm">✏️ Edit Details</button>
+    </div>
+    <div style="padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:24px">
+      <!-- Left: Trip Info -->
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#4AB8D5;margin-bottom:12px">Trip Info</div>
+        <div style="display:grid;grid-template-columns:140px 1fr;gap:8px 12px;font-size:13px">
+          <span style="color:#718096;font-weight:500">Destination</span>
+          <span style="color:#1a2744;font-weight:600">Bahamas &amp; Caribbean</span>
+          <span style="color:#718096;font-weight:500">Trip Type</span>
+          <span style="color:#1a2744">Cruise</span>
+          <span style="color:#718096;font-weight:500">Departure</span>
+          <span style="color:#1a2744">Sep 14, 2026</span>
+          <span style="color:#718096;font-weight:500">Return</span>
+          <span style="color:#1a2744">Sep 21, 2026</span>
+          <span style="color:#718096;font-weight:500">Travelers</span>
+          <span style="color:#1a2744">2 guests</span>
+          <span style="color:#718096;font-weight:500">Status</span>
+          <span style="background:#fffbeb;color:#b7791f;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">⏳ Deposit Paid</span>
+        </div>
+      </div>
+      <!-- Right: Booking & Commission -->
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#4AB8D5;margin-bottom:12px">Booking &amp; Commission</div>
+        <div style="display:grid;grid-template-columns:150px 1fr;gap:8px 12px;font-size:13px">
+          <span style="color:#718096;font-weight:500">Hotel / Resort</span>
+          <span style="color:#1a2744;font-weight:600">Norwegian Breakaway</span>
+          <span style="color:#718096;font-weight:500">Supplier</span>
+          <span style="color:#1a2744">Norwegian Cruise Line</span>
+          <span style="color:#718096;font-weight:500">Confirmation #</span>
+          <span style="color:#1a2744;font-family:monospace">NCL-2026-88412</span>
+          <span style="color:#718096;font-weight:500">Trip Total</span>
+          <span style="color:#1a2744;font-weight:600">$4,982.00</span>
+          <span style="color:#718096;font-weight:500">Commission</span>
+          <span style="color:#276749;font-weight:600">$498.20 (10%)</span>
+          <span style="color:#718096;font-weight:500">Comm. Status</span>
+          <span style="background:#f0fff4;color:#276749;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">⏳ Pending</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Travelers -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header">
+      <div class="card-title">Travelers</div>
+      <button class="btn btn-outline btn-sm">+ Manage Travelers</button>
+    </div>
+    <div class="traveler-list">
+      <div class="traveler-row">
+        <div class="avatar av-blue">MT</div>
+        <div class="traveler-info">
+          <div class="traveler-name">Marcus Thomas</div>
+          <div class="traveler-meta">marcus.thomas@gmail.com · DOB: 03/15/1982 · Passport: US9284710</div>
+        </div>
+        <span class="traveler-badge badge-client">Primary Client</span>
+      </div>
+      <div class="traveler-row">
+        <div class="avatar av-teal">SL</div>
+        <div class="traveler-info">
+          <div class="traveler-name">Sandra Lewis</div>
+          <div class="traveler-meta">sandra.lewis@gmail.com · DOB: 07/22/1985 · Passport: US7731924</div>
+        </div>
+        <span class="traveler-badge badge-guest">Guest</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Itinerary -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header">
+      <div class="card-title">Itinerary</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline btn-sm" onclick="addItinDay()">+ Add Day</button>
+        <button class="btn btn-outline btn-sm">🤖 Auto-Fill</button>
+        <button class="btn btn-outline btn-sm">📎 Upload</button>
+        <button class="btn btn-outline btn-sm">📋 Paste Text</button>
+      </div>
+    </div>
+    <div id="itin-days" style="padding:16px 20px">
+      <div class="itin-day" style="display:grid;grid-template-columns:70px 1fr;gap:0;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:10px">
+        <div style="background:linear-gradient(135deg,#1B3464,#2c3e6b);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 8px;text-align:center">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.7">Day</div>
+          <div style="font-size:22px;font-weight:700;line-height:1">1</div>
+          <div style="font-size:10px;opacity:.7;margin-top:2px">Sep 14</div>
+        </div>
+        <div style="padding:12px 16px">
+          <div style="font-weight:600;color:#1a2744;margin-bottom:4px">Departure — Miami Port</div>
+          <div style="font-size:12px;color:#718096">Embarkation at PortMiami. Check-in begins at 11:00 AM. Sail-away party 5:00 PM. Dinner at Manhattan Room.</div>
+        </div>
+      </div>
+      <div class="itin-day" style="display:grid;grid-template-columns:70px 1fr;gap:0;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:10px">
+        <div style="background:linear-gradient(135deg,#1B3464,#2c3e6b);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 8px;text-align:center">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.7">Day</div>
+          <div style="font-size:22px;font-weight:700;line-height:1">2</div>
+          <div style="font-size:10px;opacity:.7;margin-top:2px">Sep 15</div>
+        </div>
+        <div style="padding:12px 16px">
+          <div style="font-weight:600;color:#1a2744;margin-bottom:4px">At Sea</div>
+          <div style="font-size:12px;color:#718096">Full day at sea. Spa, pool deck, and entertainment. Evening show: "For the Record: Baz Luhrmann."</div>
+        </div>
+      </div>
+      <div class="itin-day" style="display:grid;grid-template-columns:70px 1fr;gap:0;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:10px">
+        <div style="background:linear-gradient(135deg,#1B3464,#2c3e6b);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 8px;text-align:center">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.7">Day</div>
+          <div style="font-size:22px;font-weight:700;line-height:1">3</div>
+          <div style="font-size:10px;opacity:.7;margin-top:2px">Sep 16</div>
+        </div>
+        <div style="padding:12px 16px">
+          <div style="font-weight:600;color:#1a2744;margin-bottom:4px">Nassau, Bahamas</div>
+          <div style="font-size:12px;color:#718096">Port arrival 8:00 AM. Shore excursion: Atlantis Resort Day Pass. All aboard 5:00 PM.</div>
+        </div>
+      </div>
+      <div id="itin-placeholder" style="display:none;text-align:center;padding:24px;color:#a0aec0;font-size:13px;border:2px dashed #e2e8f0;border-radius:8px">
+        No more days added. Click <strong>+ Add Day</strong> to continue building the itinerary.
+      </div>
+    </div>
+  </div>
+
+  <!-- Notes -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Internal Notes</div>
+      <button class="btn btn-outline btn-sm" onclick="saveOverviewNote()">💾 Save</button>
+    </div>
+    <div style="padding:16px 20px">
+      <textarea id="overviewNote" style="width:100%;min-height:100px;border:1px solid #e2e8f0;border-radius:6px;padding:10px 12px;font-size:13px;font-family:inherit;color:#2d3748;resize:vertical;outline:none" placeholder="Add internal notes for this booking…">Client prefers ocean-view cabin. Marcus is a repeat client (3rd booking). Sandra has dietary restriction — gluten-free. Confirm with NCL before final payment.</textarea>
+    </div>
+  </div>
+
+</div><!-- /overview -->
+<div id="tab-documents" class="tab-content">
+  <div class="card"><div class="placeholder-tab"><div class="ph-icon">📁</div><div class="ph-title">Documents</div><div>Uploaded files, itineraries, and confirmations.</div></div></div>
+</div>
+<div id="tab-message" class="tab-content">
+
+  <!-- Template Picker -->
+  <div class="card" style="margin-bottom:20px">
+    <div style="background:linear-gradient(135deg,#4AB8D5,#3aa8c5);border-radius:10px 10px 0 0;padding:14px 20px;display:flex;align-items:center;gap:12px">
+      <span style="font-size:16px">📋</span>
+      <span style="font-weight:600;color:#fff;font-size:14px">Message Templates</span>
+    </div>
+    <div style="padding:16px 20px;display:flex;align-items:center;gap:10px">
+      <select id="msgTemplate" style="flex:1;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:13px;color:#2d3748;outline:none;background:#fff">
+        <option value="">— Select a template —</option>
+        <option value="welcome">Welcome &amp; Booking Confirmation</option>
+        <option value="deposit">Deposit Reminder</option>
+        <option value="final">Final Payment Due</option>
+        <option value="docs">Document Request</option>
+        <option value="checkin">Pre-Trip Check-In</option>
+        <option value="followup">Post-Trip Follow-Up</option>
+      </select>
+      <button class="btn btn-primary btn-sm" onclick="loadMsgTemplate()">Load Template</button>
+    </div>
+  </div>
+
+  <!-- Compose -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header">
+      <div class="card-title">Compose Message</div>
+    </div>
+    <div style="padding:16px 20px">
+      <div style="margin-bottom:12px">
+        <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#718096;display:block;margin-bottom:5px">Subject</label>
+        <input id="msgSubject" style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:13px;color:#2d3748;outline:none" placeholder="e.g. Your Norwegian Breakaway Booking Confirmation" value="Your Norwegian Breakaway — Booking Update">
+      </div>
+      <div style="margin-bottom:16px">
+        <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#718096;display:block;margin-bottom:5px">Message</label>
+        <textarea id="msgBody" style="width:100%;min-height:160px;border:1px solid #e2e8f0;border-radius:6px;padding:10px 12px;font-size:13px;font-family:inherit;color:#2d3748;resize:vertical;outline:none" placeholder="Type your message here…">Hi Marcus,
+
+I hope you're excited for your upcoming Norwegian Breakaway cruise! I wanted to touch base regarding your booking and upcoming payment milestones.
+
+Your final payment of $3,482.00 is due on August 15, 2026. Please let me know if you have any questions or need to discuss payment options.
+
+Warmly,
+Destined 4 Destinations</textarea>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="sendMsg('email')">✉️ Send Email</button>
+        <button class="btn btn-outline" onclick="sendMsg('sms')">📱 Send SMS</button>
+        <button class="btn btn-outline" onclick="sendMsg('whatsapp')">💬 WhatsApp</button>
+        <button class="btn btn-outline" onclick="copyMsg()">📋 Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message Log -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Message History</div>
+      <span style="font-size:12px;color:#718096">3 messages</span>
+    </div>
+    <div id="msg-log" style="padding:0">
+      <div style="padding:14px 20px;border-bottom:1px solid #f0f4f8;display:flex;gap:12px;align-items:flex-start">
+        <div style="width:32px;height:32px;border-radius:50%;background:#4AB8D5;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">D4D</div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-weight:600;font-size:13px;color:#1a2744">You → Marcus Thomas</span>
+            <span style="font-size:11px;color:#a0aec0">May 1, 2026 · Email</span>
+          </div>
+          <div style="font-size:12px;font-weight:600;color:#4a5568;margin-bottom:2px">Booking Confirmation — Norwegian Breakaway</div>
+          <div style="font-size:12px;color:#718096">Hi Marcus, your cruise booking is confirmed! Deposit of $500 received. We'll be in touch with next steps…</div>
+        </div>
+      </div>
+      <div style="padding:14px 20px;border-bottom:1px solid #f0f4f8;display:flex;gap:12px;align-items:flex-start">
+        <div style="width:32px;height:32px;border-radius:50%;background:#38b2ac;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">MT</div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-weight:600;font-size:13px;color:#1a2744">Marcus Thomas → You</span>
+            <span style="font-size:11px;color:#a0aec0">May 2, 2026 · Email</span>
+          </div>
+          <div style="font-size:12px;font-weight:600;color:#4a5568;margin-bottom:2px">Re: Booking Confirmation</div>
+          <div style="font-size:12px;color:#718096">Thank you! We are so excited. Quick question — can we upgrade to a balcony cabin?</div>
+        </div>
+      </div>
+      <div style="padding:14px 20px;display:flex;gap:12px;align-items:flex-start">
+        <div style="width:32px;height:32px;border-radius:50%;background:#4AB8D5;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">D4D</div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-weight:600;font-size:13px;color:#1a2744">You → Marcus Thomas</span>
+            <span style="font-size:11px;color:#a0aec0">May 3, 2026 · Email</span>
+          </div>
+          <div style="font-size:12px;font-weight:600;color:#4a5568;margin-bottom:2px">Re: Balcony Upgrade</div>
+          <div style="font-size:12px;color:#718096">Great news! I checked with NCL and a Balcony Stateroom upgrade is available for an additional $350. I've updated the invoice…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /message -->
+<div id="tab-forms" class="tab-content">
+  <div class="card"><div class="placeholder-tab"><div class="ph-icon">📝</div><div class="ph-title">Forms</div><div>Create and manage forms for this booking.</div></div></div>
+</div>
+<div id="tab-proposals" class="tab-content">
+  <div class="card"><div class="placeholder-tab"><div class="ph-icon">✈️</div><div class="ph-title">Proposals</div><div>Trip proposals sent to the client.</div></div></div>
+</div>
+<div id="tab-portal" class="tab-content">
+
+  <!-- Portal Link Box -->
+  <div class="card" style="margin-bottom:20px">
+    <div style="background:linear-gradient(135deg,#1B3464,#2c4a8c);border-radius:10px 10px 0 0;padding:20px;display:flex;align-items:center;gap:16px">
+      <div style="width:48px;height:48px;background:rgba(74,184,213,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">🔗</div>
+      <div>
+        <div style="font-size:16px;font-weight:700;color:#fff">Client Portal</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.65);margin-top:2px">Share this link with Marcus &amp; Sandra to give them access to their booking</div>
+      </div>
+    </div>
+    <div style="padding:16px 20px;background:#f7fafc;display:flex;align-items:center;gap:10px">
+      <input readonly value="https://portal.destined4destinations.com/booking/NCL-2026-88412" style="flex:1;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:12px;color:#4a5568;background:#fff;outline:none;font-family:monospace">
+      <button class="btn btn-primary btn-sm" onclick="copyPortalLink(this)">📋 Copy Link</button>
+    </div>
+    <div style="padding:12px 20px;display:flex;gap:8px;border-top:1px solid #e2e8f0">
+      <button class="btn btn-outline btn-sm" onclick="sendPortalLink('email')">✉️ Send via Email</button>
+      <button class="btn btn-outline btn-sm" onclick="sendPortalLink('sms')">📱 Send via SMS</button>
+      <button class="btn btn-dark btn-sm" onclick="openPortalPreview()">👁 Preview Client View</button>
+    </div>
+  </div>
+
+  <!-- Payment Summary -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header">
+      <div class="card-title">Payment Summary (Client View)</div>
+      <span style="font-size:12px;color:#718096">Read-only — mirrors the Invoice tab</span>
+    </div>
+    <div style="padding:16px 20px">
+      <div style="display:flex;gap:16px;margin-bottom:16px">
+        <div style="flex:1;background:#f0fff4;border-radius:8px;padding:14px;text-align:center">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#276749;margin-bottom:4px">Total Paid</div>
+          <div style="font-size:22px;font-weight:700;color:#276749">$500.00</div>
+        </div>
+        <div style="flex:1;background:#fff5f5;border-radius:8px;padding:14px;text-align:center">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#c05621;margin-bottom:4px">Balance Due</div>
+          <div style="font-size:22px;font-weight:700;color:#c05621">$4,482.00</div>
+        </div>
+        <div style="flex:1;background:#ebf8ff;border-radius:8px;padding:14px;text-align:center">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#2b6cb0;margin-bottom:4px">Trip Total</div>
+          <div style="font-size:22px;font-weight:700;color:#2b6cb0">$4,982.00</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client Portal Preview Modal -->
+  <div id="portalPreviewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;overflow-y:auto">
+    <div style="max-width:820px;margin:30px auto 60px;background:#f0f2f5;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.35)">
+
+      <!-- Modal Header: D4D branding + traveler switcher -->
+      <div style="background:linear-gradient(135deg,#1B3464,#2c4a8c);padding:18px 24px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div>
+            <div style="font-size:16px;font-weight:700;color:#fff">✈️ Destined 4 Destinations — Client Portal</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:2px">Norwegian Breakaway · NCL-2026-88412</div>
+          </div>
+          <button onclick="closePortalPreview()" style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:13px">✕ Close Preview</button>
+        </div>
+        <!-- Traveler Switcher -->
+        <div style="background:rgba(0,0,0,.2);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.5)">Viewing as:</span>
+          <button onclick="switchTraveler('marcus',this)" id="traveler-btn-marcus" class="traveler-switch-btn active-traveler" style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:2px solid #4AB8D5;background:#4AB8D5;color:#fff">
+            <span style="width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.25);display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700">MT</span>Marcus Thomas
+          </button>
+          <button onclick="switchTraveler('sandra',this)" id="traveler-btn-sandra" class="traveler-switch-btn" style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:2px solid rgba(255,255,255,.3);background:transparent;color:rgba(255,255,255,.7)">
+            <span style="width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.15);display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700">SL</span>Sandra Lewis
+          </button>
+          <span style="font-size:11px;color:rgba(255,255,255,.4);margin-left:4px">Each traveler has their own portal access to this booking.</span>
+        </div>
+      </div>
+
+      <!-- Portal Nav: Overview · Requirements · Invoice · Documents -->
+      <div style="background:#1B3464;display:flex;gap:0;padding:0 24px;border-top:1px solid rgba(255,255,255,.08)">
+        <button onclick="showPortalPanel('overview')" id="pp-btn-overview" class="pp-nav-btn" style="padding:11px 16px;color:rgba(255,255,255,.6);background:none;border:none;border-bottom:3px solid transparent;font-size:13px;cursor:pointer">🗺️ Overview</button>
+        <button onclick="showPortalPanel('requirements')" id="pp-btn-requirements" class="pp-nav-btn" style="padding:11px 16px;color:rgba(255,255,255,.6);background:none;border:none;border-bottom:3px solid transparent;font-size:13px;cursor:pointer">📋 Requirements</button>
+        <button onclick="showPortalPanel('invoice')" id="pp-btn-invoice" class="pp-nav-btn" style="padding:11px 16px;color:rgba(255,255,255,.6);background:none;border:none;border-bottom:3px solid transparent;font-size:13px;cursor:pointer">💳 Invoice</button>
+        <button onclick="showPortalPanel('documents')" id="pp-btn-documents" class="pp-nav-btn" style="padding:11px 16px;color:rgba(255,255,255,.6);background:none;border:none;border-bottom:3px solid transparent;font-size:13px;cursor:pointer">📁 Documents</button>
+      </div>
+
+      <div style="padding:24px">
+
+        <!-- ══ OVERVIEW PANEL ══ -->
+        <div id="pp-panel-overview" class="pp-panel">
+
+          <!-- Trip Info (no commission, no internal notes) -->
+          <div style="background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:20px;margin-bottom:16px">
+            <div style="font-size:15px;font-weight:700;color:#1B3464;margin-bottom:14px">🗺️ Your Trip</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;font-size:13px">
+              <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;color:#a0aec0;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Destination</span><span style="font-weight:600;color:#1a2744">Bahamas &amp; Caribbean</span></div>
+              <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;color:#a0aec0;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Ship / Resort</span><span style="font-weight:600;color:#1a2744">Norwegian Breakaway</span></div>
+              <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;color:#a0aec0;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Departure</span><span style="font-weight:600;color:#1a2744">Sep 14, 2026</span></div>
+              <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;color:#a0aec0;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Return</span><span style="font-weight:600;color:#1a2744">Sep 21, 2026</span></div>
+              <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;color:#a0aec0;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Trip Type</span><span style="font-weight:600;color:#1a2744">Cruise</span></div>
+              <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;color:#a0aec0;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Confirmation #</span><span style="font-weight:600;color:#1a2744;font-family:monospace">NCL-2026-88412</span></div>
+              <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;color:#a0aec0;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Travelers</span><span style="font-weight:600;color:#1a2744">Marcus Thomas, Sandra Lewis</span></div>
+              <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;color:#a0aec0;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Status</span><span style="display:inline-block;background:#fffbeb;color:#b7791f;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;width:fit-content">⏳ Deposit Paid</span></div>
+            </div>
+          </div>
+
+          <!-- Travelers on this booking -->
+          <div style="background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:20px;margin-bottom:16px">
+            <div style="font-size:15px;font-weight:700;color:#1B3464;margin-bottom:12px">👥 Travelers</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:#f7fafc;border-radius:8px;border:1px solid #e2e8f0">
+                <div style="width:36px;height:36px;border-radius:50%;background:#4299e1;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0">MT</div>
+                <div style="flex:1"><div style="font-weight:600;color:#1a2744;font-size:13px">Marcus Thomas</div><div style="font-size:11px;color:#718096">marcus.thomas@gmail.com · Primary Client</div></div>
+                <span style="font-size:11px;background:#ebf8ff;color:#2b6cb0;padding:2px 8px;border-radius:12px;font-weight:600">Portal Active</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:#f7fafc;border-radius:8px;border:1px solid #e2e8f0">
+                <div style="width:36px;height:36px;border-radius:50%;background:#38b2ac;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0">SL</div>
+                <div style="flex:1"><div style="font-weight:600;color:#1a2744;font-size:13px">Sandra Lewis</div><div style="font-size:11px;color:#718096">sandra.lewis@gmail.com · Guest</div></div>
+                <span style="font-size:11px;background:#ebf8ff;color:#2b6cb0;padding:2px 8px;border-radius:12px;font-weight:600">Portal Active</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Itinerary (in overview, not a separate tab) -->
+          <div style="background:#fff;border-radius:10px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:16px">
+            <div style="padding:14px 20px;border-bottom:1px solid #e2e8f0;font-size:15px;font-weight:700;color:#1B3464">🗓️ Itinerary</div>
+            <div style="padding:16px 20px;display:flex;flex-direction:column;gap:10px">
+              <div style="display:grid;grid-template-columns:64px 1fr;gap:0;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden">
+                <div style="background:linear-gradient(135deg,#1B3464,#2c3e6b);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;text-align:center"><div style="font-size:9px;font-weight:700;text-transform:uppercase;opacity:.7">Day</div><div style="font-size:20px;font-weight:700;line-height:1">1</div><div style="font-size:9px;opacity:.7;margin-top:1px">Sep 14</div></div>
+                <div style="padding:10px 14px"><div style="font-weight:600;color:#1a2744;font-size:13px;margin-bottom:3px">Departure — Miami Port</div><div style="font-size:12px;color:#718096">Embarkation at PortMiami. Check-in begins 11:00 AM. Sail-away party 5:00 PM. Dinner at Manhattan Room.</div></div>
+              </div>
+              <div style="display:grid;grid-template-columns:64px 1fr;gap:0;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden">
+                <div style="background:linear-gradient(135deg,#1B3464,#2c3e6b);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;text-align:center"><div style="font-size:9px;font-weight:700;text-transform:uppercase;opacity:.7">Day</div><div style="font-size:20px;font-weight:700;line-height:1">2</div><div style="font-size:9px;opacity:.7;margin-top:1px">Sep 15</div></div>
+                <div style="padding:10px 14px"><div style="font-weight:600;color:#1a2744;font-size:13px;margin-bottom:3px">At Sea</div><div style="font-size:12px;color:#718096">Full day at sea. Spa, pool deck, and entertainment. Evening show: "For the Record: Baz Luhrmann."</div></div>
+              </div>
+              <div style="display:grid;grid-template-columns:64px 1fr;gap:0;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden">
+                <div style="background:linear-gradient(135deg,#1B3464,#2c3e6b);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;text-align:center"><div style="font-size:9px;font-weight:700;text-transform:uppercase;opacity:.7">Day</div><div style="font-size:20px;font-weight:700;line-height:1">3</div><div style="font-size:9px;opacity:.7;margin-top:1px">Sep 16</div></div>
+                <div style="padding:10px 14px"><div style="font-weight:600;color:#1a2744;font-size:13px;margin-bottom:3px">Nassau, Bahamas</div><div style="font-size:12px;color:#718096">Port arrival 8:00 AM. Shore excursion: Atlantis Resort Day Pass. All aboard 5:00 PM.</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact -->
+          <div style="background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:20px">
+            <div style="font-size:15px;font-weight:700;color:#1B3464;margin-bottom:6px">Need Help?</div>
+            <div style="font-size:13px;color:#718096;margin-bottom:10px">Your travel advisor is available for any questions.</div>
+            <div style="font-size:13px;color:#2d3748">📧 hello@destined4destinations.com &nbsp;·&nbsp; 📱 (305) 555-0192</div>
+          </div>
+
+        </div><!-- /overview panel -->
+
+        <!-- ══ REQUIREMENTS PANEL ══ -->
+        <div id="pp-panel-requirements" class="pp-panel" style="display:none">
+          <div style="background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:20px;margin-bottom:16px">
+            <div style="font-size:15px;font-weight:700;color:#1B3464;margin-bottom:4px">📋 Document &amp; Requirement Requests</div>
+            <div style="font-size:12px;color:#718096;margin-bottom:16px">Your travel advisor has requested the following items to complete your booking. Items marked for you are highlighted.</div>
+
+            <!-- Traveler context banner -->
+            <div id="pp-req-banner" style="background:#ebf8ff;border:1px solid #bee3f8;border-radius:8px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:8px;font-size:13px">
+              <span id="pp-req-banner-avatar" style="width:26px;height:26px;border-radius:50%;background:#4299e1;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">MT</span>
+              <span id="pp-req-banner-text" style="color:#2b6cb0;font-weight:500">Showing requirements for <strong>Marcus Thomas</strong>. Items assigned to you are highlighted.</span>
+            </div>
+
+            <!-- Requirements table -->
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <thead>
+                <tr style="background:#f7fafc;border-bottom:2px solid #e2e8f0">
+                  <th style="padding:8px 12px;text-align:left;font-weight:600;color:#718096;font-size:11px;text-transform:uppercase">Requirement</th>
+                  <th style="padding:8px 12px;text-align:center;font-weight:600;color:#718096;font-size:11px;text-transform:uppercase">Assigned To</th>
+                  <th style="padding:8px 12px;text-align:center;font-weight:600;color:#718096;font-size:11px;text-transform:uppercase">Status</th>
+                  <th style="padding:8px 12px;text-align:center;font-weight:600;color:#718096;font-size:11px;text-transform:uppercase">Action</th>
+                </tr>
+              </thead>
+              <tbody id="pp-req-body">
+                <!-- Row: Passport Copy — Marcus (assigned to current viewer) -->
+                <tr class="pp-req-row req-for-marcus" style="border-bottom:1px solid #f0f4f8;background:#fffbeb">
+                  <td style="padding:10px 12px">
+                    <div style="font-weight:600;color:#1a2744">🪪 Passport Copy</div>
+                    <div style="font-size:11px;color:#718096;margin-top:2px">Clear photo of photo page — both sides</div>
+                  </td>
+                  <td style="padding:10px 12px;text-align:center"><span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#2b6cb0"><span style="width:18px;height:18px;border-radius:50%;background:#4299e1;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:8px">MT</span>Marcus</span></td>
+                  <td style="padding:10px 12px;text-align:center"><span style="background:#fffbeb;color:#b7791f;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600">⏳ Pending</span></td>
+                  <td style="padding:10px 12px;text-align:center"><button class="btn btn-primary btn-sm" onclick="ppUploadReq(this)">📎 Upload</button></td>
+                </tr>
+                <!-- Row: Passport Copy — Sandra -->
+                <tr class="pp-req-row req-for-sandra" style="border-bottom:1px solid #f0f4f8;display:none">
+                  <td style="padding:10px 12px">
+                    <div style="font-weight:600;color:#1a2744">🪪 Passport Copy</div>
+                    <div style="font-size:11px;color:#718096;margin-top:2px">Clear photo of photo page — both sides</div>
+                  </td>
+                  <td style="padding:10px 12px;text-align:center"><span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#276749"><span style="width:18px;height:18px;border-radius:50%;background:#38b2ac;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:8px">SL</span>Sandra</span></td>
+                  <td style="padding:10px 12px;text-align:center"><span style="background:#fffbeb;color:#b7791f;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600">⏳ Pending</span></td>
+                  <td style="padding:10px 12px;text-align:center"><button class="btn btn-primary btn-sm" onclick="ppUploadReq(this)">📎 Upload</button></td>
+                </tr>
+                <!-- Row: Emergency Contact — Marcus -->
+                <tr class="pp-req-row req-for-marcus" style="border-bottom:1px solid #f0f4f8;background:#fffbeb">
+                  <td style="padding:10px 12px">
+                    <div style="font-weight:600;color:#1a2744">📞 Emergency Contact</div>
+                    <div style="font-size:11px;color:#718096;margin-top:2px">Name, relationship, and phone number</div>
+                  </td>
+                  <td style="padding:10px 12px;text-align:center"><span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#2b6cb0"><span style="width:18px;height:18px;border-radius:50%;background:#4299e1;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:8px">MT</span>Marcus</span></td>
+                  <td style="padding:10px 12px;text-align:center"><span style="background:#f0fff4;color:#276749;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600">✅ Uploaded</span></td>
+                  <td style="padding:10px 12px;text-align:center"><span style="font-size:11px;color:#a0aec0">Done ✓</span></td>
+                </tr>
+                <!-- Row: Dietary Restrictions — Sandra -->
+                <tr class="pp-req-row req-for-sandra" style="border-bottom:1px solid #f0f4f8;background:#fffbeb;display:none">
+                  <td style="padding:10px 12px">
+                    <div style="font-weight:600;color:#1a2744">🍽️ Dietary Restrictions</div>
+                    <div style="font-size:11px;color:#718096;margin-top:2px">Any allergies or meal preferences for Sandra</div>
+                  </td>
+                  <td style="padding:10px 12px;text-align:center"><span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#276749"><span style="width:18px;height:18px;border-radius:50%;background:#38b2ac;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:8px">SL</span>Sandra</span></td>
+                  <td style="padding:10px 12px;text-align:center"><span style="background:#fffbeb;color:#b7791f;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600">⏳ Pending</span></td>
+                  <td style="padding:10px 12px;text-align:center"><button class="btn btn-primary btn-sm" onclick="ppUploadReq(this)">📎 Upload</button></td>
+                </tr>
+                <!-- Row: Travel Insurance — both travelers, shown for all -->
+                <tr class="pp-req-row req-for-all" style="border-bottom:1px solid #f0f4f8">
+                  <td style="padding:10px 12px">
+                    <div style="font-weight:600;color:#1a2744">🛡️ Travel Insurance Confirmation</div>
+                    <div style="font-size:11px;color:#718096;margin-top:2px">Policy number and coverage dates</div>
+                  </td>
+                  <td style="padding:10px 12px;text-align:center"><span style="font-size:11px;font-weight:600;color:#718096">All Travelers</span></td>
+                  <td style="padding:10px 12px;text-align:center"><span style="background:#fffbeb;color:#b7791f;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600">⏳ Pending</span></td>
+                  <td style="padding:10px 12px;text-align:center"><button class="btn btn-primary btn-sm" onclick="ppUploadReq(this)">📎 Upload</button></td>
+                </tr>
+                <!-- Row: Signed Booking Agreement — all -->
+                <tr class="pp-req-row req-for-all" style="border-bottom:none">
+                  <td style="padding:10px 12px">
+                    <div style="font-weight:600;color:#1a2744">✍️ Signed Booking Agreement</div>
+                    <div style="font-size:11px;color:#718096;margin-top:2px">Review and sign the D4D booking terms</div>
+                  </td>
+                  <td style="padding:10px 12px;text-align:center"><span style="font-size:11px;font-weight:600;color:#718096">All Travelers</span></td>
+                  <td style="padding:10px 12px;text-align:center"><span style="background:#f0fff4;color:#276749;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600">✅ Signed</span></td>
+                  <td style="padding:10px 12px;text-align:center"><span style="font-size:11px;color:#a0aec0">Done ✓</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div><!-- /requirements panel -->
+
+        <!-- ══ INVOICE PANEL ══ -->
+        <div id="pp-panel-invoice" class="pp-panel" style="display:none">
+
+          <!-- Invoice header — mirrors agent Invoice tab -->
+          <div style="background:#fff;border-radius:10px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:16px">
+            <div style="background:linear-gradient(135deg,#1B3464,#2c4a8c);padding:20px">
+              <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:2px">Norwegian Breakaway — Bahamas &amp; Caribbean</div>
+              <div style="font-size:12px;color:rgba(255,255,255,.65)">Sep 14 – Sep 21, 2026 &nbsp;·&nbsp; 2 Travelers &nbsp;·&nbsp; NCL-2026-88412</div>
+              <div style="font-size:26px;font-weight:700;color:#fff;margin-top:10px">$4,982.00</div>
+            </div>
+            <div style="padding:16px 20px">
+              <!-- Trip meta bar -->
+              <div style="display:flex;gap:0;background:#f7fafc;border-radius:8px;overflow:hidden;margin-bottom:20px;border:1px solid #e2e8f0">
+                <div style="flex:1;padding:10px 14px;border-right:1px solid #e2e8f0"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#a0aec0;margin-bottom:2px">Trip</div><div style="font-size:13px;font-weight:600;color:#1a2744">Norwegian Breakaway</div></div>
+                <div style="flex:1;padding:10px 14px;border-right:1px solid #e2e8f0"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#a0aec0;margin-bottom:2px">Dates</div><div style="font-size:13px;font-weight:600;color:#1a2744">Sep 14 – Sep 21</div></div>
+                <div style="flex:1;padding:10px 14px;border-right:1px solid #e2e8f0"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#a0aec0;margin-bottom:2px">Travelers</div><div style="font-size:13px;font-weight:600;color:#1a2744">2 guests</div></div>
+                <div style="flex:1;padding:10px 14px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#a0aec0;margin-bottom:2px">Status</div><div style="font-size:13px;font-weight:600;color:#b7791f">⏳ Deposit Paid</div></div>
+              </div>
+              <!-- Line items -->
+              <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px">
+                <thead><tr style="border-bottom:2px solid #e2e8f0">
+                  <th style="padding:7px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#718096">Description</th>
+                  <th style="padding:7px 10px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#718096">Qty</th>
+                  <th style="padding:7px 10px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#718096">Unit Price</th>
+                  <th style="padding:7px 10px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#718096">Amount</th>
+                </tr></thead>
+                <tbody>
+                  <tr style="border-bottom:1px solid #f0f4f8"><td style="padding:9px 10px;color:#2d3748">Cruise Fare (2 guests)</td><td style="padding:9px 10px;text-align:center;color:#718096">2</td><td style="padding:9px 10px;text-align:right;color:#718096">$1,600.00</td><td style="padding:9px 10px;text-align:right;font-weight:600">$3,200.00</td></tr>
+                  <tr style="border-bottom:1px solid #f0f4f8"><td style="padding:9px 10px;color:#2d3748">Balcony Stateroom Upgrade</td><td style="padding:9px 10px;text-align:center;color:#718096">1</td><td style="padding:9px 10px;text-align:right;color:#718096">$350.00</td><td style="padding:9px 10px;text-align:right;font-weight:600">$350.00</td></tr>
+                  <tr><td style="padding:9px 10px;color:#2d3748">Travel Protection Plan</td><td style="padding:9px 10px;text-align:center;color:#718096">2</td><td style="padding:9px 10px;text-align:right;color:#718096">$125.00</td><td style="padding:9px 10px;text-align:right;font-weight:600">$250.00</td></tr>
+                </tbody>
+              </table>
+              <!-- Totals -->
+              <div style="display:flex;justify-content:flex-end">
+                <div style="min-width:260px">
+                  <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid #f0f4f8"><span>Subtotal</span><span>$3,800.00</span></div>
+                  <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid #f0f4f8"><span>Taxes &amp; Fees</span><span>$182.00</span></div>
+                  <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid #f0f4f8"><span>Travel Protection</span><span>$250.00</span></div>
+                  <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid #e2e8f0"><span style="color:#718096">Deposit Paid</span><span style="color:#276749">−$500.00</span></div>
+                  <div style="display:flex;justify-content:space-between;padding:10px 0 6px;font-size:15px;font-weight:700;color:#1a2744"><span>Balance Due</span><span style="color:#c05621">$3,732.00</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Schedule -->
+          <div style="background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:20px;margin-bottom:16px">
+            <div style="font-size:15px;font-weight:700;color:#1B3464;margin-bottom:12px">Payment Schedule</div>
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <thead><tr style="background:#f7fafc;border-bottom:2px solid #e2e8f0">
+                <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:#718096;text-transform:uppercase">Milestone</th>
+                <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:#718096;text-transform:uppercase">Due Date</th>
+                <th style="padding:8px 12px;text-align:right;font-size:11px;font-weight:600;color:#718096;text-transform:uppercase">Amount</th>
+                <th style="padding:8px 12px;text-align:center;font-size:11px;font-weight:600;color:#718096;text-transform:uppercase">Status</th>
+              </tr></thead>
+              <tbody>
+                <tr style="border-bottom:1px solid #f0f4f8">
+                  <td style="padding:10px 12px">Deposit / Initial deposit</td>
+                  <td style="padding:10px 12px;color:#718096">05/01/2026</td>
+                  <td style="padding:10px 12px;text-align:right">$500.00</td>
+                  <td style="padding:10px 12px;text-align:center"><span style="background:#f0fff4;color:#276749;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600">✅ Paid</span></td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 12px">Final Payment</td>
+                  <td style="padding:10px 12px;color:#718096">08/15/2026</td>
+                  <td style="padding:10px 12px;text-align:right">$3,732.00</td>
+                  <td style="padding:10px 12px;text-align:center"><span style="background:#fffbeb;color:#b7791f;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600">⏳ Upcoming</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Submit a Payment — full CC form -->
+          <div style="background:#fff;border-radius:10px;border:2px solid #4AB8D5;padding:20px">
+            <div style="font-size:15px;font-weight:700;color:#1B3464;margin-bottom:2px">💳 Submit a Payment</div>
+            <div style="font-size:12px;color:#718096;margin-bottom:16px">Your payment information is submitted securely to your travel advisor.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+              <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#718096;display:block;margin-bottom:5px">Amount</label><input style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:13px;outline:none" value="$3,732.00"></div>
+              <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#718096;display:block;margin-bottom:5px">Payment Date</label><input type="date" style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:13px;outline:none"></div>
+              <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#718096;display:block;margin-bottom:5px">Payment Type</label><select style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:13px;outline:none;background:#fff"><option>Credit Card</option><option>Debit Card</option><option>Check</option><option>Wire Transfer</option></select></div>
+              <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#718096;display:block;margin-bottom:5px">Card Type</label><select style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:13px;outline:none;background:#fff"><option>Visa</option><option>Mastercard</option><option>Amex</option><option>Discover</option></select></div>
+              <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#718096;display:block;margin-bottom:5px">Name on Card</label><input style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:13px;outline:none" placeholder="e.g. Marcus Thomas"></div>
+              <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#718096;display:block;margin-bottom:5px">Card Number</label><input id="pp-inv-card-num" style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:13px;outline:none;font-family:monospace" placeholder="•••• •••• •••• ••••" oninput="formatCardNum(this)" maxlength="19"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#718096;display:block;margin-bottom:5px">Expiry</label><input style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:13px;outline:none" placeholder="MM/YY" oninput="formatExpiry(this)" maxlength="5"></div>
+                <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#718096;display:block;margin-bottom:5px">CVV</label><input type="password" style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:13px;outline:none" placeholder="•••" maxlength="4"></div>
+              </div>
+              <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#718096;display:block;margin-bottom:5px">Billing Address</label><input style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:13px;outline:none" placeholder="Street address"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#718096;display:block;margin-bottom:5px">City</label><input style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:13px;outline:none" placeholder="Miami"></div>
+                <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#718096;display:block;margin-bottom:5px">ZIP</label><input style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:13px;outline:none" placeholder="33101" maxlength="10"></div>
+              </div>
+            </div>
+            <div style="margin-bottom:12px"><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#718096;display:block;margin-bottom:5px">Notes (optional)</label><input style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:13px;outline:none" placeholder="Any notes for your advisor…"></div>
+            <button class="btn btn-primary" onclick="recordPaymentFromPortal(this)" style="width:100%;justify-content:center;padding:12px;font-size:14px">💾 Submit Payment Info</button>
+          </div>
+
+        </div><!-- /invoice panel -->
+
+        <!-- ══ DOCUMENTS PANEL ══ -->
+        <div id="pp-panel-documents" class="pp-panel" style="display:none">
+          <div style="background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:40px;text-align:center;color:#a0aec0">
+            <div style="font-size:36px;margin-bottom:10px">📁</div>
+            <div style="font-weight:600;color:#718096;margin-bottom:4px">No documents shared yet</div>
+            <div style="font-size:12px">Your advisor will share confirmations, itineraries, and more here.</div>
+          </div>
+        </div>
+
+      </div><!-- /portal content -->
+    </div><!-- /modal inner -->
+  </div><!-- /portal modal -->
+
+</div><!-- /portal -->
+
+</div><!-- /page -->
+
+<div id="toast">✅ <span id="toastMsg"></span></div>
+
+<script>
+/* ── Tab switching ── */
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+/* ── Overview tab ── */
+function addItinDay() {
+  const days = document.querySelectorAll('#itin-days .itin-day');
+  const n = days.length + 1;
+  const div = document.createElement('div');
+  div.className = 'itin-day';
+  div.style.cssText = 'display:grid;grid-template-columns:70px 1fr;gap:0;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:10px';
+  div.innerHTML = `<div style="background:linear-gradient(135deg,#1B3464,#2c3e6b);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 8px;text-align:center">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.7">Day</div>
+    <div style="font-size:22px;font-weight:700;line-height:1">${n}</div>
+  </div>
+  <div style="padding:12px 16px">
+    <input style="width:100%;border:none;border-bottom:1px solid #e2e8f0;font-weight:600;color:#1a2744;font-size:13px;outline:none;padding:2px 0;margin-bottom:6px;background:transparent" placeholder="Day title…">
+    <textarea style="width:100%;border:1px solid #e2e8f0;border-radius:4px;padding:6px 8px;font-size:12px;color:#718096;resize:none;outline:none;height:48px;font-family:inherit" placeholder="Description…"></textarea>
+  </div>`;
+  document.getElementById('itin-days').insertBefore(div, document.getElementById('itin-placeholder'));
+}
+function saveOverviewNote() { showToast('Notes saved ✅'); }
+
+/* ── Message tab ── */
+const msgTemplates = {
+  welcome: { subject: 'Your Booking is Confirmed! 🎉', body: 'Hi Marcus,\n\nWonderful news — your Norwegian Breakaway cruise is officially confirmed! We\'re so excited to help you create unforgettable memories.\n\nYour deposit of $500 has been received. Your next payment is due on August 15, 2026.\n\nDon\'t hesitate to reach out with any questions!\n\nWarmly,\nDestined 4 Destinations' },
+  deposit: { subject: 'Friendly Reminder: Deposit Due', body: 'Hi Marcus,\n\nJust a friendly reminder that your deposit is due to secure your Norwegian Breakaway booking.\n\nPlease visit your client portal to submit payment or reach out to us directly.\n\nBest,\nDestined 4 Destinations' },
+  final: { subject: 'Final Payment Due — August 15', body: 'Hi Marcus,\n\nYour final payment of $4,482.00 is due on August 15, 2026. Please submit payment through your client portal or contact us to arrange payment.\n\nThank you!\nDestined 4 Destinations' },
+  docs: { subject: 'Documents Needed for Your Trip', body: 'Hi Marcus,\n\nTo complete your booking we need a few documents. Please upload the following to your client portal:\n\n• Passport copy (both travelers)\n• Travel insurance confirmation\n\nThank you!\nDestined 4 Destinations' },
+  checkin: { subject: 'Pre-Trip Check-In 🚢', body: 'Hi Marcus,\n\nWith your cruise just around the corner, we wanted to check in! Here are a few reminders:\n\n• Check-in opens at PortMiami at 11:00 AM on Sep 14\n• Bring your printed boarding passes\n• Passport required at embarkation\n\nHave an incredible trip!\nDestined 4 Destinations' },
+  followup: { subject: 'Welcome Back! How Was Your Trip?', body: 'Hi Marcus,\n\nWelcome home! We hope you and Sandra had an absolutely amazing time on the Norwegian Breakaway.\n\nWe\'d love to hear about your experience — and start planning your next adventure!\n\nWarmly,\nDestined 4 Destinations' }
+};
+function loadMsgTemplate() {
+  const key = document.getElementById('msgTemplate').value;
+  if (!key) return;
+  const t = msgTemplates[key];
+  if (t) { document.getElementById('msgSubject').value = t.subject; document.getElementById('msgBody').value = t.body; }
+}
+function sendMsg(channel) {
+  const icons = { email:'✉️', sms:'📱', whatsapp:'💬' };
+  const labels = { email:'Email', sms:'SMS', whatsapp:'WhatsApp' };
+  const subj = document.getElementById('msgSubject').value;
+  const body = document.getElementById('msgBody').value;
+  if (!body.trim()) { showToast('Message body is empty'); return; }
+  const log = document.getElementById('msg-log');
+  const div = document.createElement('div');
+  div.style.cssText = 'padding:14px 20px;border-top:1px solid #f0f4f8;display:flex;gap:12px;align-items:flex-start;background:#f0fff4';
+  const preview = body.replace(/\n/g,' ').substring(0,100) + (body.length > 100 ? '…' : '');
+  div.innerHTML = `<div style="width:32px;height:32px;border-radius:50%;background:#4AB8D5;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">D4D</div>
+    <div style="flex:1">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-weight:600;font-size:13px;color:#1a2744">You → Marcus Thomas</span>
+        <span style="font-size:11px;color:#a0aec0">Just now · ${labels[channel]}</span>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:#4a5568;margin-bottom:2px">${subj || '(no subject)'}</div>
+      <div style="font-size:12px;color:#718096">${preview}</div>
+    </div>`;
+  log.prepend(div);
+  showToast(`${icons[channel]} Message sent via ${labels[channel]}!`);
+}
+function copyMsg() {
+  const text = document.getElementById('msgSubject').value + '\n\n' + document.getElementById('msgBody').value;
+  navigator.clipboard.writeText(text).then(() => showToast('📋 Copied to clipboard!'));
+}
+
+/* ── Client Portal tab ── */
+function copyPortalLink(btn) {
+  navigator.clipboard.writeText('https://portal.destined4destinations.com/booking/NCL-2026-88412')
+    .then(() => { btn.textContent = '✅ Copied!'; setTimeout(() => btn.textContent = '📋 Copy Link', 2000); });
+}
+function sendPortalLink(channel) {
+  const labels = { email:'Email', sms:'SMS' };
+  showToast(`🔗 Portal link sent via ${labels[channel]}!`);
+}
+function openPortalPreview() {
+  document.getElementById('portalPreviewModal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  showPortalPanel('overview');
+  switchTraveler('marcus', document.getElementById('traveler-btn-marcus'));
+}
+function closePortalPreview() { document.getElementById('portalPreviewModal').style.display = 'none'; document.body.style.overflow = ''; }
+function showPortalPanel(name) {
+  document.querySelectorAll('.pp-panel').forEach(p => p.style.display = 'none');
+  document.getElementById('pp-panel-' + name).style.display = 'block';
+  document.querySelectorAll('.pp-nav-btn').forEach(b => { b.style.color = 'rgba(255,255,255,.6)'; b.style.borderBottom = '3px solid transparent'; });
+  const btn = document.getElementById('pp-btn-' + name);
+  if (btn) { btn.style.color = '#4AB8D5'; btn.style.borderBottom = '3px solid #4AB8D5'; }
+}
+
+/* Traveler switcher — filters requirements rows to current viewer */
+let currentPortalTraveler = 'marcus';
+function switchTraveler(traveler, clickedBtn) {
+  currentPortalTraveler = traveler;
+  // Update button styles
+  document.querySelectorAll('.traveler-switch-btn').forEach(b => {
+    b.style.border = '2px solid rgba(255,255,255,.3)';
+    b.style.background = 'transparent';
+    b.style.color = 'rgba(255,255,255,.7)';
+  });
+  clickedBtn.style.border = '2px solid #4AB8D5';
+  clickedBtn.style.background = '#4AB8D5';
+  clickedBtn.style.color = '#fff';
+  // Update requirements banner
+  const isM = traveler === 'marcus';
+  const avatar = document.getElementById('pp-req-banner-avatar');
+  const text = document.getElementById('pp-req-banner-text');
+  if (avatar) { avatar.textContent = isM ? 'MT' : 'SL'; avatar.style.background = isM ? '#4299e1' : '#38b2ac'; }
+  if (text) text.innerHTML = `Showing requirements for <strong>${isM ? 'Marcus Thomas' : 'Sandra Lewis'}</strong>. Items assigned to you are highlighted.`;
+  // Show/hide requirement rows
+  document.querySelectorAll('#pp-req-body tr').forEach(row => {
+    if (row.classList.contains('req-for-all')) { row.style.display = ''; return; }
+    if (row.classList.contains('req-for-marcus')) { row.style.display = isM ? '' : 'none'; return; }
+    if (row.classList.contains('req-for-sandra')) { row.style.display = !isM ? '' : 'none'; return; }
+  });
+}
+
+function ppUploadReq(btn) {
+  const row = btn.closest('tr');
+  const statusCell = row.cells[2];
+  statusCell.innerHTML = '<span style="background:#f0fff4;color:#276749;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600">✅ Uploaded</span>';
+  btn.closest('td').innerHTML = '<span style="font-size:11px;color:#a0aec0">Done ✓</span>';
+  row.style.background = '';
+  showToast('📎 Document uploaded — your advisor has been notified.');
+}
+
+function formatCardNum(input) {
+  let v = input.value.replace(/\D/g,'').substring(0,16);
+  input.value = v.match(/.{1,4}/g)?.join(' ') || v;
+}
+function recordPaymentFromPortal(btn) {
+  showToast('💾 Payment info submitted — your advisor will process it shortly.');
+  btn.textContent = '✅ Submitted!';
+  btn.disabled = true;
+  setTimeout(() => { btn.textContent = '💾 Submit Payment Info'; btn.disabled = false; }, 3000);
+}
+
+/* ── Booking title edit — syncs to invoice trip name ── */
+const titleInput = document.getElementById('bookingTitle');
+function syncBookingTitle() {
+  const val = titleInput.value;
+  // Sync to invoice trip cell
+  const tripCell = document.querySelector('.inv-trip-cell .inv-trip-val');
+  if (tripCell) tripCell.textContent = val;
+  // Update topbar meta traveler count if needed
+}
+titleInput.addEventListener('input', syncBookingTitle);
+titleInput.addEventListener('keydown', e => { if (e.key === 'Enter') titleInput.blur(); });
+
+/* ── Requirements: add panel ── */
+function toggleAddPanel() { document.getElementById('addPanel').classList.toggle('open'); }
+
+function removeTraveler(btn) {
+  if (!confirm('Remove this traveler?')) return;
+  btn.closest('.traveler-row').remove(); updateSummary();
+}
+
+const colorMap = [{cls:'av-blue',hex:'#4299e1'},{cls:'av-teal',hex:'#38b2ac'},{cls:'av-purple',hex:'#805ad5'}];
+let extraCount = 0;
+function addFromClient() {
+  const val = document.getElementById('clientSearch').value.trim(); if (!val) return;
+  const initials = val.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const c = colorMap[extraCount%3];
+  appendTravelerRow(initials,c.cls,val,'','Existing Client','badge-client');
+  addMatrixColumn(initials,c.hex,val.split(' ')[0]);
+  document.getElementById('clientSearch').value=''; toggleAddPanel(); extraCount++;
+}
+function addGuest() {
+  const first=document.getElementById('guestFirst').value.trim();
+  const last=document.getElementById('guestLast').value.trim();
+  const email=document.getElementById('guestEmail').value.trim();
+  if (!first||!last){alert('Enter first and last name.');return;}
+  const c=colorMap[extraCount%3];
+  appendTravelerRow((first[0]+last[0]).toUpperCase(),c.cls,`${first} ${last}`,email?email+' · Guest':'Guest','Guest','badge-guest');
+  addMatrixColumn((first[0]+last[0]).toUpperCase(),c.hex,first);
+  ['guestFirst','guestLast','guestEmail'].forEach(id=>document.getElementById(id).value='');
+  toggleAddPanel(); extraCount++;
+}
+function appendTravelerRow(initials,colorCls,name,meta,badge,badgeCls) {
+  const div=document.createElement('div'); div.className='traveler-row';
+  div.innerHTML=`<div class="avatar ${colorCls}">${initials}</div>
+    <div class="traveler-info"><div class="traveler-name">${name}</div><div class="traveler-meta">${meta}</div></div>
+    <span class="traveler-badge ${badgeCls}">${badge}</span>
+    <button class="btn btn-ghost btn-sm" onclick="removeTraveler(this)">✕</button>`;
+  document.getElementById('travelerList').appendChild(div); updateSummary();
+}
+function addMatrixColumn(initials,hex,firstName) {
+  const tc=document.querySelectorAll('#matrixHeader .matrix-header-cell').length-1;
+  document.getElementById('reqMatrix').style.setProperty('--tc',tc);
+  const hdr=document.getElementById('matrixHeader');
+  const last=hdr.lastElementChild;
+  const cell=document.createElement('div'); cell.className='matrix-header-cell';
+  cell.innerHTML=`<div class="th-avatar" style="background:${hex}">${initials}</div><div>${firstName}</div>`;
+  hdr.insertBefore(cell,last);
+  document.querySelectorAll('.matrix-row').forEach(row=>{
+    const ac=row.querySelector('.actions-cell');
+    const td=document.createElement('div'); td.className='traveler-cell';
+    td.innerHTML=`<span class="status-pill pill-unassigned"><span class="status-dot"></span>Not assigned</span>
+      <button class="assign-toggle btn" style="font-size:11px;padding:0;background:none;border:none;color:#4db8e8" onclick="toggleAssign(this,'assign')">+ Assign</button>`;
+    row.insertBefore(td,ac);
+  });
+}
+
+function toggleAssign(btn,action) {
+  const cell=btn.closest('.traveler-cell');
+  const pill=cell.querySelector('.status-pill');
+  const ctrl=btn.closest('div')||btn;
+  if (action==='assign') {
+    pill.className='status-pill pill-pending'; pill.innerHTML='<span class="status-dot"></span>Pending';
+    const tName=getTravelerName(cell);
+    const rName=cell.closest('.matrix-row').querySelector('.req-label').textContent.trim();
+    ctrl.outerHTML=`<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:center">
+      <button class="assign-toggle unassign btn" style="font-size:11px;padding:0;background:none;border:none;color:#a0aec0" onclick="toggleAssign(this,'unassign')">✕ Unassign</button>
+      <button class="btn-send-notify" onclick="sendReminder(this,'${tName}','${rName}')">📨 Send</button>
+    </div>`;
+  } else {
+    pill.className='status-pill pill-unassigned'; pill.innerHTML='<span class="status-dot"></span>Not assigned';
+    (ctrl.tagName==='BUTTON'?ctrl:ctrl).outerHTML=`<button class="assign-toggle btn" style="font-size:11px;padding:0;background:none;border:none;color:#4db8e8" onclick="toggleAssign(this,'assign')">+ Assign</button>`;
+  }
+  updateSummary();
+}
+function getTravelerName(cell) {
+  const row=cell.closest('.matrix-row');
+  const cells=[...row.querySelectorAll('.traveler-cell')];
+  const idx=cells.indexOf(cell);
+  const hdrCells=[...document.getElementById('matrixHeader').querySelectorAll('.matrix-header-cell')];
+  return hdrCells[idx+1]?.textContent.trim()||'Traveler';
+}
+function assignAll(btn) {
+  const row=btn.closest('.matrix-row');
+  row.querySelectorAll('.traveler-cell').forEach(cell=>{
+    const pill=cell.querySelector('.status-pill');
+    if (pill&&pill.classList.contains('pill-unassigned')) {
+      const t=cell.querySelector('.assign-toggle'); if(t) toggleAssign(t,'assign');
+    }
+  });
+}
+function sendReminder(btn,name,req) { btn.classList.add('sent'); btn.textContent='✓ Sent'; showToast(`Reminder sent to ${name}: ${req}`); }
+function addCustomForm() {
+  const name=document.getElementById('newFormName').value.trim(); if(!name) return;
+  const tc=document.querySelectorAll('#matrixHeader .matrix-header-cell').length-2;
+  let cells='';
+  for(let i=0;i<tc;i++) cells+=`<div class="traveler-cell">
+    <span class="status-pill pill-unassigned"><span class="status-dot"></span>Not assigned</span>
+    <button class="assign-toggle btn" style="font-size:11px;padding:0;background:none;border:none;color:#4db8e8" onclick="toggleAssign(this,'assign')">+ Assign</button></div>`;
+  const row=document.createElement('div'); row.className='matrix-row';
+  row.innerHTML=`<div class="req-label"><div class="req-icon" style="background:#f0f4ff">📄</div>${name}</div>${cells}
+    <div class="actions-cell"><button class="btn btn-outline btn-sm" onclick="assignAll(this)">Assign All</button></div>`;
+  document.getElementById('formRows').appendChild(row);
+  document.getElementById('newFormName').value=''; showToast(`"${name}" added`);
+}
+function updateSummary() {
+  document.getElementById('sumTravelers').textContent=document.querySelectorAll('.traveler-row').length;
+  document.getElementById('sumPending').textContent=document.querySelectorAll('.pill-pending').length;
+  document.getElementById('sumUploaded').textContent=document.querySelectorAll('.pill-uploaded').length;
+}
+function sendPortal() {
+  const names=[...document.querySelectorAll('.traveler-name')].map(n=>n.textContent);
+  alert(`Portal links sent to:\n• ${names.join('\n• ')}`);
+}
+
+/* ── Invoice ── */
+function parseDollar(s) { return parseFloat(String(s).replace(/[^0-9.-]/g,''))||0; }
+function fmtDollar(n) { return '$'+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
+
+function recalc() {
+  let sub=0;
+  document.querySelectorAll('#lineItemsBody tr').forEach(row=>{
+    const inputs=row.querySelectorAll('input');
+    const qty=parseFloat(inputs[1].value)||1;
+    const unit=parseDollar(inputs[2].value);
+    const total=qty*unit;
+    row.querySelector('.line-total').textContent=fmtDollar(total);
+    sub+=total;
+  });
+  const bal=sub-500;
+  document.getElementById('subtotal').textContent=fmtDollar(sub);
+  document.getElementById('balanceDue').textContent=fmtDollar(Math.max(0,bal));
+}
+
+function addLineItem() {
+  const row=document.createElement('tr');
+  row.innerHTML=`<td><input class="inv-editable" value="New Item"></td>
+    <td><input class="inv-editable" value="1" style="width:50px"></td>
+    <td><input class="inv-amount" value="$0.00" oninput="recalc()"></td>
+    <td class="line-total">$0.00</td>
+    <td><button class="btn btn-ghost btn-sm" onclick="removeLineItem(this)">✕</button></td>`;
+  document.getElementById('lineItemsBody').appendChild(row);
+}
+function removeLineItem(btn) { btn.closest('tr').remove(); recalc(); }
+
+function updateGuestBalance(input) {
+  const row=input.closest('tr');
+  const amounts=row.querySelectorAll('.editable-amount');
+  const due=parseDollar(amounts[0].value);
+  const paid=parseDollar(amounts[1].value);
+  const bal=due-paid;
+  const balCell=row.querySelector('.guest-balance');
+  balCell.textContent=fmtDollar(Math.max(0,bal));
+  const statusCell=row.querySelector('td:last-child span');
+  if(paid>=due){statusCell.className='';statusCell.style.cssText='font-size:11px;background:#f0fff4;color:#276749;padding:3px 8px;border-radius:20px;font-weight:600';statusCell.textContent='✅ Paid';}
+  else if(paid>0){statusCell.className='';statusCell.style.cssText='font-size:11px;background:#fffbeb;color:#b7791f;padding:3px 8px;border-radius:20px;font-weight:600';statusCell.textContent='⏳ Partial';}
+  else{statusCell.className='';statusCell.style.cssText='font-size:11px;background:#fff5f5;color:#c53030;padding:3px 8px;border-radius:20px;font-weight:600';statusCell.textContent='❌ Unpaid';}
+}
+
+function addGuestRow() {
+  const row=document.createElement('tr');
+  row.innerHTML=`<td><input class="inv-editable" placeholder="Traveler name" style="min-width:130px"></td>
+    <td><input class="editable-amount" value="$0.00" oninput="updateGuestBalance(this)"></td>
+    <td><input class="editable-amount" value="$0.00" oninput="updateGuestBalance(this)"></td>
+    <td class="balance-owed guest-balance">$0.00</td>
+    <td style="text-align:center"><span style="font-size:11px;background:#fff5f5;color:#c53030;padding:3px 8px;border-radius:20px;font-weight:600">❌ Unpaid</span></td>`;
+  document.getElementById('guestPaymentBody').appendChild(row);
+}
+
+/* ── Add custom upload requirement ── */
+function addCustomUpload() {
+  const name=document.getElementById('newUploadName').value.trim(); if(!name) return;
+  const tc=document.querySelectorAll('#matrixHeader .matrix-header-cell').length-2;
+  let cells='';
+  for(let i=0;i<tc;i++) cells+=`<div class="traveler-cell">
+    <span class="status-pill pill-unassigned"><span class="status-dot"></span>Not assigned</span>
+    <button class="assign-toggle btn" style="font-size:11px;padding:0;background:none;border:none;color:#4db8e8" onclick="toggleAssign(this,'assign')">+ Assign</button></div>`;
+  const row=document.createElement('div'); row.className='matrix-row';
+  row.innerHTML=`<div class="req-label"><div class="req-icon" style="background:#ebf8ff">📎</div>${name}</div>${cells}
+    <div class="actions-cell"><button class="btn btn-outline btn-sm" onclick="assignAll(this)">Assign All</button></div>`;
+  document.getElementById('uploadRows').appendChild(row);
+  document.getElementById('newUploadName').value='';
+  showToast(`"${name}" added to uploads`);
+}
+
+/* ── Payment Tracker (table-based) ── */
+function toggleGuestSchedule(id, row) {
+  const sched = document.getElementById(id);
+  if (!sched) return;
+  const arrow = row.querySelector('.expand-arrow');
+  if (sched.style.display === 'none' || sched.style.display === '') {
+    sched.style.display = 'table-row';
+    if (arrow) arrow.textContent = '▼';
+  } else {
+    sched.style.display = 'none';
+    if (arrow) arrow.textContent = '▶';
+  }
+}
+
+function toggleSchedDetail(detailRowId, btn) {
+  const row = document.getElementById(detailRowId);
+  if (!row) return;
+  const open = row.style.display === 'table-row';
+  row.style.display = open ? 'none' : 'table-row';
+  btn.style.background = open ? '#e6fffa' : '#276749';
+  btn.style.color = open ? '#2c7a7b' : '#fff';
+  btn.style.borderColor = open ? '#81e6d9' : '#276749';
+}
+
+function toggleTrackerRow(detailRowId, btn) {
+  const row = document.getElementById(detailRowId);
+  if (!row) return;
+  const open = row.style.display === 'table-row';
+  row.style.display = open ? 'none' : 'table-row';
+  btn.style.background = open ? '#e6fffa' : '#276749';
+  btn.style.color = open ? '#2c7a7b' : '#fff';
+  btn.style.borderColor = open ? '#81e6d9' : '#276749';
+}
+
+function openLogPayment(btn) {
+  const mainRow = btn.closest('tr');
+  const logRow = mainRow.nextElementSibling;
+  btn.style.display = 'none';
+  if (logRow) logRow.style.display = 'table-row';
+}
+
+function closeLogPayment(btn) {
+  const logRow = btn.closest('tr');
+  const mainRow = logRow.previousElementSibling;
+  const logBtn = mainRow ? mainRow.querySelector('.open-log-btn') : null;
+  logRow.style.display = 'none';
+  if (logBtn) logBtn.style.display = '';
+}
+
+function markPaidRow(btn) {
+  const logRow = btn.closest('tr');
+  const mainRow = logRow.previousElementSibling;
+  const panel = logRow.querySelector('div[style*="padding:16px"]');
+
+  const amtInput  = panel.querySelector('.log-amt');
+  const dateInput = panel.querySelector('.log-date');
+  const cardInput = panel.querySelector('.log-card');
+  const cvvInput  = panel.querySelector('.log-cvv');
+  const expiryInput = panel.querySelector('.log-expiry');
+  const nameInput = panel.querySelector('.log-name');
+  const addrInput = panel.querySelector('.log-addr');
+  const txnInput  = panel.querySelector('.log-txn');
+  const noteInput = panel.querySelector('.log-note');
+
+  const amt      = amtInput  ? amtInput.value  || '—' : '—';
+  const datePaid = dateInput ? (dateInput.value ? new Date(dateInput.value+'T12:00:00').toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'}) : '—') : '—';
+  const cardVal  = cardInput  ? cardInput.value  : '';
+  const cvvVal   = cvvInput   ? cvvInput.value   : '';
+  const expiryVal= expiryInput? expiryInput.value: '';
+  const nameVal  = nameInput  ? nameInput.value  : '';
+  const addrVal  = addrInput  ? addrInput.value  : '';
+  const txnVal   = txnInput   ? txnInput.value   : '';
+  const noteVal  = noteInput  ? noteInput.value  : '';
+
+  // Update main row cells (7 cols: Milestone, Due Date, Amt Due, Amt Paid, Date Paid, Status, $$)
+  const tds = mainRow.querySelectorAll('td');
+  if (tds[3]) { tds[3].style.color='#276749'; tds[3].style.fontWeight='700'; tds[3].textContent = amt; }
+  if (tds[4]) { tds[4].style.color='#718096'; tds[4].textContent = datePaid; }
+  if (tds[5]) tds[5].innerHTML = '<span style="background:#c6f6d5;color:#276749;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap">✅ Paid in Full</span>';
+
+  // Give the log row a permanent id, swap the $$ cell to a view-details button
+  const newId = 'paid-detail-' + Date.now();
+  logRow.id = newId;
+  if (tds[6]) tds[6].innerHTML = `<button onclick="toggleSchedDetail('${newId}',this)" title="View payment details" style="background:#e6fffa;border:1px solid #81e6d9;color:#2c7a7b;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">💳 $$</button>`;
+
+  // Repaint the log row as a read-only CC detail panel
+  logRow.style.background = '#f7fafc';
+  const innerDiv = logRow.querySelector('td > div');
+  if (innerDiv) {
+    innerDiv.style.borderTopColor = '#81e6d9';
+    const hdr = innerDiv.querySelector('div:first-child');
+    if (hdr) hdr.textContent = '💳 Payment Details — Final Payment';
+    const btnsDiv = innerDiv.querySelector('div:last-child');
+    if (btnsDiv && btnsDiv.querySelector('button')) btnsDiv.remove();
+  }
+  logRow.style.display = 'none'; // collapsed by default after marking paid
+  mainRow.style.background = '#f0fff4';
+
+  showToast('Payment marked as paid ✅');
+}
+
+function openAddMilestone() {
+  const f = document.getElementById('milestoneForm');
+  if (f) f.style.display = 'block';
+}
+function closeMilestoneForm() {
+  const f = document.getElementById('milestoneForm');
+  if (f) f.style.display = 'none';
+}
+function saveMilestone() {
+  const label = document.getElementById('msLabel').value || 'Payment';
+  const amt = document.getElementById('msAmt').value || '0.00';
+  const date = document.getElementById('msDate').value;
+  const note = document.getElementById('msNote').value;
+  const fmtDate = date ? new Date(date+'T12:00:00').toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'}) : '—';
+  const fmtAmt = '$'+parseFloat(amt).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  const uid = 'ms-' + Date.now();
+  const tbody = document.getElementById('trackerBody');
+
+  // Main row
+  const mainTr = document.createElement('tr');
+  mainTr.className = 'tracker-main-row';
+  mainTr.style.borderBottom = '1px solid #e2e8f0';
+  mainTr.innerHTML = `
+    <td style="padding:11px 12px">
+      <div style="font-weight:600;color:#1a2744">${label}</div>
+      ${note?`<div style="font-size:11px;color:#718096;margin-top:1px">${note}</div>`:''}
+    </td>
+    <td style="padding:11px 12px;text-align:right;color:#2d3748">${fmtDate}</td>
+    <td style="padding:11px 12px;text-align:right;color:#2d3748">${fmtAmt}</td>
+    <td style="padding:11px 12px;text-align:right;color:#a0aec0">—</td>
+    <td style="padding:11px 12px;text-align:right;color:#a0aec0">—</td>
+    <td style="padding:11px 12px;text-align:center"><span style="background:#fffbeb;color:#b7791f;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap">📅 Upcoming</span></td>
+    <td style="padding:11px 12px;text-align:center">
+      <button class="open-log-btn" onclick="openLogPayment(this)" style="background:#1a2744;color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">+ Log $</button>
+    </td>`;
+
+  // Log payment row
+  const logTr = document.createElement('tr');
+  logTr.id = uid;
+  logTr.className = 'log-payment-row';
+  logTr.style.display = 'none';
+  logTr.style.background = '#fffbf0';
+  logTr.innerHTML = `<td colspan="7" style="padding:0">
+    <div style="padding:16px 18px;border-top:2px solid #fbd38d">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#718096;margin-bottom:12px">💳 Log Incoming Payment — ${label}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin-bottom:12px">
+        <div><div class="pay-field-label">Cardholder Name</div><input class="pay-field-input log-name" placeholder="Name on card"></div>
+        <div><div class="pay-field-label">Card Number</div><input class="pay-field-input log-card" type="text" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCard(this)"></div>
+        <div><div class="pay-field-label">Expiry (MM/YY)</div><input class="pay-field-input log-expiry" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)"></div>
+        <div><div class="pay-field-label">CVV</div><input class="pay-field-input log-cvv" type="text" placeholder="123" maxlength="4"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:12px">
+        <div><div class="pay-field-label">Billing Address</div><input class="pay-field-input log-addr" placeholder="Street address"></div>
+        <div><div class="pay-field-label">City</div><input class="pay-field-input" placeholder="City"></div>
+        <div><div class="pay-field-label">ZIP</div><input class="pay-field-input" placeholder="ZIP"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:160px 160px 160px 1fr;gap:14px;margin-bottom:14px">
+        <div><div class="pay-field-label">Amount Received</div><input class="pay-field-input log-amt" placeholder="$0.00"></div>
+        <div><div class="pay-field-label">Date Received</div><input class="pay-field-input log-date" type="date"></div>
+        <div><div class="pay-field-label">Transaction ID</div><input class="pay-field-input log-txn" placeholder="txn_…"></div>
+        <div><div class="pay-field-label">Notes</div><input class="pay-field-input log-note" placeholder="Optional notes"></div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button onclick="markPaidRow(this)" style="background:#276749;border:none;color:#fff;padding:8px 20px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">✅ Mark as Paid</button>
+        <button onclick="closeLogPayment(this)" style="background:#e2e8f0;border:none;color:#718096;padding:8px 14px;border-radius:6px;font-size:13px;cursor:pointer">Cancel</button>
+      </div>
+    </div>
+  </td>`;
+
+  tbody.appendChild(mainTr);
+  tbody.appendChild(logTr);
+  closeMilestoneForm();
+  ['msLabel','msAmt','msDate','msNote'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  showToast(`Milestone added: ${label}`);
+}
+
+function formatCard(input) {
+  let v=input.value.replace(/\D/g,'').slice(0,16);
+  input.value=v.replace(/(.{4})/g,'$1 ').trim();
+}
+function formatExpiry(input) {
+  let v=input.value.replace(/\D/g,'').slice(0,4);
+  if(v.length>=3) v=v.slice(0,2)+'/'+v.slice(2);
+  input.value=v;
+}
+
+/* ── Toast ── */
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>

@@ -7,9 +7,12 @@
 // replace this with Netlify Identity, Auth0, or a login endpoint backed by the
 // bridge server in server/ that issues a real session token.
 //
-// To change the employee login, edit the two constants below.
-const EMPLOYEE_USERNAME = "d4dstaff";
-const EMPLOYEE_PASSWORD = "ChangeMe2026!";
+// To add or change employee logins, edit the list below -- one entry per
+// person who should have access.
+const EMPLOYEES = [
+  { username: "DPowell11", password: "DeadPool1128" },
+  { username: "destined4destinations@gmail.com", password: "Agent1038@@@" },
+];
 
 const SESSION_KEY = "d4d_crm_authed";
 
@@ -19,7 +22,11 @@ document.getElementById("login-form").addEventListener("submit", function (e) {
   const password = document.getElementById("password").value;
   const errorEl = document.getElementById("login-error");
 
-  if (username === EMPLOYEE_USERNAME && password === EMPLOYEE_PASSWORD) {
+  const match = EMPLOYEES.some(
+    (u) => u.username === username && u.password === password
+  );
+
+  if (match) {
     sessionStorage.setItem(SESSION_KEY, "1");
     window.location.href = "index.html";
   } else {

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Destined 4 Destinations — Supplier Detail</title>
+<script src="auth-guard.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --teal: #1fa3c9; --teal-dark: #0b3d6b; --gold: #1fa3c9;
+    --bg: #f6f5f1; --ink: #1f2937; --muted: #6b7280; --border: #e5e7eb;
+    --ok-bg: #d1fae5; --ok-ink: #065f46; --err-bg: #fee2e2; --err-ink: #991b1b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--ink);
+  }
+  header {
+    background: var(--teal-dark); color: white; padding: 20px 28px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  }
+  header h1 { font-size: 1.3rem; margin: 0; }
+  header h1 span { color: var(--gold); }
+  header .links { display: flex; align-items: center; gap: 16px; }
+  header a { color: white; font-size: 0.85rem; text-decoration: underline; }
+  .container { max-width: 1180px; margin: 0 auto; padding: 24px; }
+
+  .settings {
+    background: white; border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px 22px; margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: end;
+  }
+  .settings label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+  .settings input { padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; width: 260px; font-size: 0.9rem; }
+  .settings button {
+    background: var(--teal); color: white; border: none; padding: 10px 18px;
+    border-radius: 8px; font-weight: 600; cursor: pointer;
+  }
+  .settings button:hover { background: var(--teal-dark); }
+  .status { font-size: 0.85rem; color: var(--muted); margin-left: auto; }
+
+  .empty-msg {
+    background: white; border: 1px solid var(--border); border-radius: 12px; padding: 40px;
+    text-align: center; color: var(--muted); margin-bottom: 20px;
+  }
+
+  .sup-header {
+    background: white; border: 1px solid var(--border); border-radius: 14px; padding: 22px 26px;
+    margin-bottom: 20px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+  }
+  .sup-header-avatar {
+    width: 56px; height: 56px; border-radius: 50%; background: var(--teal-dark); color: white;
+    display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0;
+  }
+  .sup-header-name { font-size: 1.25rem; font-weight: 800; margin: 0 0 4px; }
+  .sup-header-meta { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); }
+  .sup-header-meta a { color: var(--teal-dark); }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.74rem; font-weight: 600; }
+  .badge.cat-airline { background:#e0e7ff; color:#3730a3; }
+  .badge.cat-hotel { background:#fef3c7; color:#92400e; }
+  .badge.cat-cruise-line { background:#dbeafe; color:#1e40af; }
+  .badge.cat-tour-operator { background:#d1fae5; color:#065f46; }
+  .badge.cat-car-rental { background:#fee2e2; color:#991b1b; }
+  .badge.cat-insurance { background:#ede9fe; color:#5b21b6; }
+  .badge.cat-ground-operator-dmc { background:#e7e5e4; color:#44403c; }
+  .badge.cat-other { background:#f3f4f6; color:#4b5563; }
+  .badge.inquiry { background: #f3f4f6; color: #4b5563; }
+  .badge.quoted { background: #fef3c7; color: #92400e; }
+  .badge.booked { background: #dbeafe; color: #1e40af; }
+  .badge.deposit-paid { background: #fed7aa; color: #9a3412; }
+  .badge.paid-in-full { background: #ede9fe; color: #5b21b6; }
+  .badge.traveled { background: #d1fae5; color: #065f46; }
+  .badge.completed { background: #e7e5e4; color: #44403c; }
+  .badge.cancelled { background: #fee2e2; color: #991b1b; }
+
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+  .tab-btn {
+    background: white; border: 1px solid var(--border); color: var(--muted); padding: 8px 16px;
+    border-radius: 999px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+  }
+  .tab-btn:hover { border-color: var(--teal); color: var(--teal-dark); }
+  .tab-btn.active { background: var(--teal-dark); border-color: var(--teal-dark); color: white; }
+  .tab-section { display: none; }
+  .tab-section.active { display: block; }
+
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+  .stat-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; }
+  .stat-label { font-size: 0.78rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 8px; }
+  .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--teal-dark); }
+  .stat-value.warn { color: #b45309; }
+  @media (max-width: 900px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+
+  .card {
+    background: white; border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; margin-bottom: 20px;
+  }
+  .card-title { font-weight: 700; font-size: 0.98rem; margin-bottom: 14px; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+  .dest-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 0.85rem; }
+  .dest-name { width: 120px; flex-shrink: 0; font-weight: 600; }
+  .dest-bar-track { flex: 1; background: #f3f4f6; border-radius: 999px; height: 10px; overflow: hidden; }
+  .dest-bar-fill { background: var(--teal); height: 100%; border-radius: 999px; }
+  .dest-value { width: 80px; flex-shrink: 0; text-align: right; color: var(--muted); }
+
+  .booking-row {
+    display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border);
+    font-size: 0.86rem; align-items: center;
+  }
+  .booking-row:last-child { border-bottom: none; }
+  .booking-name { font-weight: 600; }
+  .booking-meta { color: var(--muted); font-size: 0.78rem; }
+  .booking-value { font-weight: 700; color: var(--teal-dark); white-space: nowrap; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+  th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+  thead th { color: var(--muted); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  .empty-cell { text-align: center; color: var(--muted); padding: 24px; }
+
+  .coming-soon {
+    display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px;
+    padding: 50px 20px; color: var(--muted); text-align: center;
+  }
+  .coming-soon .badge {
+    background: #fef3c7; color: #92400e; font-size: 0.72rem; font-weight: 700;
+    padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .coming-soon p { max-width: 360px; margin: 0; font-size: 0.86rem; }
+
+  @media (max-width: 760px) {
+    .container { padding: 14px; }
+    header { padding: 14px 16px; }
+    .settings { flex-direction: column; align-items: stretch; }
+    .settings input { width: 100%; }
+    .status { margin-left: 0; }
+    .two-col { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Destined 4 <span>Destinations</span> — Supplier Detail</h1>
+  <div class="links">
+    <a href="index.html">&larr; Dashboard</a>
+    <a href="#" id="logout-link">Log out</a>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="settings">
+    <div>
+      <label for="server-url">Server URL</label>
+      <input id="server-url" type="text" placeholder="https://your-server.example.com" autocomplete="off" data-lpignore="true" data-1p-ignore autocorrect="off" spellcheck="false" />
+    </div>
+    <div>
+      <label for="api-key">API Key</label>
+      <input id="api-key" type="password" placeholder="DASHBOARD_API_KEY" />
+    </div>
+    <button id="connect-btn">Connect &amp; Load</button>
+    <div class="status" id="conn-indicator">Not connected</div>
+  </div>
+
+  <div id="no-id-msg" class="empty-msg" style="display:none;">
+    No supplier selected. Go back to the <a href="index.html">Dashboard</a> and choose a supplier to view.
+  </div>
+
+  <div id="supplier-content" style="display:none;">
+
+    <div class="sup-header">
+      <div class="sup-header-avatar" id="sup-avatar">&#127970;</div>
+      <div>
+        <div class="sup-header-name" id="sup-name">—</div>
+        <div class="sup-header-meta">
+          <span id="sup-type-badge"></span>
+          <span id="sup-phone"></span>
+          <span id="sup-website"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="overview">Overview</button>
+      <button class="tab-btn" data-tab="bookings">Bookings</button>
+      <button class="tab-btn" data-tab="commissions">Commissions</button>
+      <button class="tab-btn" data-tab="payments">Payments</button>
+      <button class="tab-btn" data-tab="documents">Documents</button>
+      <button class="tab-btn" data-tab="contacts">Contacts</button>
+    </div>
+
+    <!-- ===== OVERVIEW ===== -->
+    <div class="tab-section active" id="tab-overview">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Sales (All Time)</div>
+          <div class="stat-value" id="ov-sales">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Commission (All Time)</div>
+          <div class="stat-value" id="ov-commission">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Outstanding Balance</div>
+          <div class="stat-value warn" id="ov-outstanding">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Bookings</div>
+          <div class="stat-value" id="ov-bookings">—</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Sales &amp; Commission Trend</div>
+        <canvas id="trend-chart" height="90"></canvas>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">Top Destinations</div>
+          <div id="top-destinations"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Recent Bookings</div>
+          <div id="recent-bookings"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== BOOKINGS ===== -->
+    <div class="tab-section" id="tab-bookings">
+      <div class="card">
+        <div class="card-title">All Bookings</div>
+        <table>
+          <thead><tr><th>Trip</th><th>Client</th><th>Departure</th><th>Return</th><th>Travelers</th><th>Value</th><th>Commission</th><th>Status</th></tr></thead>
+          <tbody id="bookings-body"><tr><td colspan="8" class="empty-cell">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== COMMISSIONS ===== -->
+    <div class="tab-section" id="tab-commissions">
+      <div class="stats-row" style="grid-template-columns:repeat(3, 1fr);">
+        <div class="stat-card">
+          <div class="stat-label">Expected</div>
+          <div class="stat-value" id="comm-expected">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Collected</div>
+          <div class="stat-value" id="comm-collected">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Past Due</div>
+          <div class="stat-value warn" id="comm-pastdue">—</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Commission Detail</div>
+        <table>
+          <thead><tr><th>Trip</th><th>Client</th><th>Departure</th><th>Commission</th><th>Commission Status</th></tr></thead>
+          <tbody id="commissions-body"><tr><td colspan="5" class="empty-cell">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== PAYMENTS (coming soon) ===== -->
+    <div class="tab-section" id="tab-payments">
+      <div class="card">
+        <div class="coming-soon">
+          <span class="badge">Coming soon</span>
+          <p>Payment tracking for this supplier isn't wired up yet — it'll live here once payment records are part of the CRM.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== DOCUMENTS (coming soon) ===== -->
+    <div class="tab-section" id="tab-documents">
+      <div class="card">
+        <div class="coming-soon">
+          <span class="badge">Coming soon</span>
+          <p>Supplier contracts and documents aren't synced yet — this tab will hold them once that's connected.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CONTACTS (coming soon) ===== -->
+    <div class="tab-section" id="tab-contacts">
+      <div class="card">
+        <div class="coming-soon">
+          <span class="badge">Coming soon</span>
+          <p>Supplier account rep / contact details aren't part of this view yet.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  const els = {
+    serverUrl: document.getElementById('server-url'),
+    apiKey: document.getElementById('api-key'),
+    connectBtn: document.getElementById('connect-btn'),
+    connIndicator: document.getElementById('conn-indicator'),
+    noIdMsg: document.getElementById('no-id-msg'),
+    supplierContent: document.getElementById('supplier-content'),
+    bookingsBody: document.getElementById('bookings-body'),
+    commissionsBody: document.getElementById('commissions-body'),
+  };
+
+  els.apiKey.value = (localStorage.getItem('pharin_api_key') || '').trim();
+  els.serverUrl.value = window.location.origin;
+  localStorage.setItem('pharin_server_url', els.serverUrl.value);
+
+  function esc(v) {
+    if (v === null || v === undefined) return '';
+    return String(v).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+  function money(n) {
+    if (n === null || n === undefined || n === '') return '$0';
+    return '$' + Math.round(Number(n)).toLocaleString();
+  }
+  function fmtDate(d) {
+    if (!d) return '';
+    const dt = new Date(/^\d{4}-\d{2}-\d{2}$/.test(d) ? d + 'T00:00:00' : d);
+    if (isNaN(dt)) return d;
+    return dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+  function statusBadge(status) {
+    if (!status) return '';
+    const slug = status.toLowerCase().replace(/\s+/g, '-');
+    return `<span class="badge ${slug}">${esc(status)}</span>`;
+  }
+  function catSlug(type) {
+    return (type || 'other').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  }
+  function supplierIcon(type) {
+    const icons = {
+      'Airline': '&#9992;', 'Hotel': '&#127976;', 'Cruise Line': '&#9973;',
+      'Tour Operator': '&#127757;', 'Car Rental': '&#128663;', 'Insurance': '&#128737;',
+      'Ground Operator/DMC': '&#128205;',
+    };
+    return icons[type] || '&#127970;';
+  }
+
+  function base() {
+    return (els.serverUrl.value.trim() || window.location.origin).replace(/\/$/, '');
+  }
+  async function apiGet(path) {
+    const res = await fetch(base() + path, { headers: { 'X-Api-Key': els.apiKey.value.trim() } });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${await res.text().catch(() => '')}`);
+    return res.json();
+  }
+
+  document.querySelectorAll('.tab-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach((b) => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.tab-section').forEach((s) => s.classList.toggle('active', s.id === 'tab-' + btn.dataset.tab));
+    });
+  });
+
+  let trendChart = null;
+
+  function renderOverview(supplier, trips) {
+    const totalSales = trips.reduce((s, t) => s + (Number(t.trip_value) || 0), 0);
+    const totalCommission = trips.reduce((s, t) => s + (Number(t.commission) || 0), 0);
+    const outstanding = trips.filter((t) => t.commission_status === 'Past Due').reduce((s, t) => s + (Number(t.commission) || 0), 0);
+    document.getElementById('ov-sales').textContent = money(totalSales);
+    document.getElementById('ov-commission').textContent = money(totalCommission);
+    document.getElementById('ov-outstanding').textContent = money(outstanding);
+    document.getElementById('ov-bookings').textContent = String(trips.length);
+
+    // ---- Trend chart: group by departure month ----
+    const byMonth = {};
+    trips.forEach((t) => {
+      if (!t.departure_date) return;
+      const ym = t.departure_date.slice(0, 7);
+      if (!byMonth[ym]) byMonth[ym] = { sales: 0, commission: 0 };
+      byMonth[ym].sales += Number(t.trip_value) || 0;
+      byMonth[ym].commission += Number(t.commission) || 0;
+    });
+    const months = Object.keys(byMonth).sort();
+    const labels = months.map((ym) => {
+      const [y, m] = ym.split('-');
+      return new Date(Number(y), Number(m) - 1, 1).toLocaleDateString(undefined, { month: 'short', year: '2-digit' });
+    });
+    const salesData = months.map((ym) => byMonth[ym].sales);
+    const commData = months.map((ym) => byMonth[ym].commission);
+
+    const ctx = document.getElementById('trend-chart').getContext('2d');
+    if (trendChart) trendChart.destroy();
+    if (!months.length) {
+      ctx.canvas.parentElement.querySelector('canvas').style.display = 'none';
+      const note = document.createElement('div');
+      note.className = 'empty-cell';
+      note.textContent = 'No dated bookings yet for this supplier.';
+      ctx.canvas.parentElement.appendChild(note);
+    } else {
+      trendChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Sales', data: salesData, backgroundColor: '#1fa3c9' },
+            { label: 'Commission', data: commData, backgroundColor: '#c9973f' },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'bottom' } },
+          scales: { y: { beginAtZero: true, ticks: { callback: (v) => '$' + v.toLocaleString() } } },
+        },
+      });
+    }
+
+    // ---- Top destinations ----
+    const byDest = {};
+    trips.forEach((t) => {
+      if (!t.destination) return;
+      byDest[t.destination] = (byDest[t.destination] || 0) + (Number(t.trip_value) || 0);
+    });
+    const destEntries = Object.entries(byDest).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    const destEl = document.getElementById('top-destinations');
+    if (!destEntries.length) {
+      destEl.innerHTML = '<div class="empty-cell">No destination data on file for this supplier\\'s bookings.</div>';
+    } else {
+      const max = destEntries[0][1] || 1;
+      destEl.innerHTML = destEntries.map(([name, val]) => `
+        <div class="dest-row">
+          <div class="dest-name">${esc(name)}</div>
+          <div class="dest-bar-track"><div class="dest-bar-fill" style="width:${Math.max(4, Math.round((val / max) * 100))}%"></div></div>
+          <div class="dest-value">${money(val)}</div>
+        </div>
+      `).join('');
+    }
+
+    // ---- Recent bookings ----
+    const recent = [...trips]
+      .filter((t) => t.departure_date)
+      .sort((a, b) => new Date(b.departure_date) - new Date(a.departure_date))
+      .slice(0, 8);
+    const recentEl = document.getElementById('recent-bookings');
+    if (!recent.length) {
+      recentEl.innerHTML = '<div class="empty-cell">No bookings yet.</div>';
+    } else {
+      recentEl.innerHTML = recent.map((t) => `
+        <div class="booking-row">
+          <div>
+            <div class="booking-name">${esc(t.trip_name)}</div>
+            <div class="booking-meta">${esc(t.client_name || 'Unknown client')} · ${fmtDate(t.departure_date)}</div>
+          </div>
+          <div class="booking-value">${money(t.trip_value)}</div>
+        </div>
+      `).join('');
+    }
+  }
+
+  function renderBookings(trips) {
+    if (!trips.length) {
+      els.bookingsBody.innerHTML = '<tr><td colspan="8" class="empty-cell">No bookings for this supplier yet.</td></tr>';
+      return;
+    }
+    const sorted = [...trips].sort((a, b) => new Date(b.departure_date || 0) - new Date(a.departure_date || 0));
+    els.bookingsBody.innerHTML = sorted.map((t) => `
+      <tr>
+        <td>${esc(t.trip_name)}</td>
+        <td>${esc(t.client_name)}</td>
+        <td>${fmtDate(t.departure_date)}</td>
+        <td>${fmtDate(t.return_date)}</td>
+        <td>${t.number_of_travelers ?? ''}</td>
+        <td>${money(t.trip_value)}</td>
+        <td>${money(t.commission)}</td>
+        <td>${statusBadge(t.booking_status)}</td>
+      </tr>
+    `).join('');
+  }
+
+  function renderCommissions(trips) {
+    const expected = trips.filter((t) => t.commission_status === 'Expected').reduce((s, t) => s + (Number(t.commission) || 0), 0);
+    const collected = trips.filter((t) => t.commission_status === 'Collected').reduce((s, t) => s + (Number(t.commission) || 0), 0);
+    const pastDue = trips.filter((t) => t.commission_status === 'Past Due').reduce((s, t) => s + (Number(t.commission) || 0), 0);
+    document.getElementById('comm-expected').textContent = money(expected);
+    document.getElementById('comm-collected').textContent = money(collected);
+    document.getElementById('comm-pastdue').textContent = money(pastDue);
+
+    const withCommission = trips.filter((t) => t.commission);
+    if (!withCommission.length) {
+      els.commissionsBody.innerHTML = '<tr><td colspan="5" class="empty-cell">No commission data for this supplier yet.</td></tr>';
+      return;
+    }
+    const sorted = [...withCommission].sort((a, b) => new Date(b.departure_date || 0) - new Date(a.departure_date || 0));
+    els.commissionsBody.innerHTML = sorted.map((t) => `
+      <tr>
+        <td>${esc(t.trip_name)}</td>
+        <td>${esc(t.client_name)}</td>
+        <td>${fmtDate(t.departure_date)}</td>
+        <td>${money(t.commission)}</td>
+        <td>${esc(t.commission_status)}</td>
+      </tr>
+    `).join('');
+  }
+
+  async function connectAndLoad() {
+    localStorage.setItem('pharin_api_key', els.apiKey.value.trim());
+    localStorage.setItem('pharin_server_url', els.serverUrl.value.trim());
+
+    const params = new URLSearchParams(window.location.search);
+    const supplierId = params.get('id');
+    if (!supplierId) {
+      els.noIdMsg.style.display = 'block';
+      els.supplierContent.style.display = 'none';
+      return;
+    }
+
+    els.connIndicator.textContent = 'Loading…';
+    els.connIndicator.style.color = '';
+    try {
+      const [{ supplier }, { trips }] = await Promise.all([
+        apiGet('/api/suppliers/' + supplierId),
+        apiGet('/api/trips'),
+      ]);
+      const supplierTrips = (trips || []).filter((t) => t.supplier_id === supplierId);
+
+      document.getElementById('sup-avatar').innerHTML = supplierIcon(supplier.supplier_type);
+      document.getElementById('sup-name').textContent = supplier.name || 'Unnamed supplier';
+      document.getElementById('sup-type-badge').innerHTML = supplier.supplier_type
+        ? `<span class="badge cat-${catSlug(supplier.supplier_type)}">${esc(supplier.supplier_type)}</span>` : '';
+      document.getElementById('sup-phone').textContent = supplier.phone || '';
+      document.getElementById('sup-website').innerHTML = supplier.website
+        ? `<a href="${esc(supplier.website)}" target="_blank" rel="noopener">${esc(supplier.website)}</a>` : '';
+
+      renderOverview(supplier, supplierTrips);
+      renderBookings(supplierTrips);
+      renderCommissions(supplierTrips);
+
+      els.noIdMsg.style.display = 'none';
+      els.supplierContent.style.display = 'block';
+      els.connIndicator.textContent = 'Connected · ' + new Date().toLocaleTimeString();
+    } catch (err) {
+      els.connIndicator.textContent = 'Connection failed — ' + err.message;
+      els.connIndicator.style.color = '#b91c1c';
+    }
+  }
+
+  els.connectBtn.addEventListener('click', connectAndLoad);
+
+  document.getElementById('logout-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    sessionStorage.removeItem('d4d_crm_authed');
+    window.location.href = 'login.html';
+  });
+
+  if (els.apiKey.value) {
+    connectAndLoad();
+  }
+</script>
+
+</body>
+</html>

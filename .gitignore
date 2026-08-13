@@ -1,0 +1,9 @@
+node_modules/
+__pycache__/
+*.pyc
+.env
+.env.*
+*.bak
+*.bak-*
+*.bak.*
+*.notion-backup.*
