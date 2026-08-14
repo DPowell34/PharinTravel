@@ -619,6 +619,19 @@ tr:hover td{background:#fafcfd}
     </div>
     <!-- FORMS TAB -->
     <div id="td-forms" class="td-panel" style="display:none">
+
+      <!-- FORM PICKER -->
+      <div style="background:var(--teal-bg);border:1px solid rgba(74,184,213,0.3);border-radius:10px;padding:16px;margin-bottom:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px">Send a Client Form</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select id="form-picker" style="flex:1;min-width:220px;border:1px solid var(--gray-light);border-radius:7px;padding:8px 12px;font-size:13px;font-family:inherit;background:#fff">
+            <option value="">— Choose a form —</option>
+          </select>
+          <button class="btn btn-sm btn-teal" onclick="sendFormFromPicker()">Send →</button>
+        </div>
+        <div id="form-picker-hint" style="font-size:11px;color:var(--gray);margin-top:8px">Select a client form — it is marked Sent and a request message is loaded into the Message tab's compose box.</div>
+      </div>
+
       <div style="display:grid;gap:14px" id="trip-forms-list"></div>
     </div>
 
@@ -2069,7 +2082,7 @@ function openTripDetail(idx){
   document.getElementById('td-notes').textContent = t.notes||'No notes';
   // traveler names on overview (uses linked travelers from client list)
   renderTravelersOverview(idx);
-  updateFormsTabBadge(idx);
+  renderTripForms(idx);
   // invoice summary header
   document.getElementById('inv-dest-display').textContent = t.dest||'—';
   document.getElementById('inv-client-display').textContent = t.client||'—';
@@ -2125,7 +2138,7 @@ function tdTab(el, panelId){
   document.getElementById(panelId).style.display='';
   if(panelId==='td-portal'){ renderPortalReqs(currentTripDetailIdx); renderPaySchedule(currentTripDetailIdx); renderPortalCards(currentTripDetailIdx); }
   if(panelId==='td-travelers'){ renderPortalReqs(currentTripDetailIdx); renderTravelerSubmissions(currentTripDetailIdx); renderPortalReqResponses(currentTripDetailIdx); renderTravelerNameList(currentTripDetailIdx); }
-  if(panelId==='td-forms'){ updateFormsTabBadge(currentTripDetailIdx); }
+  if(panelId==='td-forms'){ renderTripForms(currentTripDetailIdx); }
   if(panelId==='td-invoice'){ renderPaySchedule(currentTripDetailIdx); }
   if(panelId==='td-docs'){ renderChecklist(currentTripDetailIdx); }
 }
@@ -3583,7 +3596,31 @@ function renderTripForms(idx) {
       </div>`;
   }).join('');
 
+  renderFormPicker(idx);
   updateFormsTabBadge(idx);
+}
+
+// Fills the Forms tab picker with every form that hasn't been completed yet
+function renderFormPicker(idx){
+  const picker = document.getElementById('form-picker');
+  if(!picker) return;
+  const forms = tripForms[idx] || {};
+  const available = getFormDefs().filter(fd => (forms[fd.key]||{}).status !== 'completed');
+  picker.innerHTML = '<option value="">— Choose a form —</option>' + available.map(fd => {
+    const sent = (forms[fd.key]||{}).status === 'sent';
+    return `<option value="${fd.key}">${escHtml(fd.name)}${sent?' (sent — resend)':''}</option>`;
+  }).join('');
+  const hint = document.getElementById('form-picker-hint');
+  if(hint && !available.length) hint.textContent = 'All client forms for this trip have been completed.';
+  else if(hint) hint.textContent = "Select a client form — it is marked Sent and a request message is loaded into the Message tab's compose box.";
+}
+
+function sendFormFromPicker(){
+  const picker = document.getElementById('form-picker');
+  const key = picker ? picker.value : '';
+  if(!key){ showToast('Choose a form first'); return; }
+  sendFormToClient(key, currentTripDetailIdx);
+  picker.value = '';
 }
 
 function updateFormsTabBadge(idx){
