@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Destined 4 Destinations — Add / Edit Records</title>
+<script src="auth-guard.js"></script>
+<style>
+  :root {
+    --teal: #1fa3c9; --teal-dark: #0b3d6b; --gold: #1fa3c9;
+    --bg: #f6f5f1; --ink: #1f2937; --muted: #6b7280; --border: #e5e7eb;
+    --ok-bg: #d1fae5; --ok-ink: #065f46; --err-bg: #fee2e2; --err-ink: #991b1b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--ink);
+  }
+  header {
+    background: var(--teal-dark); color: white; padding: 20px 28px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  }
+  header h1 { font-size: 1.3rem; margin: 0; }
+  header h1 span { color: var(--gold); }
+  header .links { display: flex; align-items: center; gap: 16px; }
+  header a { color: white; font-size: 0.85rem; text-decoration: underline; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 24px; }
+
+  .settings {
+    background: white; border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px 22px; margin-bottom: 24px; display: flex; gap: 12px; flex-wrap: wrap; align-items: end;
+  }
+  .settings label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+  .settings input { padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; width: 260px; font-size: 0.9rem; }
+  .settings button {
+    background: var(--teal); color: white; border: none; padding: 10px 18px;
+    border-radius: 8px; font-weight: 600; cursor: pointer;
+  }
+  .settings button:hover { background: var(--teal-dark); }
+  .status { font-size: 0.85rem; color: var(--muted); margin-left: auto; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+  .tab {
+    padding: 9px 18px; border-radius: 999px; background: white; border: 1px solid var(--border);
+    cursor: pointer; font-weight: 600; color: var(--muted); font-size: 0.9rem;
+  }
+  .tab.active { background: var(--teal); color: white; border-color: var(--teal); }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .card {
+    background: white; border: 1px solid var(--border); border-radius: 12px; padding: 22px;
+  }
+  .record-picker {
+    display: flex; gap: 10px; align-items: end; flex-wrap: wrap;
+    padding-bottom: 18px; margin-bottom: 18px; border-bottom: 1px solid var(--border);
+  }
+  .record-picker label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+  .record-picker select { padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; width: 300px; font-size: 0.9rem; }
+  .btn-secondary {
+    background: white; color: var(--teal-dark); border: 1px solid var(--border); padding: 9px 16px;
+    border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.85rem;
+  }
+  .btn-secondary:hover { background: #fafaf9; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 18px; }
+  .form-grid .full { grid-column: 1 / -1; }
+  .field label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--muted); margin-bottom: 5px; }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem;
+    font-family: inherit;
+  }
+  .field textarea { resize: vertical; min-height: 60px; }
+  .required-mark { color: #b91c1c; }
+
+  .new-toggle { font-size: 0.8rem; color: var(--teal-dark); cursor: pointer; margin-top: 6px; display: inline-block; }
+  .inline-new { display: none; margin-top: 10px; padding: 12px; background: #fafaf9; border-radius: 8px; }
+  .inline-new.active { display: block; }
+  .inline-new .form-grid { grid-template-columns: 1fr 1fr; }
+
+  .actions { margin-top: 22px; display: flex; align-items: center; gap: 14px; }
+  .btn-primary {
+    background: var(--teal); color: white; border: none; padding: 11px 22px;
+    border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.92rem;
+  }
+  .btn-primary:hover { background: var(--teal-dark); }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .msg { padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; display: none; }
+  .msg.ok { background: var(--ok-bg); color: var(--ok-ink); display: block; }
+  .msg.err { background: var(--err-bg); color: var(--err-ink); display: block; }
+
+  .hint { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+
+  @media (max-width: 640px) {
+    .container { padding: 14px; }
+    header { padding: 14px 16px; }
+    header h1 { font-size: 1.1rem; }
+    .settings { flex-direction: column; align-items: stretch; }
+    .settings input { width: 100%; }
+    .status { margin-left: 0; }
+    .record-picker { flex-direction: column; align-items: stretch; }
+    .record-picker select { width: 100%; }
+    .form-grid, .inline-new .form-grid { grid-template-columns: 1fr; }
+    .tabs { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Destined 4 <span>Destinations</span> — Add / Edit Records</h1>
+  <div class="links">
+    <a href="index.html">&larr; Dashboard</a>
+    <a href="#" id="logout-link">Log out</a>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="settings">
+    <div>
+      <label for="server-url">Server URL</label>
+      <input id="server-url" type="text" placeholder="https://your-server.example.com" autocomplete="off" data-lpignore="true" data-1p-ignore autocorrect="off" spellcheck="false" />
+    </div>
+    <div>
+      <label for="api-key">API Key</label>
+      <input id="api-key" type="password" placeholder="DASHBOARD_API_KEY" />
+    </div>
+    <button id="connect-btn">Connect &amp; Load</button>
+    <div class="status" id="conn-indicator">Not connected</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="trips">Trips</div>
+    <div class="tab" data-tab="clients">Clients</div>
+    <div class="tab" data-tab="suppliers">Suppliers</div>
+  </div>
+
+  <!-- ================= TRIPS ================= -->
+  <div class="panel active" id="panel-trips">
+    <div class="card">
+      <div class="record-picker">
+        <div>
+          <label for="trip-picker">Existing trip</label>
+          <select id="trip-picker"><option value="">— New trip —</option></select>
+        </div>
+        <button class="btn-secondary" id="trip-new-btn" type="button">+ New trip</button>
+      </div>
+
+      <div id="trip-msg" class="msg"></div>
+
+      <form id="trip-form">
+        <div class="form-grid">
+          <div class="field full">
+            <label>Trip name <span class="required-mark">*</span></label>
+            <input type="text" id="trip-name" required />
+          </div>
+          <div class="field">
+            <label>TravelJoy Trip ID</label>
+            <input type="text" id="trip-tjid" />
+          </div>
+          <div class="field">
+            <label>Booking status</label>
+            <select id="trip-status">
+              <option value="">—</option>
+              <option>Inquiry</option>
+              <option>Quoted</option>
+              <option>Booked</option>
+              <option>Deposit Paid</option>
+              <option>Paid in Full</option>
+              <option>Traveled</option>
+              <option>Completed</option>
+              <option>Cancelled</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Client <span class="required-mark">*</span></label>
+            <select id="trip-client"><option value="">— Select client —</option></select>
+            <span class="new-toggle" id="trip-client-toggle">+ Add a new client</span>
+            <div class="inline-new" id="trip-client-new">
+              <div class="form-grid">
+                <div class="field"><label>Name</label><input type="text" id="new-client-name" /></div>
+                <div class="field"><label>Email</label><input type="email" id="new-client-email" /></div>
+                <div class="field"><label>Phone</label><input type="text" id="new-client-phone" /></div>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Supplier</label>
+            <select id="trip-supplier"><option value="">— Select supplier —</option></select>
+            <span class="new-toggle" id="trip-supplier-toggle">+ Add a new supplier</span>
+            <div class="inline-new" id="trip-supplier-new">
+              <div class="form-grid">
+                <div class="field"><label>Name</label><input type="text" id="new-supplier-name" /></div>
+                <div class="field">
+                  <label>Type</label>
+                  <select id="new-supplier-type">
+                    <option value="">—</option>
+                    <option>Cruise Line</option>
+                    <option>Resort</option>
+                    <option>Tour Operator</option>
+                    <option>Airline</option>
+                    <option>Hotel</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field full">
+            <label>Destination</label>
+            <input type="text" id="trip-destination" />
+          </div>
+          <div class="field">
+            <label>Trip type</label>
+            <input type="text" id="trip-type" list="trip-type-options" placeholder="Cruise, Resort, Disney/Universal…" />
+            <datalist id="trip-type-options">
+              <option value="Cruise"></option>
+              <option value="Resort"></option>
+              <option value="Disney/Universal"></option>
+              <option value="Honeymoon"></option>
+              <option value="Group"></option>
+              <option value="All-Inclusive"></option>
+              <option value="Other"></option>
+            </datalist>
+          </div>
+          <div class="field">
+            <label>Number of travelers</label>
+            <input type="number" id="trip-travelers" min="1" />
+          </div>
+
+          <div class="field">
+            <label>Departure date</label>
+            <input type="date" id="trip-departure" />
+          </div>
+          <div class="field">
+            <label>Return date</label>
+            <input type="date" id="trip-return" />
+          </div>
+
+          <div class="field">
+            <label>Trip value ($)</label>
+            <input type="number" id="trip-value" step="0.01" min="0" />
+          </div>
+          <div class="field">
+            <label>Commission ($)</label>
+            <input type="number" id="trip-commission" step="0.01" min="0" />
+          </div>
+          <div class="field">
+            <label>Commission status</label>
+            <select id="trip-commission-status">
+              <option value="">—</option>
+              <option>Expected</option>
+              <option>Collected</option>
+              <option>Past Due</option>
+            </select>
+          </div>
+
+          <div class="field full">
+            <label>Notes</label>
+            <textarea id="trip-notes"></textarea>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn-primary" id="trip-save-btn">Save trip</button>
+          <span class="hint">Saving flags this trip to sync out to TravelJoy.</span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= CLIENTS ================= -->
+  <div class="panel" id="panel-clients">
+    <div class="card">
+      <div class="record-picker">
+        <div>
+          <label for="client-picker">Existing client</label>
+          <select id="client-picker"><option value="">— New client —</option></select>
+        </div>
+        <button class="btn-secondary" id="client-new-btn" type="button">+ New client</button>
+      </div>
+
+      <div id="client-msg" class="msg"></div>
+
+      <form id="client-form">
+        <div class="form-grid">
+          <div class="field">
+            <label>Name <span class="required-mark">*</span></label>
+            <input type="text" id="client-name" required />
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="client-email" />
+          </div>
+          <div class="field">
+            <label>Phone</label>
+            <input type="text" id="client-phone" />
+          </div>
+          <div class="field">
+            <label>TravelJoy Client ID</label>
+            <input type="text" id="client-tjid" />
+          </div>
+
+          <div class="field">
+            <label>Date of birth</label>
+            <input type="date" id="client-dob" />
+          </div>
+          <div class="field">
+            <label>Referral source</label>
+            <select id="client-referral">
+              <option value="">—</option>
+              <option>Website</option>
+              <option>Referral</option>
+              <option>Social Media</option>
+              <option>Repeat Client</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Passport number</label>
+            <input type="text" id="client-passport-number" />
+          </div>
+          <div class="field">
+            <label>Passport expiry</label>
+            <input type="date" id="client-passport-expiry" />
+          </div>
+          <div class="field full">
+            <label>Passport country</label>
+            <input type="text" id="client-passport-country" />
+          </div>
+          <div class="field full">
+            <label>Frequent flyer numbers</label>
+            <input type="text" id="client-ffn" placeholder="e.g. Delta: 1234567 · United: 7654321" />
+          </div>
+
+          <div class="field full">
+            <label>Notes</label>
+            <textarea id="client-notes"></textarea>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn-primary" id="client-save-btn">Save client</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= SUPPLIERS ================= -->
+  <div class="panel" id="panel-suppliers">
+    <div class="card">
+      <div class="record-picker">
+        <div>
+          <label for="supplier-picker">Existing supplier</label>
+          <select id="supplier-picker"><option value="">— New supplier —</option></select>
+        </div>
+        <button class="btn-secondary" id="supplier-new-btn" type="button">+ New supplier</button>
+      </div>
+
+      <div id="supplier-msg" class="msg"></div>
+
+      <form id="supplier-form">
+        <div class="form-grid">
+          <div class="field full">
+            <label>Name <span class="required-mark">*</span></label>
+            <input type="text" id="supplier-name" required />
+          </div>
+          <div class="field">
+            <label>Type</label>
+            <select id="supplier-type">
+              <option value="">—</option>
+              <option>Cruise Line</option>
+              <option>Resort</option>
+              <option>Tour Operator</option>
+              <option>Airline</option>
+              <option>Hotel</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Phone</label>
+            <input type="text" id="supplier-phone" />
+          </div>
+          <div class="field full">
+            <label>Website</label>
+            <input type="url" id="supplier-website" placeholder="https://…" />
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn-primary" id="supplier-save-btn">Save supplier</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const els = {
+    serverUrl: document.getElementById('server-url'),
+    apiKey: document.getElementById('api-key'),
+    connectBtn: document.getElementById('connect-btn'),
+    connIndicator: document.getElementById('conn-indicator'),
+    tabs: document.querySelectorAll('.tab'),
+    panels: {
+      trips: document.getElementById('panel-trips'),
+      clients: document.getElementById('panel-clients'),
+      suppliers: document.getElementById('panel-suppliers'),
+    },
+  };
+
+  els.apiKey.value = (localStorage.getItem('pharin_api_key') || '').trim();
+  els.serverUrl.value = window.location.origin;
+  localStorage.setItem('pharin_server_url', els.serverUrl.value);
+
+  els.tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      els.tabs.forEach((t) => t.classList.remove('active'));
+      Object.values(els.panels).forEach((p) => p.classList.remove('active'));
+      tab.classList.add('active');
+      els.panels[tab.dataset.tab].classList.add('active');
+    });
+  });
+
+  function esc(v) {
+    if (v === null || v === undefined) return '';
+    return String(v).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+  function showMsg(el, ok, text) {
+    el.className = 'msg ' + (ok ? 'ok' : 'err');
+    el.textContent = text;
+  }
+  function clearMsg(el) {
+    el.className = 'msg';
+    el.textContent = '';
+  }
+
+  function base() {
+    return (els.serverUrl.value.trim() || window.location.origin).replace(/\/$/, '');
+  }
+  async function apiGet(path) {
+    const res = await fetch(base() + path, { headers: { 'X-Api-Key': els.apiKey.value.trim() } });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${await res.text().catch(() => '')}`);
+    return res.json();
+  }
+  async function apiSend(method, path, body) {
+    const res = await fetch(base() + path, {
+      method,
+      headers: { 'X-Api-Key': els.apiKey.value.trim(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${await res.text().catch(() => '')}`);
+    return res.json();
+  }
+
+  let clientOptions = [];
+  let supplierOptions = [];
+
+  async function loadClientOptions() {
+    const { clients } = await apiGet('/api/clients');
+    clientOptions = clients;
+    return clients;
+  }
+  async function loadSupplierOptions() {
+    const { suppliers } = await apiGet('/api/suppliers');
+    supplierOptions = suppliers;
+    return suppliers;
+  }
+
+  function fillSelect(selectEl, items, placeholder) {
+    selectEl.innerHTML = `<option value="">${placeholder}</option>` +
+      items.map((i) => `<option value="${esc(i.id)}">${esc(i.name)}</option>`).join('');
+  }
+
+  // ============================================================
+  // TRIPS
+  // ============================================================
+  const tripEls = {
+    picker: document.getElementById('trip-picker'),
+    newBtn: document.getElementById('trip-new-btn'),
+    form: document.getElementById('trip-form'),
+    msg: document.getElementById('trip-msg'),
+    saveBtn: document.getElementById('trip-save-btn'),
+    name: document.getElementById('trip-name'),
+    tjid: document.getElementById('trip-tjid'),
+    status: document.getElementById('trip-status'),
+    client: document.getElementById('trip-client'),
+    clientToggle: document.getElementById('trip-client-toggle'),
+    clientNew: document.getElementById('trip-client-new'),
+    newClientName: document.getElementById('new-client-name'),
+    newClientEmail: document.getElementById('new-client-email'),
+    newClientPhone: document.getElementById('new-client-phone'),
+    supplier: document.getElementById('trip-supplier'),
+    supplierToggle: document.getElementById('trip-supplier-toggle'),
+    supplierNew: document.getElementById('trip-supplier-new'),
+    newSupplierName: document.getElementById('new-supplier-name'),
+    newSupplierType: document.getElementById('new-supplier-type'),
+    destination: document.getElementById('trip-destination'),
+    type: document.getElementById('trip-type'),
+    travelers: document.getElementById('trip-travelers'),
+    departure: document.getElementById('trip-departure'),
+    ret: document.getElementById('trip-return'),
+    value: document.getElementById('trip-value'),
+    commission: document.getElementById('trip-commission'),
+    commissionStatus: document.getElementById('trip-commission-status'),
+    notes: document.getElementById('trip-notes'),
+  };
+  let editingTripId = null;
+
+  tripEls.clientToggle.addEventListener('click', () => {
+    tripEls.clientNew.classList.toggle('active');
+  });
+  tripEls.supplierToggle.addEventListener('click', () => {
+    tripEls.supplierNew.classList.toggle('active');
+  });
+
+  function resetTripForm() {
+    editingTripId = null;
+    tripEls.form.reset();
+    tripEls.clientNew.classList.remove('active');
+    tripEls.supplierNew.classList.remove('active');
+    tripEls.picker.value = '';
+    clearMsg(tripEls.msg);
+  }
+  tripEls.newBtn.addEventListener('click', resetTripForm);
+
+  async function refreshTripPicker() {
+    try {
+      const { trips } = await apiGet('/api/trips');
+      tripEls.picker.innerHTML = '<option value="">— New trip —</option>' +
+        trips.map((t) => `<option value="${esc(t.notion_page_id)}">${esc(t.trip_name)}${t.client_name ? ' — ' + esc(t.client_name) : ''}</option>`).join('');
+    } catch (err) {
+      console.error('Failed to load trips list:', err);
+    }
+  }
+
+  tripEls.picker.addEventListener('change', async () => {
+    const id = tripEls.picker.value;
+    if (!id) { resetTripForm(); return; }
+    clearMsg(tripEls.msg);
+    try {
+      const { trip } = await apiGet('/api/trips/' + encodeURIComponent(id));
+      editingTripId = id;
+      tripEls.name.value = trip.trip_name || '';
+      tripEls.tjid.value = trip.trip_id || '';
+      tripEls.status.value = trip.booking_status || '';
+      tripEls.client.value = trip.client_id || '';
+      tripEls.supplier.value = trip.supplier_id || '';
+      tripEls.destination.value = trip.destination || '';
+      tripEls.type.value = trip.trip_type || '';
+      tripEls.travelers.value = trip.number_of_travelers ?? '';
+      tripEls.departure.value = trip.departure_date || '';
+      tripEls.ret.value = trip.return_date || '';
+      tripEls.value.value = trip.trip_value ?? '';
+      tripEls.commission.value = trip.commission ?? '';
+      tripEls.commissionStatus.value = trip.commission_status || '';
+      tripEls.notes.value = trip.notes || '';
+      tripEls.clientNew.classList.remove('active');
+      tripEls.supplierNew.classList.remove('active');
+    } catch (err) {
+      showMsg(tripEls.msg, false, 'Failed to load trip: ' + err.message);
+    }
+  });
+
+  tripEls.form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearMsg(tripEls.msg);
+    tripEls.saveBtn.disabled = true;
+    try {
+      let clientPageId = tripEls.client.value || null;
+      if (tripEls.clientNew.classList.contains('active') && tripEls.newClientName.value.trim()) {
+        const created = await apiSend('POST', '/api/clients', {
+          name: tripEls.newClientName.value.trim(),
+          email: tripEls.newClientEmail.value.trim() || undefined,
+          phone: tripEls.newClientPhone.value.trim() || undefined,
+        });
+        clientPageId = created.id;
+      }
+      let supplierPageId = tripEls.supplier.value || null;
+      if (tripEls.supplierNew.classList.contains('active') && tripEls.newSupplierName.value.trim()) {
+        const created = await apiSend('POST', '/api/suppliers', {
+          name: tripEls.newSupplierName.value.trim(),
+          supplierType: tripEls.newSupplierType.value || undefined,
+        });
+        supplierPageId = created.id;
+      }
+
+      const payload = {
+        name: tripEls.name.value.trim(),
+        travelJoyTripId: tripEls.tjid.value.trim(),
+        clientPageId: clientPageId || undefined,
+        supplierPageId: supplierPageId || undefined,
+        destination: tripEls.destination.value.trim(),
+        tripType: tripEls.type.value.trim(),
+        departureDate: tripEls.departure.value || undefined,
+        returnDate: tripEls.ret.value || undefined,
+        numberOfTravelers: tripEls.travelers.value || undefined,
+        tripValue: tripEls.value.value || undefined,
+        commission: tripEls.commission.value || undefined,
+        commissionStatus: tripEls.commissionStatus.value,
+        bookingStatus: tripEls.status.value,
+        notes: tripEls.notes.value.trim(),
+      };
+
+      if (editingTripId) {
+        await apiSend('PUT', '/api/trips/' + encodeURIComponent(editingTripId), payload);
+        showMsg(tripEls.msg, true, 'Trip updated and flagged to sync to TravelJoy.');
+      } else {
+        const created = await apiSend('POST', '/api/trips', payload);
+        editingTripId = created.id;
+        showMsg(tripEls.msg, true, 'Trip created and flagged to sync to TravelJoy.');
+      }
+      await Promise.all([refreshTripPicker(), loadClientOptions().then(() => fillSelect(tripEls.client, clientOptions, '— Select client —')), loadSupplierOptions().then(() => fillSelect(tripEls.supplier, supplierOptions, '— Select supplier —'))]);
+      tripEls.picker.value = editingTripId;
+      tripEls.client.value = clientPageId || '';
+      tripEls.supplier.value = supplierPageId || '';
+      tripEls.clientNew.classList.remove('active');
+      tripEls.supplierNew.classList.remove('active');
+    } catch (err) {
+      showMsg(tripEls.msg, false, 'Save failed: ' + err.message);
+    } finally {
+      tripEls.saveBtn.disabled = false;
+    }
+  });
+
+  // ============================================================
+  // CLIENTS
+  // ============================================================
+  const clientEls = {
+    picker: document.getElementById('client-picker'),
+    newBtn: document.getElementById('client-new-btn'),
+    form: document.getElementById('client-form'),
+    msg: document.getElementById('client-msg'),
+    saveBtn: document.getElementById('client-save-btn'),
+    name: document.getElementById('client-name'),
+    email: document.getElementById('client-email'),
+    phone: document.getElementById('client-phone'),
+    tjid: document.getElementById('client-tjid'),
+    dob: document.getElementById('client-dob'),
+    referral: document.getElementById('client-referral'),
+    passportNumber: document.getElementById('client-passport-number'),
+    passportExpiry: document.getElementById('client-passport-expiry'),
+    passportCountry: document.getElementById('client-passport-country'),
+    ffn: document.getElementById('client-ffn'),
+    notes: document.getElementById('client-notes'),
+  };
+  let editingClientId = null;
+
+  function resetClientForm() {
+    editingClientId = null;
+    clientEls.form.reset();
+    clientEls.picker.value = '';
+    clearMsg(clientEls.msg);
+  }
+  clientEls.newBtn.addEventListener('click', resetClientForm);
+
+  async function refreshClientPicker() {
+    try {
+      const clients = await loadClientOptions();
+      fillSelect(clientEls.picker, clients, '— New client —');
+      fillSelect(tripEls.client, clients, '— Select client —');
+    } catch (err) {
+      console.error('Failed to load clients list:', err);
+    }
+  }
+
+  clientEls.picker.addEventListener('change', async () => {
+    const id = clientEls.picker.value;
+    if (!id) { resetClientForm(); return; }
+    clearMsg(clientEls.msg);
+    try {
+      const { client } = await apiGet('/api/clients/' + encodeURIComponent(id));
+      editingClientId = id;
+      clientEls.name.value = client.name || '';
+      clientEls.email.value = client.email || '';
+      clientEls.phone.value = client.phone || '';
+      clientEls.tjid.value = client.travel_joy_client_id || '';
+      clientEls.dob.value = client.date_of_birth || '';
+      clientEls.referral.value = client.referral_source || '';
+      clientEls.passportNumber.value = client.passport_number || '';
+      clientEls.passportExpiry.value = client.passport_expiry || '';
+      clientEls.passportCountry.value = client.passport_country || '';
+      clientEls.ffn.value = client.frequent_flyer_numbers || '';
+      clientEls.notes.value = client.notes || '';
+    } catch (err) {
+      showMsg(clientEls.msg, false, 'Failed to load client: ' + err.message);
+    }
+  });
+
+  clientEls.form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearMsg(clientEls.msg);
+    clientEls.saveBtn.disabled = true;
+    try {
+      const payload = {
+        name: clientEls.name.value.trim(),
+        email: clientEls.email.value.trim(),
+        phone: clientEls.phone.value.trim(),
+        travelJoyClientId: clientEls.tjid.value.trim(),
+        dateOfBirth: clientEls.dob.value || undefined,
+        referralSource: clientEls.referral.value,
+        passportNumber: clientEls.passportNumber.value.trim(),
+        passportExpiry: clientEls.passportExpiry.value || undefined,
+        passportCountry: clientEls.passportCountry.value.trim(),
+        frequentFlyerNumbers: clientEls.ffn.value.trim(),
+        notes: clientEls.notes.value.trim(),
+      };
+      if (editingClientId) {
+        await apiSend('PUT', '/api/clients/' + encodeURIComponent(editingClientId), payload);
+        showMsg(clientEls.msg, true, 'Client updated.');
+      } else {
+        const created = await apiSend('POST', '/api/clients', payload);
+        editingClientId = created.id;
+        showMsg(clientEls.msg, true, 'Client created.');
+      }
+      await refreshClientPicker();
+      clientEls.picker.value = editingClientId;
+    } catch (err) {
+      showMsg(clientEls.msg, false, 'Save failed: ' + err.message);
+    } finally {
+      clientEls.saveBtn.disabled = false;
+    }
+  });
+
+  // ============================================================
+  // SUPPLIERS
+  // ============================================================
+  const supplierEls = {
+    picker: document.getElementById('supplier-picker'),
+    newBtn: document.getElementById('supplier-new-btn'),
+    form: document.getElementById('supplier-form'),
+    msg: document.getElementById('supplier-msg'),
+    saveBtn: document.getElementById('supplier-save-btn'),
+    name: document.getElementById('supplier-name'),
+    type: document.getElementById('supplier-type'),
+    phone: document.getElementById('supplier-phone'),
+    website: document.getElementById('supplier-website'),
+  };
+  let editingSupplierId = null;
+
+  function resetSupplierForm() {
+    editingSupplierId = null;
+    supplierEls.form.reset();
+    supplierEls.picker.value = '';
+    clearMsg(supplierEls.msg);
+  }
+  supplierEls.newBtn.addEventListener('click', resetSupplierForm);
+
+  async function refreshSupplierPicker() {
+    try {
+      const suppliers = await loadSupplierOptions();
+      fillSelect(supplierEls.picker, suppliers, '— New supplier —');
+      fillSelect(tripEls.supplier, suppliers, '— Select supplier —');
+    } catch (err) {
+      console.error('Failed to load suppliers list:', err);
+    }
+  }
+
+  supplierEls.picker.addEventListener('change', async () => {
+    const id = supplierEls.picker.value;
+    if (!id) { resetSupplierForm(); return; }
+    clearMsg(supplierEls.msg);
+    try {
+      const { supplier } = await apiGet('/api/suppliers/' + encodeURIComponent(id));
+      editingSupplierId = id;
+      supplierEls.name.value = supplier.name || '';
+      supplierEls.type.value = supplier.supplier_type || '';
+      supplierEls.phone.value = supplier.phone || '';
+      supplierEls.website.value = supplier.website || '';
+    } catch (err) {
+      showMsg(supplierEls.msg, false, 'Failed to load supplier: ' + err.message);
+    }
+  });
+
+  supplierEls.form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearMsg(supplierEls.msg);
+    supplierEls.saveBtn.disabled = true;
+    try {
+      const payload = {
+        name: supplierEls.name.value.trim(),
+        supplierType: supplierEls.type.value,
+        phone: supplierEls.phone.value.trim(),
+        website: supplierEls.website.value.trim(),
+      };
+      if (editingSupplierId) {
+        await apiSend('PUT', '/api/suppliers/' + encodeURIComponent(editingSupplierId), payload);
+        showMsg(supplierEls.msg, true, 'Supplier updated.');
+      } else {
+        const created = await apiSend('POST', '/api/suppliers', payload);
+        editingSupplierId = created.id;
+        showMsg(supplierEls.msg, true, 'Supplier created.');
+      }
+      await refreshSupplierPicker();
+      supplierEls.picker.value = editingSupplierId;
+    } catch (err) {
+      showMsg(supplierEls.msg, false, 'Save failed: ' + err.message);
+    } finally {
+      supplierEls.saveBtn.disabled = false;
+    }
+  });
+
+  // ============================================================
+  // Connect
+  // ============================================================
+  els.connectBtn.addEventListener('click', async () => {
+    const serverUrl = els.serverUrl.value.trim() || window.location.origin;
+    const apiKey = els.apiKey.value.trim();
+    els.serverUrl.value = serverUrl;
+    els.apiKey.value = apiKey;
+    localStorage.setItem('pharin_server_url', serverUrl);
+    localStorage.setItem('pharin_api_key', apiKey);
+    els.connIndicator.textContent = 'Loading…';
+    els.connIndicator.style.color = '';
+    try {
+      await Promise.all([refreshClientPicker(), refreshSupplierPicker(), refreshTripPicker()]);
+      els.connIndicator.textContent = 'Connected · ' + new Date().toLocaleTimeString();
+    } catch (err) {
+      els.connIndicator.textContent = 'Connection failed — ' + err.message;
+      els.connIndicator.style.color = '#b91c1c';
+    }
+  });
+
+  if (els.serverUrl.value && els.apiKey.value) {
+    els.connectBtn.click();
+  }
+
+  document.getElementById('logout-link').addEventListener('click', function (e) {
+    e.preventDefault();
+    sessionStorage.removeItem('d4d_crm_authed');
+    window.location.href = 'login.html';
+  });
+</script>
+
+</body>
+</html>

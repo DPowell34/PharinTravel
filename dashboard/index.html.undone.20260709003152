@@ -1,0 +1,2217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Destined 4 Destinations — Owner Dashboard</title>
+<script src="auth-guard.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --teal: #1fa3c9; --teal-dark: #0b3d6b; --gold: #c9973f;
+    --bg: #f6f5f1; --ink: #1f2937; --muted: #6b7280; --border: #e5e7eb;
+    --green: #16a34a; --red: #dc2626;
+    --sidebar-w: 232px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--ink);
+  }
+
+  /* ---- Sidebar ---- */
+  .sidebar {
+    position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-w);
+    background: var(--teal-dark); color: white; display: flex; flex-direction: column;
+    padding: 20px 0; overflow-y: auto;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 0 20px 20px; }
+  .brand-badge {
+    width: 38px; height: 38px; border-radius: 50%; background: var(--teal);
+    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+  .brand-name { font-weight: 700; font-size: 0.95rem; line-height: 1.2; }
+  .brand-name span { color: var(--gold); }
+
+  nav.side-nav { display: flex; flex-direction: column; gap: 2px; padding: 8px 12px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px;
+    color: rgba(255,255,255,0.82); text-decoration: none; font-size: 0.88rem; font-weight: 600;
+    cursor: pointer; border: none; background: none; width: 100%; text-align: left;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
+  .nav-item.active { background: var(--teal); color: white; }
+  .nav-item .icon { width: 18px; text-align: center; opacity: 0.9; }
+  .nav-item.soon { cursor: default; opacity: 0.55; }
+  .nav-item.soon:hover { background: none; color: rgba(255,255,255,0.82); }
+  .nav-item .tag {
+    margin-left: auto; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em;
+    background: rgba(255,255,255,0.14); padding: 2px 6px; border-radius: 999px;
+  }
+  .nav-divider { height: 1px; background: rgba(255,255,255,0.12); margin: 10px 20px; }
+
+  .sidebar-footer { margin-top: auto; padding: 14px 20px 4px; border-top: 1px solid rgba(255,255,255,0.12); }
+  .profile-card { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .profile-avatar {
+    width: 34px; height: 34px; border-radius: 50%; background: var(--gold); color: white;
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem;
+  }
+  .profile-name { font-size: 0.82rem; font-weight: 700; }
+  .profile-role { font-size: 0.72rem; color: rgba(255,255,255,0.65); }
+  .sidebar-footer a {
+    display: block; color: rgba(255,255,255,0.85); font-size: 0.8rem; text-decoration: none;
+    padding: 6px 0;
+  }
+  .sidebar-footer a:hover { color: white; text-decoration: underline; }
+
+  /* ---- Main ---- */
+  .main { margin-left: var(--sidebar-w); padding: 26px 32px 60px; max-width: 1200px; }
+  .topbar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 22px; flex-wrap: wrap; gap: 10px; }
+  .topbar h1 { margin: 0 0 4px; font-size: 1.5rem; }
+  .topbar .subtitle { color: var(--muted); font-size: 0.9rem; }
+  .status { font-size: 0.82rem; color: var(--muted); background: white; border: 1px solid var(--border); padding: 8px 14px; border-radius: 999px; }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .card {
+    background: white; border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; margin-bottom: 20px;
+  }
+  .card-title { font-weight: 700; font-size: 0.98rem; margin-bottom: 14px; }
+  .card-title .link { float: right; font-weight: 600; font-size: 0.8rem; color: var(--teal); text-decoration: none; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+  @media (max-width: 900px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+  .stat-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; }
+  .stat-label { font-size: 0.78rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 8px; }
+  .stat-value { font-size: 1.65rem; font-weight: 800; color: var(--teal-dark); }
+  .stat-delta { font-size: 0.8rem; margin-top: 6px; font-weight: 600; }
+  .stat-delta.up { color: var(--green); }
+  .stat-delta.down { color: var(--red); }
+  .stat-delta.neutral { color: var(--muted); }
+
+  .dash-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
+  @media (max-width: 900px) { .dash-grid { grid-template-columns: 1fr; } }
+
+  .list { list-style: none; margin: 0; padding: 0; }
+  .list li { display: flex; justify-content: space-between; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+  .list li:last-child { border-bottom: none; }
+  .list .item-main { font-weight: 600; font-size: 0.88rem; }
+  .list .item-sub { color: var(--muted); font-size: 0.78rem; margin-top: 2px; }
+  .list .item-meta { font-size: 0.8rem; font-weight: 700; color: var(--teal-dark); white-space: nowrap; text-align: right; }
+  .list .item-meta small { display: block; font-weight: 500; color: var(--muted); font-size: 0.72rem; }
+  .list .empty, .list .error { color: var(--muted); padding: 16px 0; text-align: center; font-size: 0.85rem; }
+  .list .error { color: #b91c1c; }
+
+  .donut-total { text-align: center; margin-top: 10px; font-size: 0.85rem; color: var(--muted); }
+  .donut-total strong { display: block; font-size: 1.2rem; color: var(--teal-dark); }
+  .legend-row { display: flex; gap: 14px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
+  .legend-row span { font-size: 0.76rem; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+  th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+  th { background: #fafaf9; color: var(--muted); font-weight: 600; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fbfbfa; }
+
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.74rem; font-weight: 600; }
+  .badge.inquiry { background: #f3f4f6; color: #4b5563; }
+  .badge.quoted { background: #fef3c7; color: #92400e; }
+  .badge.booked { background: #dbeafe; color: #1e40af; }
+  .badge.deposit-paid { background: #fed7aa; color: #9a3412; }
+  .badge.paid-in-full { background: #ede9fe; color: #5b21b6; }
+  .badge.traveled { background: #d1fae5; color: #065f46; }
+  .badge.completed { background: #e7e5e4; color: #44403c; }
+  .badge.cancelled { background: #fee2e2; color: #991b1b; }
+  .badge.cat-airline { background:#e0e7ff; color:#3730a3; }
+  .badge.cat-hotel { background:#fef3c7; color:#92400e; }
+  .badge.cat-cruise-line { background:#dbeafe; color:#1e40af; }
+  .badge.cat-tour-operator { background:#d1fae5; color:#065f46; }
+  .badge.cat-car-rental { background:#fee2e2; color:#991b1b; }
+  .badge.cat-insurance { background:#ede9fe; color:#5b21b6; }
+  .badge.cat-ground-operator-dmc { background:#e7e5e4; color:#44403c; }
+  .badge.cat-other { background:#f3f4f6; color:#4b5563; }
+  .sup-toolbar { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
+  .sup-toolbar input, .sup-toolbar select { padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-size:0.85rem; }
+  .sup-toolbar input { min-width:220px; }
+  .sup-row { display:flex; align-items:center; gap:10px; }
+  .sup-avatar {
+    width:34px; height:34px; border-radius:50%; background:var(--teal-dark); color:white;
+    display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0;
+  }
+  .sup-name { font-weight:700; }
+  .sup-stats-row { display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; margin-top:18px; }
+  .sup-outstanding { color:#b45309; font-weight:700; }
+  @media (max-width: 900px) { .sup-stats-row { grid-template-columns:repeat(2, 1fr); } }
+  .trip-cat-filters { display:flex; gap:6px; flex-wrap:wrap; margin: 4px 0 16px; }
+  .cat-chip {
+    background:white; border:1px solid var(--border); color:var(--muted); padding:6px 14px;
+    border-radius:999px; font-size:0.8rem; font-weight:600; cursor:pointer;
+  }
+  .cat-chip:hover { border-color: var(--teal); color: var(--teal-dark); }
+  .cat-chip.active { background: var(--teal-dark); border-color: var(--teal-dark); color:white; }
+
+  .empty-cell, .error-cell { padding: 30px 20px; text-align: center; color: var(--muted); }
+  .error-cell { color: #b91c1c; }
+
+  .settings { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
+  .settings label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+  .settings input { padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; width: 280px; font-size: 0.9rem; }
+  .settings button {
+    background: var(--teal); color: white; border: none; padding: 10px 18px;
+    border-radius: 8px; font-weight: 600; cursor: pointer;
+  }
+  .settings button:hover { background: var(--teal-dark); }
+
+  .task-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; margin-bottom: 18px; }
+  .task-form label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; }
+  .task-form input { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; }
+  .task-form button { background: var(--teal); color: white; border: none; padding: 9px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+  .task-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .task-row:last-child { border-bottom: none; }
+  .task-row input[type="checkbox"] { width: 17px; height: 17px; }
+  .task-row .task-title { font-weight: 600; font-size: 0.88rem; flex: 1; }
+  .task-row .task-title.done { text-decoration: line-through; color: var(--muted); }
+  .task-row .task-meta { font-size: 0.78rem; color: var(--muted); }
+  .banner-note { font-size: 0.8rem; color: var(--muted); background: #fafaf9; border: 1px dashed var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; }
+
+  /* ---- Templates panel ---- */
+  .tpl-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:18px; }
+  .tpl-tab { background:white; border:1px solid var(--border); color:var(--muted); padding:8px 14px; border-radius:999px; font-size:0.82rem; font-weight:600; cursor:pointer; }
+  .tpl-tab:hover { border-color: var(--teal); color: var(--teal-dark); }
+  .tpl-tab.active { background: var(--teal-dark); border-color: var(--teal-dark); color:white; }
+  .tpl-section { display:none; }
+  .tpl-section.active { display:block; }
+  .tpl-block { background:white; border:1px solid var(--border); border-radius:12px; padding:16px 18px; margin-bottom:14px; }
+  .tpl-block-head { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap; }
+  .tpl-block-title { font-weight:700; font-size:0.92rem; }
+  .tpl-block-meta { font-size:0.76rem; color:var(--muted); font-weight:500; }
+  .tpl-copy-btn { background:var(--teal); color:white; border:none; padding:6px 12px; border-radius:7px; font-size:0.76rem; font-weight:600; cursor:pointer; flex-shrink:0; }
+  .tpl-copy-btn:hover { background:var(--teal-dark); }
+  .tpl-body { font-size:0.85rem; line-height:1.55; color:var(--ink); white-space:pre-wrap; }
+  .tpl-subject { font-size:0.8rem; color:var(--muted); margin-bottom:6px; }
+  .tpl-subject strong { color:var(--ink); }
+  .tpl-ref-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:6px 20px; }
+  @media (max-width:900px) { .tpl-ref-grid { grid-template-columns:1fr; } }
+  .tpl-ref-grid div { font-size:0.83rem; padding:6px 0; border-bottom:1px dashed var(--border); }
+  .tpl-note { font-size:0.8rem; color:var(--muted); margin-bottom:14px; }
+
+  /* ---- Reports panel ---- */
+  .rpt-filters { display:flex; gap:16px; align-items:flex-end; flex-wrap:wrap; margin-bottom:16px; }
+  .rpt-filters label { display:block; font-size:0.78rem; color:var(--muted); font-weight:600; margin-bottom:4px; }
+  .rpt-filters select { padding:8px 10px; border:1px solid var(--border); border-radius:8px; font-size:0.85rem; min-width:140px; }
+  .rpt-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:18px; }
+  .rpt-tab { background:white; border:1px solid var(--border); color:var(--muted); padding:8px 14px; border-radius:999px; font-size:0.82rem; font-weight:600; cursor:pointer; }
+  .rpt-tab:hover { border-color: var(--teal); color: var(--teal-dark); }
+  .rpt-tab.active { background: var(--teal-dark); border-color: var(--teal-dark); color:white; }
+  .rpt-section { display:none; }
+  .rpt-section.active { display:block; }
+  .rpt-table-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px; }
+  .rpt-export-btn { background:white; border:1px solid var(--border); color:var(--teal-dark); padding:7px 14px; border-radius:7px; font-size:0.78rem; font-weight:600; cursor:pointer; }
+  .rpt-export-btn:hover { background:#f3f8f7; }
+  .rpt-delta { font-size:0.8rem; margin-top:6px; font-weight:600; min-height:1em; }
+  .rpt-delta.up { color: var(--green); }
+  .rpt-delta.down { color: var(--red); }
+  .rpt-delta.neutral { color: var(--muted); }
+  tfoot td { font-weight:800; border-top:2px solid var(--border); background:#fafaf9; }
+
+  /* ---- Mobile responsive ---- */
+  .card { overflow-x: auto; }
+  .mobile-menu-btn {
+    display: none; background: var(--teal-dark); color: white; border: none;
+    width: 40px; height: 40px; border-radius: 8px; font-size: 1.3rem; cursor: pointer;
+    align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(11,61,107,0.45); z-index: 40; }
+  .sidebar-overlay.show { display: block; }
+  @media (max-width: 860px) {
+    .sidebar {
+      transform: translateX(-100%); transition: transform 0.25s ease; z-index: 50;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+    }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-left: 0; padding: 18px 16px 70px; }
+    .mobile-menu-btn { display: flex; }
+    .topbar h1 { font-size: 1.3rem; }
+    .card { padding: 16px; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  }
+  @media (max-width: 480px) {
+    .stat-grid { grid-template-columns: 1fr; }
+    .stat-value { font-size: 1.35rem; }
+    .topbar h1 { font-size: 1.15rem; }
+  }
+
+  /* ---- Marketing panel ---- */
+  .mkt-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:18px; }
+  .mkt-tab { background:white; border:1px solid var(--border); color:var(--muted); padding:8px 14px; border-radius:999px; font-size:0.82rem; font-weight:600; cursor:pointer; }
+  .mkt-tab:hover { border-color: var(--teal); color: var(--teal-dark); }
+  .mkt-tab.active { background: var(--teal-dark); border-color: var(--teal-dark); color:white; }
+  .mkt-section { display:none; }
+  .mkt-section.active { display:block; }
+  .mkt-tab .tag {
+    margin-left: 6px; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.04em;
+    background: rgba(11,61,107,0.10); color: var(--teal-dark); padding: 2px 6px; border-radius: 999px;
+  }
+  .mkt-tab.active .tag { background: rgba(255,255,255,0.25); color: white; }
+  .badge.mkt-expired { background:#fee2e2; color:#991b1b; }
+  .cal-grid { display:grid; grid-template-columns: repeat(6, 1fr); gap:8px; }
+  .cal-cell { border:1px solid var(--border); border-radius:8px; padding:8px; min-height:88px; background:#fafafa; }
+  .cal-cell.today { border-color: var(--teal-dark); border-width:2px; background:white; }
+  .cal-date { font-weight:700; color:var(--muted); margin-bottom:6px; font-size:0.66rem; text-transform:uppercase; letter-spacing:0.02em; }
+  .cal-event { padding:2px 6px; border-radius:6px; margin-bottom:3px; font-size:0.68rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cal-event.cal-bday { background: rgba(37,99,235,0.14); color:#1d4ed8; }
+  .cal-event.cal-anniv { background: rgba(220,38,38,0.14); color:#b91c1c; }
+  .cal-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:4px; }
+  .cal-dot-bday { background:#1d4ed8; }
+  .cal-dot-anniv { background:#b91c1c; }
+  @media (max-width: 900px) { .cal-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 560px) { .cal-grid { grid-template-columns: repeat(2, 1fr); } }
+  .badge.mkt-soon { background:#fef3c7; color:#92400e; }
+  .badge.mkt-ok { background:#d1fae5; color:#065f46; }
+.profile-modal-overlay { display:none; position:fixed; inset:0; background:rgba(15,23,42,0.55); z-index:200; align-items:center; justify-content:center; padding:20px; }
+  .profile-modal-overlay.show { display:flex; }
+  .profile-modal { background:#fff; border-radius:12px; max-width:480px; width:100%; max-height:85vh; overflow-y:auto; padding:24px; box-shadow:0 20px 60px rgba(0,0,0,0.25); }
+  .profile-modal-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .profile-modal-head h3 { margin:0; font-size:1.05rem; }
+  .profile-modal-close { border:none; background:none; font-size:1.5rem; cursor:pointer; color:var(--muted); line-height:1; padding:0 4px; }
+  .profile-modal-row { display:flex; justify-content:space-between; gap:14px; padding:8px 0; border-bottom:1px solid var(--border); font-size:0.84rem; }
+  .profile-modal-row:last-child { border-bottom:none; }
+  .profile-modal-row .label { color:var(--muted); flex-shrink:0; }
+  .profile-modal-row .value { text-align:right; }
+  .view-profile-btn { border:1px solid var(--border); background:#fff; border-radius:6px; padding:4px 11px; font-size:0.76rem; cursor:pointer; color:var(--teal-dark); text-decoration:none; display:inline-block; }
+  .view-profile-btn:hover { background:var(--teal); color:#fff; border-color:var(--teal); }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-badge">D4D</div>
+    <div class="brand-name">Destined 4<br><span>Destinations</span></div>
+  </div>
+
+  <nav class="side-nav">
+    <button class="nav-item active" data-panel="dashboard"><span class="icon">&#9679;</span> Dashboard</button>
+    <button class="nav-item" data-panel="tasks"><span class="icon">&#10003;</span> Tasks</button>
+    <button class="nav-item" data-panel="trips"><span class="icon">&#9992;</span> Trips</button>
+    <button class="nav-item" data-panel="clients"><span class="icon">&#128100;</span> Clients</button>
+    <button class="nav-item" data-panel="suppliers"><span class="icon">&#127970;</span> Suppliers</button>
+    <div class="nav-divider"></div>
+    <button class="nav-item" data-panel="reports"><span class="icon">&#128202;</span> Reports</button>
+    <button class="nav-item" data-panel="marketing"><span class="icon">&#128227;</span> Marketing</button>
+    <button class="nav-item" data-panel="templates"><span class="icon">&#128196;</span> Templates</button>
+    <button class="nav-item" data-panel="settings"><span class="icon">&#9881;</span> Settings</button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="profile-card">
+      <div class="profile-avatar">P</div>
+      <div>
+        <div class="profile-name">Pharin</div>
+        <div class="profile-role">Owner &amp; Travel Advisor</div>
+      </div>
+    </div>
+    <a href="entry.html">+ Add / Edit Records</a>
+    <a href="#" id="logout-link">Log out</a>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<div class="main">
+
+  <div class="topbar">
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">&#9776;</button>
+    <div>
+      <h1 id="page-title">Dashboard</h1>
+      <div class="subtitle" id="page-subtitle">Welcome back — here's what's happening.</div>
+    </div>
+    <div id="conn-indicator" class="status">Not connected</div>
+  </div>
+
+  <!-- ============ DASHBOARD ============ -->
+  <div class="panel active" id="panel-dashboard">
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Sales (YTD)</div>
+        <div class="stat-value" id="stat-sales">—</div>
+        <div class="stat-delta neutral" id="stat-sales-delta"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Commissions (YTD)</div>
+        <div class="stat-value" id="stat-commissions">—</div>
+        <div class="stat-delta neutral" id="stat-commissions-delta"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Active Trips</div>
+        <div class="stat-value" id="stat-active">—</div>
+        <div class="stat-delta neutral" id="stat-active-delta"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending Quotes</div>
+        <div class="stat-value" id="stat-pending">—</div>
+        <div class="stat-delta neutral" id="stat-pending-delta"></div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="card">
+        <div class="card-title">Sales Overview — <span id="sales-chart-year"></span></div>
+        <canvas id="sales-chart" height="210"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-title">Commission Overview</div>
+        <canvas id="commission-chart" height="180"></canvas>
+        <div class="donut-total" id="commission-total"></div>
+        <div class="legend-row" id="commission-legend"></div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="card">
+        <div class="card-title">Upcoming Departures <a href="#" class="link" data-panel-link="trips">View All Departures</a></div>
+        <ul class="list" id="upcoming-list"><li class="empty">Connect to load.</li></ul>
+      </div>
+      <div class="card">
+        <div class="card-title">Tasks Due Soon <a href="#" class="link" data-panel-link="tasks">View All Tasks</a></div>
+        <ul class="list" id="tasks-due-list"><li class="empty">Connect to load.</li></ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Recent Bookings</div>
+      <table>
+        <thead>
+          <tr><th>Client</th><th>Trip</th><th>Travel Date</th><th>Total</th><th>Status</th></tr>
+        </thead>
+        <tbody id="recent-bookings-body"><tr><td colspan="5" class="empty-cell">Connect to load.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============ TASKS ============ -->
+  <div class="panel" id="panel-tasks">
+    <div class="card">
+      <div class="card-title">Add a Task</div>
+      <div class="banner-note" id="tasks-config-note" style="display:none;">
+        Tasks need a Notion "Activities" database wired up via <code>NOTION_ACTIVITIES_DB_ID</code> on the server —
+        ask Dave to confirm that's configured before tasks will save.
+      </div>
+      <form class="task-form" id="task-form">
+        <div><label>Title</label><input id="task-title" type="text" placeholder="Final payment reminder" required /></div>
+        <div><label>Due Date</label><input id="task-due" type="date" /></div>
+        <div><label>Related To</label><input id="task-related" type="text" placeholder="Johnson Family" /></div>
+        <button type="submit">Add Task</button>
+      </form>
+    </div>
+    <div class="card">
+      <div class="card-title">All Tasks</div>
+      <div id="tasks-full-list"><div class="list"><div class="empty">Connect to load.</div></div></div>
+    </div>
+  </div>
+
+  <!-- ============ TRIPS ============ -->
+  <div class="panel" id="panel-trips">
+    <div class="card">
+      <div class="rpt-table-head">
+        <div class="card-title" style="margin-bottom:0;">Trips <a href="entry.html" class="link">+ Add / Edit</a></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <input id="trips-search" type="text" placeholder="Search trips, clients, destinations..." style="padding:7px 12px;border:1px solid var(--border);border-radius:7px;font-size:0.82rem;min-width:200px;" />
+          <select id="trips-status-filter" style="padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:0.82rem;color:var(--muted);">
+            <option value="">All Statuses</option>
+          </select>
+        </div>
+      </div>
+      <div class="trip-cat-filters" id="trip-cat-filters">
+        <button type="button" class="cat-chip active" data-cat="">All</button>
+        <button type="button" class="cat-chip" data-cat="Cruise">Cruise</button>
+        <button type="button" class="cat-chip" data-cat="Resort">Resort</button>
+        <button type="button" class="cat-chip" data-cat="Disney/Universal">Disney/Universal</button>
+        <button type="button" class="cat-chip" data-cat="Honeymoon">Honeymoon</button>
+        <button type="button" class="cat-chip" data-cat="Group">Group</button>
+        <button type="button" class="cat-chip" data-cat="All-Inclusive">All-Inclusive</button>
+        <button type="button" class="cat-chip" data-cat="Other">Other</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Trip</th><th>Client</th><th>Destination</th><th>Trip Type</th><th>Departure</th><th>Return</th>
+            <th>Travelers</th><th>Value</th><th>Commission</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="trips-body"><tr><td colspan="10" class="empty-cell">Connect to load trips.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============ CLIENTS ============ -->
+  <div class="panel" id="panel-clients">
+    <div class="card">
+      <div class="card-title">Clients <a href="client.html" class="link">+ Add / Edit</a></div>
+      <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Passport #</th><th>Frequent Flyer #</th><th>Passport Expiry</th><th>Referral Source</th><th></th></tr></thead>
+        <tbody id="clients-body"><tr><td colspan="8" class="empty-cell">Connect to load clients.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============ SUPPLIERS ============ -->
+  <div class="panel" id="panel-suppliers">
+    <div class="card">
+      <div class="card-title">Suppliers <a href="entry.html" class="link">+ Add Supplier</a></div>
+      <div class="sup-toolbar">
+        <input id="supplier-search" type="text" placeholder="Search suppliers..." />
+        <select id="supplier-type-filter">
+          <option value="">All Types</option>
+          <option value="Airline">Airline</option>
+          <option value="Hotel">Hotel</option>
+          <option value="Cruise Line">Cruise Line</option>
+          <option value="Tour Operator">Tour Operator</option>
+          <option value="Car Rental">Car Rental</option>
+          <option value="Insurance">Insurance</option>
+          <option value="Ground Operator/DMC">Ground Operator/DMC</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <table>
+        <thead><tr><th>Supplier</th><th>Category</th><th>Total Sales</th><th>Total Commission</th><th>Outstanding</th><th>Bookings</th><th></th></tr></thead>
+        <tbody id="suppliers-body"><tr><td colspan="7" class="empty-cell">Connect to load suppliers.</td></tr></tbody>
+      </table>
+      <div class="sup-stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Sales (All Time)</div>
+          <div class="stat-value" id="sup-total-sales">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Commissions (All Time)</div>
+          <div class="stat-value" id="sup-total-commission">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Outstanding Balance</div>
+          <div class="stat-value sup-outstanding" id="sup-total-outstanding">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Suppliers</div>
+          <div class="stat-value" id="sup-active-count">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- ========= TEMPLATES ========= -->
+  <div class="panel" id="panel-templates">
+    <div class="tpl-note">Starter content seeded from your TravelJoy template library (Pharin Walker account) — edit freely, then copy into TravelJoy, email, or a proposal.</div>
+    <div class="tpl-tabs">
+      <button class="tpl-tab active" data-tpl="emails">Emails</button>
+      <button class="tpl-tab" data-tpl="forms">Forms</button>
+      <button class="tpl-tab" data-tpl="confirmations">Confirmations</button>
+      <button class="tpl-tab" data-tpl="invoices">Invoice Items &amp; Pricing</button>
+      <button class="tpl-tab" data-tpl="library">Proposal Library</button>
+      <button class="tpl-tab" data-tpl="tasks">Task Lists</button>
+      <button class="tpl-tab" data-tpl="terms">Terms &amp; Conditions</button>
+    </div>
+
+    <!-- EMAILS -->
+    <div class="tpl-section active" id="tpl-emails">
+      <div class="card">
+        <div class="card-title">Your TravelJoy Email Templates (19 active)</div>
+        <div class="tpl-ref-grid">
+          <div>Airfare Confirmation</div><div>Anniversary Email (default)</div>
+          <div>Balance Reminder</div><div>Birthday Email (default)</div>
+          <div>Bon Voyage Email (default)</div><div>Client Onboarding</div>
+          <div>Form Follow-up (default)</div><div>Guest Fee Email</div>
+          <div>Neuxus Hub</div><div>Passport Expiration Email (default)</div>
+          <div>Payment Declined – Urgent Action Required</div><div>Profile Update Email (default)</div>
+          <div>Proposal Follow-up (default)</div><div>Research &amp; Design Service Fee Invoice</div>
+          <div>Travel Confirmation</div><div>Travel Documents</div>
+          <div>Travel Proposal</div><div>Welcome Home Email (default)</div>
+          <div>You Are Booked</div>
+        </div>
+      </div>
+
+      <div class="tpl-block">
+        <div class="tpl-block-head">
+          <div><div class="tpl-block-title">You Are Booked</div><div class="tpl-block-meta">Send the moment a trip moves to Booked / Deposit Paid</div></div>
+          <button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button>
+        </div>
+        <div class="tpl-subject"><strong>Subject:</strong> You're Booked! {{Trip Name}} is Confirmed 🎉</div>
+        <div class="tpl-body">Hi {{Client First Name}},
+
+Great news — your trip is officially booked! Here's a quick recap:
+
+Trip: {{Trip Name}}
+Destination: {{Destination}}
+Travel Dates: {{Departure Date}} – {{Return Date}}
+Supplier: {{Supplier}}
+Confirmation #: {{Confirmation Number}}
+
+I'll be sending your full travel documents closer to departure, along with any pre-trip paperwork (passport/visa reminders, packing tips, etc.). If anything changes on your end — names, dates, number of travelers — let me know as soon as possible so I can update your reservation.
+
+Thank you for trusting Destined 4 Destinations with your travel plans. I can't wait for you to go!
+
+Warmly,
+Pharin Walker
+Owner &amp; Travel Advisor, Destined 4 Destinations</div>
+      </div>
+
+      <div class="tpl-block">
+        <div class="tpl-block-head">
+          <div><div class="tpl-block-title">Balance Reminder</div><div class="tpl-block-meta">Send ~60 days before travel, or per your payment schedule</div></div>
+          <button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button>
+        </div>
+        <div class="tpl-subject"><strong>Subject:</strong> Reminder: Final Payment Due for {{Trip Name}}</div>
+        <div class="tpl-body">Hi {{Client First Name}},
+
+This is a friendly reminder that your final payment of {{Balance Due}} for {{Trip Name}} is due on {{Payment Due Date}}.
+
+Please let me know if you'd like to review your invoice or need help submitting payment. Trips that aren't paid in full by the due date risk cancellation by the supplier, so please don't wait until the last minute.
+
+Thanks so much,
+Pharin Walker
+Owner &amp; Travel Advisor, Destined 4 Destinations</div>
+      </div>
+
+      <div class="tpl-block">
+        <div class="tpl-block-head">
+          <div><div class="tpl-block-title">Travel Documents</div><div class="tpl-block-meta">Send 1–2 weeks before departure</div></div>
+          <button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button>
+        </div>
+        <div class="tpl-subject"><strong>Subject:</strong> Your Travel Documents for {{Trip Name}}</div>
+        <div class="tpl-body">Hi {{Client First Name}},
+
+Your trip is almost here! Attached/linked you'll find your travel documents for {{Trip Name}}, including confirmation numbers, itinerary details, and any vouchers you'll need on arrival.
+
+A few reminders before you go:
+- Check that your passport has at least 6 months validity remaining.
+- Confirm any visa or entry requirements for your destination.
+- Save digital and printed copies of your documents.
+- Add my number to your phone in case you need to reach me while traveling.
+
+Have an amazing trip — I'm just a message away if you need anything.
+
+Pharin Walker
+Owner &amp; Travel Advisor, Destined 4 Destinations</div>
+      </div>
+
+      <div class="tpl-block">
+        <div class="tpl-block-head">
+          <div><div class="tpl-block-title">Welcome Home Email (default)</div><div class="tpl-block-meta">Send within a few days of return</div></div>
+          <button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button>
+        </div>
+        <div class="tpl-subject"><strong>Subject:</strong> Welcome Home! We Hope You Had an Amazing Trip</div>
+        <div class="tpl-body">Hi {{Client First Name}},
+
+Welcome home! I hope {{Trip Name}} was everything you dreamed of and more.
+
+It means the world to me that you trusted Destined 4 Destinations to plan your trip. If you have a minute, I'd love to hear how it went — and if you snapped any great photos, I'd love to see them!
+
+Whenever you're ready to start dreaming about the next adventure, I'm here.
+
+Warmly,
+Pharin Walker
+Owner &amp; Travel Advisor, Destined 4 Destinations</div>
+      </div>
+
+      <div class="tpl-block">
+        <div class="tpl-block-head">
+          <div><div class="tpl-block-title">Passport Expiration Email (default)</div><div class="tpl-block-meta">Send when a client's passport is nearing expiry</div></div>
+          <button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button>
+        </div>
+        <div class="tpl-subject"><strong>Subject:</strong> Quick Passport Check for Your Upcoming Trip</div>
+        <div class="tpl-body">Hi {{Client First Name}},
+
+While preparing for {{Trip Name}}, I noticed your passport is set to expire on {{Passport Expiry Date}}. Many countries require at least 6 months of validity remaining beyond your travel dates, so I wanted to flag this early.
+
+If you haven't already, please start the renewal process as soon as possible — processing times can run several weeks. Let me know once it's renewed so I can update your file.
+
+Happy to answer any questions in the meantime.
+
+Pharin Walker
+Owner &amp; Travel Advisor, Destined 4 Destinations</div>
+      </div>
+
+      <div class="tpl-block">
+        <div class="tpl-block-head">
+          <div><div class="tpl-block-title">Birthday Email (default)</div><div class="tpl-block-meta">Send on the client's birthday</div></div>
+          <button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button>
+        </div>
+        <div class="tpl-subject"><strong>Subject:</strong> Happy Birthday, {{Client First Name}}! 🎂</div>
+        <div class="tpl-body">Hi {{Client First Name}},
+
+Wishing you the happiest of birthdays! I hope your day is filled with all your favorite things and a little extra celebration.
+
+If a birthday getaway — or just some well-deserved time to dream about your next trip — sounds like the perfect gift to yourself this year, I'd love to help you plan it. Just reply to this email and let's talk destinations.
+
+Have a wonderful birthday!
+
+Warmly,
+Pharin Walker
+Owner &amp; Travel Advisor, Destined 4 Destinations</div>
+      </div>
+
+      <div class="tpl-block">
+        <div class="tpl-block-head">
+          <div><div class="tpl-block-title">Anniversary Email (default)</div><div class="tpl-block-meta">Send on the client's anniversary</div></div>
+          <button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button>
+        </div>
+        <div class="tpl-subject"><strong>Subject:</strong> Happy Anniversary, {{Client First Name}}! 🥂</div>
+        <div class="tpl-body">Hi {{Client First Name}},
+
+Happy Anniversary! I hope today is filled with celebration and all the little moments that remind you why you fell in love in the first place.
+
+If you've been dreaming about a trip to celebrate — whether it's revisiting somewhere special or exploring somewhere brand new — I'd love to help you plan it. Anniversary trips are some of my favorite trips to put together.
+
+Wishing you many more years of love and adventure together.
+
+Warmly,
+Pharin Walker
+Owner &amp; Travel Advisor, Destined 4 Destinations</div>
+      </div>
+    </div>
+
+    <!-- FORMS -->
+    <div class="tpl-section" id="tpl-forms">
+      <div class="card">
+        <div class="card-title">Your TravelJoy Form Templates (19 active)</div>
+        <div class="tpl-note" style="margin-bottom:10px;">Forms are built and sent from TravelJoy's Form Builder — this is a reference list so you know what's already available before creating a new one.</div>
+        <div class="tpl-ref-grid">
+          <div>Activities Request</div><div>Cash Back Promo</div>
+          <div>Client Inquiry (default)</div><div>Client Profile Update (default)</div>
+          <div>Credit Card Authorization (default)</div><div>Cruise Client Profile Update (default)</div>
+          <div>Cultural Holiday Trip Forms</div><div>Custom Site Form</div>
+          <div>Daycation</div><div>Feedback Form</div>
+          <div>Group Booking Registration (default)</div><div>Group Trip Form</div>
+          <div>Morris Group Trip Client</div><div>Passport Info &amp; Pre-departure (default)</div>
+          <div>Promo Trip</div><div>Social Media Promo Trips</div>
+          <div>Travel Insurance (default)</div><div>Travel Quote Request</div>
+          <div>VA Inquiry Form</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIRMATIONS -->
+    <div class="tpl-section" id="tpl-confirmations">
+      <div class="tpl-block">
+        <div class="tpl-block-head">
+          <div><div class="tpl-block-title">Inquiry Confirmation</div><div class="tpl-block-meta">Shown right after a client submits an inquiry/form</div></div>
+          <button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button>
+        </div>
+        <div class="tpl-body">Thank you for reaching out to Destined 4 Destinations! Your inquiry has been received, and I'll personally review it and follow up within 1–2 business days with next steps. In the meantime, feel free to reply to this page with any additional details about your trip.</div>
+      </div>
+      <div class="tpl-block">
+        <div class="tpl-block-head">
+          <div><div class="tpl-block-title">Proposal Confirmation</div><div class="tpl-block-meta">Shown after a client approves a proposal</div></div>
+          <button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button>
+        </div>
+        <div class="tpl-body">You're one step closer to your trip! Your proposal has been approved and I'll be reaching out shortly with your invoice and payment schedule. Thank you for choosing Destined 4 Destinations.</div>
+      </div>
+      <div class="tpl-block">
+        <div class="tpl-block-head">
+          <div><div class="tpl-block-title">Invoice Confirmation</div><div class="tpl-block-meta">Shown after a client pays or authorizes an invoice</div></div>
+          <button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button>
+        </div>
+        <div class="tpl-body">Payment received — thank you! A receipt has been sent to your email. I'll follow up with confirmation details and any next steps as your travel date approaches. If you have questions in the meantime, just reach out.</div>
+      </div>
+    </div>
+
+    <!-- INVOICE ITEMS & PRICING -->
+    <div class="tpl-section" id="tpl-invoices">
+      <div class="card">
+        <div class="card-title">Invoice Item Templates <span class="tpl-block-meta">(live pricing from TravelJoy)</span></div>
+        <table>
+          <thead><tr><th>Item</th><th>Description</th><th>Price</th></tr></thead>
+          <tbody>
+            <tr><td>Airfare</td><td>—</td><td>Set per booking</td></tr>
+            <tr><td>Hotel</td><td>—</td><td>Set per booking</td></tr>
+            <tr><td>Cruise</td><td>—</td><td>Set per booking</td></tr>
+            <tr><td>Car Rental</td><td>—</td><td>Set per booking</td></tr>
+            <tr><td>Activity</td><td>—</td><td>Set per booking</td></tr>
+            <tr><td>Insurance</td><td>—</td><td>Set per booking</td></tr>
+            <tr><td>Refund</td><td>—</td><td>Set per booking</td></tr>
+            <tr><td>Research Service Fee (AIR ONLY)</td><td>Non-refundable; not payable by card — Apple Pay/Cash App/Zelle/Venmo</td><td>$10.00</td></tr>
+            <tr><td>Research Service Fee (5+ guests)</td><td>Non-refundable; not payable by card — Apple Pay/Cash App/Zelle/Venmo</td><td>$50.00</td></tr>
+            <tr><td>Research Service Fee (11+ guests)</td><td>Non-refundable; not payable by card — Apple Pay/Cash App/Zelle/Venmo</td><td>$100.00</td></tr>
+            <tr><td>Research Fee Discount (return traveler)</td><td>Destined 4 Destinations LLC Travel Family Discount</td><td>-$5.00</td></tr>
+            <tr><td>General Administration – Tier One</td><td>Contact mgmt, research, e-filing, invoicing, paying invoices, CRM data entry</td><td>$500.00</td></tr>
+            <tr><td>General Administration – Tier Two</td><td>Same scope, higher tier</td><td>$1,000.00*</td></tr>
+            <tr><td>General Administration – Tier Three</td><td>Same scope, highest tier</td><td>$1,400.00</td></tr>
+            <tr><td>Email Management – Tier One</td><td>Contact mgmt, research, e-filing, invoicing, paying invoices, CRM data entry</td><td>$500.00</td></tr>
+            <tr><td>Email Management – Tier Two</td><td>Same scope, higher tier</td><td>$1,000.00</td></tr>
+            <tr><td>Email Management – Tier Three</td><td>Same scope, highest tier</td><td>$14,000.00*</td></tr>
+            <tr><td>Calendar Management – Tier One/Two/Three</td><td>—</td><td>Set per package</td></tr>
+          </tbody>
+        </table>
+        <div class="tpl-note" style="margin-top:12px;">* A couple of tier prices in TravelJoy look like they may be typos worth double-checking (General Admin Tier Two at $1.00 and Email Management Tier Three at $14,000.00) — flagging in case those need correcting.</div>
+      </div>
+      <div class="tpl-block">
+        <div class="tpl-block-head">
+          <div><div class="tpl-block-title">Research Service Fee — payment instructions</div><div class="tpl-block-meta">Reused across all three Research Service Fee tiers</div></div>
+          <button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button>
+        </div>
+        <div class="tpl-body">Research Service Fee cannot be paid via credit card. DO NOT SUBMIT DEBIT/CREDIT CARD INFORMATION!
+
+Pay fee via:
+- Apple Pay: 305-206-6598
+- Cash App: $PharinWalker
+- Zelle: 305-206-6598
+- Venmo: @Pharin-Walker</div>
+      </div>
+    </div>
+
+    <!-- PROPOSAL LIBRARY -->
+    <div class="tpl-section" id="tpl-library">
+      <div class="tpl-note">Reusable policy blocks pulled from your Smart Proposals Library — drop these into any quote or proposal.</div>
+
+      <div class="tpl-block">
+        <div class="tpl-block-head"><div class="tpl-block-title">Important Details</div><button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button></div>
+        <div class="tpl-body">Pricing and Availability: The proposal is based on double occupancy (2 people per reservation). Pricing is per person and subject to change until deposit is received and the reservation is confirmed. Airfare, if included, is subject to availability and may fluctuate until ticketed. Please review all trip details carefully and reach out with any questions before authorizing payment.</div>
+      </div>
+      <div class="tpl-block">
+        <div class="tpl-block-head"><div class="tpl-block-title">Payment Schedule</div><button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button></div>
+        <div class="tpl-body">A payment schedule will be created after the deposit authorization has been received. Payment reminders will be sent via email and/or text ahead of each due date. It is the traveler's responsibility to ensure payments are made on time — missed payments may result in a lapse of pricing, cabin/room hold, or cancellation by the supplier.</div>
+      </div>
+      <div class="tpl-block">
+        <div class="tpl-block-head"><div class="tpl-block-title">Payment &amp; Cancellation Policy</div><button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button></div>
+        <div class="tpl-body">If you're taking advantage of a payment plan, monthly payments are recommended to ensure your reservation stays current and to avoid a large balance due close to the final payment date. All payments are non-refundable unless otherwise stated by the supplier's cancellation policy. Destined 4 Destinations is not responsible for supplier cancellation penalties, but will always advocate on your behalf where possible.</div>
+      </div>
+      <div class="tpl-block">
+        <div class="tpl-block-head"><div class="tpl-block-title">Pricing Disclaimer</div><button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button></div>
+        <div class="tpl-body">Pricing and availability are current as of the time of this presentation and subject to change at the supplier's discretion until a deposit is made and the reservation is confirmed in writing. Destined 4 Destinations is not responsible for price increases that occur prior to booking.</div>
+      </div>
+      <div class="tpl-block">
+        <div class="tpl-block-head"><div class="tpl-block-title">Deposit &amp; Balance</div><button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button></div>
+        <div class="tpl-body">Deposit: $100 per person. Full Payment Due: 60 days before travel date. Payments: After a minimum deposit is received, remaining balance may be split into scheduled monthly payments leading up to the final due date. Reservations not paid in full by the due date are subject to cancellation and loss of deposit per supplier policy.</div>
+      </div>
+      <div class="tpl-block">
+        <div class="tpl-block-head"><div class="tpl-block-title">Cancellation | No Show | Early Departure</div><button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button></div>
+        <div class="tpl-body">In the event of cancellation of travel arrangements for any reason, we must be notified of the same in writing as soon as possible. Cancellation penalties are set by the supplier (airline, cruise line, hotel, tour operator, etc.) and are outside of Destined 4 Destinations' control. No refunds will be issued for no-shows or early departures once travel has begun. We strongly recommend travel insurance to help protect against these situations.</div>
+      </div>
+      <div class="tpl-block">
+        <div class="tpl-block-head"><div class="tpl-block-title">Travel Insurance</div><button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button></div>
+        <div class="tpl-body">Missing a vacation is bad enough — losing the money you paid for it is something else entirely. Travel insurance can help protect your investment against trip cancellation, interruption, medical emergencies, and delays. We highly recommend purchasing a policy at the time of booking, as many benefits (like pre-existing condition waivers) require insurance to be purchased within a limited window after your initial deposit.</div>
+      </div>
+      <div class="tpl-block">
+        <div class="tpl-block-head"><div class="tpl-block-title">Traveling With Children (if applicable)</div><button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button></div>
+        <div class="tpl-body">Children traveling with one parent, or someone who is not a parent/legal guardian, or children traveling internationally without both parents may be required to carry a notarized consent letter and additional documentation depending on the destination and airline. Please check specific entry requirements well in advance and reach out if you'd like help confirming what's needed for your trip.</div>
+      </div>
+      <div class="tpl-block">
+        <div class="tpl-block-head"><div class="tpl-block-title">Passport | Visa Requirements</div><button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button></div>
+        <div class="tpl-body">Your passport should have at least six months of validity remaining beyond your travel dates if you're traveling internationally. Many countries also require blank visa pages and may require a visa obtained in advance. It is the traveler's responsibility to confirm passport and visa requirements for every destination on the itinerary — we're happy to help point you in the right direction, but final compliance is the traveler's responsibility.</div>
+      </div>
+      <div class="tpl-block">
+        <div class="tpl-block-head"><div class="tpl-block-title">Covid-19 / Health Entry &amp; Exit Requirements</div><button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button></div>
+        <div class="tpl-body">It is the responsibility of each traveler to keep themselves informed of all requirements in relation to health documentation, testing, or vaccination for their destination(s), as these can change with little notice. Please check official government and supplier sources close to your travel date, and reach out if you'd like help finding current requirements.</div>
+      </div>
+    </div>
+
+    <!-- TASK LISTS -->
+    <div class="tpl-section" id="tpl-tasks">
+      <div class="tpl-block">
+        <div class="tpl-block-head">
+          <div><div class="tpl-block-title">Standard Trip Checklist</div><div class="tpl-block-meta">Matches your "Standard trip (default)" task list — currently empty in TravelJoy, so here's a starter set</div></div>
+          <button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button>
+        </div>
+        <div class="tpl-body">Pre-Booking
+☐ Confirm traveler names match passports exactly
+☐ Send/collect Client Inquiry or Travel Quote Request form
+☐ Build and send proposal via Smart Proposals
+
+Booking
+☐ Collect deposit + signed Terms &amp; Conditions
+☐ Confirm reservation with supplier
+☐ Send "You Are Booked" email
+☐ Set up payment schedule reminders
+
+Pre-Departure (60/30/14/7 days out)
+☐ Send Balance Reminder at 60-day mark
+☐ Confirm final payment received
+☐ Send Passport Info &amp; Pre-departure form
+☐ Send Travel Documents email (1–2 weeks out)
+☐ Confirm seat assignments / cabin / room type
+
+Post-Trip
+☐ Send Welcome Home Email
+☐ Request review / feedback form
+☐ Log commission as Collected
+☐ Add to next-trip follow-up list</div>
+      </div>
+      <div class="tpl-block">
+        <div class="tpl-block-head">
+          <div><div class="tpl-block-title">VA Task List</div><div class="tpl-block-meta">Currently empty in TravelJoy — populate once your VA workflow is finalized</div></div>
+        </div>
+        <div class="tpl-body">No tasks defined yet in TravelJoy for this list. Once you finalize what you're delegating to a VA, add the steps here so they're easy to hand off consistently.</div>
+      </div>
+    </div>
+
+    <!-- TERMS & CONDITIONS -->
+    <div class="tpl-section" id="tpl-terms">
+      <div class="card">
+        <div class="card-title">Your TravelJoy T&amp;C Templates (5 active)</div>
+        <div class="tpl-ref-grid">
+          <div>Agreement Terms &amp; Conditions (default)</div>
+          <div>Client Agreement-VA</div>
+          <div>Invoice (Direct) Non-refundable Terms &amp; Conditions</div>
+          <div>Research &amp; Design Service Fee Terms &amp; Conditions</div>
+          <div>Research &amp; Design Service Fee Terms &amp; Conditions (2)</div>
+        </div>
+      </div>
+      <div class="tpl-block">
+        <div class="tpl-block-head">
+          <div><div class="tpl-block-title">Agreement Terms &amp; Conditions (default)</div><div class="tpl-block-meta">TravelJoy tip: type AGENCY_NAME to auto-insert your agency name</div></div>
+          <button class="tpl-copy-btn" onclick="tplCopy(this)">Copy</button>
+        </div>
+        <div class="tpl-body">By submitting payment and/or signing this agreement, the traveler(s) acknowledge and agree to the following terms with AGENCY_NAME:
+
+1. Booking &amp; Payment: A deposit is required to confirm any reservation. Full payment is due per the schedule provided at booking. AGENCY_NAME is not responsible for reservations lost due to late or missed payments.
+
+2. Pricing: All pricing is quoted per person, based on double occupancy unless stated otherwise, and is subject to change until deposit is received.
+
+3. Cancellations &amp; Refunds: Cancellation and refund policies are set by the individual supplier (airline, cruise line, hotel, tour operator) and are outside AGENCY_NAME's control. Service and research fees paid to AGENCY_NAME are non-refundable.
+
+4. Travel Insurance: Travel insurance is strongly recommended and is the traveler's responsibility to purchase.
+
+5. Documentation: Travelers are responsible for ensuring valid passports, visas, and any required health documentation for their destination(s).
+
+6. Agency Role: AGENCY_NAME acts as an intermediary between the traveler and travel suppliers and is not liable for supplier acts, omissions, delays, or changes.
+
+By proceeding with booking, the traveler confirms they have read, understood, and agree to these terms.</div>
+      </div>
+    </div>
+  </div>
+
+<!-- ========= REPORTS ========= -->
+  <div class="panel" id="panel-reports">
+    <div class="rpt-filters">
+      <div>
+        <label for="rpt-year">Year</label><br />
+        <select id="rpt-year"></select>
+      </div>
+      <div class="tpl-note" style="margin:0;">Computed live from your Trips data — mirrors the report types in TravelJoy's Reports section (Overview, Commissions &amp; Sales).</div>
+    </div>
+
+    <div class="rpt-tabs">
+      <button class="rpt-tab active" data-rpt="overview">Overview</button>
+      <button class="rpt-tab" data-rpt="monthly">Monthly Summary</button>
+      <button class="rpt-tab" data-rpt="trips">Trips</button>
+      <button class="rpt-tab" data-rpt="clients">Clients</button>
+      <button class="rpt-tab" data-rpt="suppliers">Suppliers</button>
+    </div>
+
+    <!-- Overview -->
+    <div class="rpt-section active" id="rpt-overview">
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Sales</div>
+          <div class="stat-value" id="rpt-ov-sales">—</div>
+          <div class="rpt-delta neutral" id="rpt-ov-sales-delta"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Commissions</div>
+          <div class="stat-value" id="rpt-ov-commission">—</div>
+          <div class="rpt-delta neutral" id="rpt-ov-commission-delta"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Trips</div>
+          <div class="stat-value" id="rpt-ov-trips">—</div>
+          <div class="rpt-delta neutral" id="rpt-ov-trips-delta"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Commission %</div>
+          <div class="stat-value" id="rpt-ov-avgcomm">—</div>
+          <div class="rpt-delta neutral" id="rpt-ov-avgcomm-delta"></div>
+        </div>
+      </div>
+      <div class="dash-grid">
+        <div class="card">
+          <div class="card-title">Top Clients</div>
+          <table>
+            <thead><tr><th>Client</th><th>Total Sales</th><th>Total Commission</th><th>Avg Commission %</th></tr></thead>
+            <tbody id="rpt-top-clients-body"><tr><td colspan="4" class="empty-cell">Connect to load.</td></tr></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-title">Top Suppliers</div>
+          <table>
+            <thead><tr><th>Supplier</th><th>Total Sales</th><th>Total Commission</th><th>Avg Commission %</th></tr></thead>
+            <tbody id="rpt-top-suppliers-body"><tr><td colspan="4" class="empty-cell">Connect to load.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Summary -->
+    <div class="rpt-section" id="rpt-monthly">
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-label">Total Sales</div><div class="stat-value" id="rpt-mo-sales">—</div></div>
+        <div class="stat-card"><div class="stat-label">Total Commission</div><div class="stat-value" id="rpt-mo-commission">—</div></div>
+        <div class="stat-card"><div class="stat-label">Expected Agent Commission</div><div class="stat-value" id="rpt-mo-expected">—</div></div>
+        <div class="stat-card"><div class="stat-label">Collected Agent Commission</div><div class="stat-value" id="rpt-mo-collected">—</div></div>
+      </div>
+      <div class="card">
+        <div class="rpt-table-head">
+          <div class="card-title" style="margin-bottom:0;">Monthly Reports</div>
+          <button class="rpt-export-btn" data-export="monthly">Export CSV</button>
+        </div>
+        <table>
+          <thead><tr><th>Month</th><th>Total Sales</th><th>Total Commission</th><th>Expected</th><th>Collected</th></tr></thead>
+          <tbody id="rpt-monthly-body"><tr><td colspan="5" class="empty-cell">Connect to load.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Trips -->
+    <div class="rpt-section" id="rpt-trips">
+      <div class="card">
+        <div class="rpt-table-head">
+          <div class="card-title" style="margin-bottom:0;">Trips</div>
+          <button class="rpt-export-btn" data-export="trips">Export CSV</button>
+        </div>
+        <table>
+          <thead><tr><th>Trip</th><th>Client</th><th>Departure</th><th>Total Sales</th><th>Commission</th><th>Avg %</th><th>Status</th></tr></thead>
+          <tbody id="rpt-trips-body"><tr><td colspan="7" class="empty-cell">Connect to load.</td></tr></tbody>
+          <tfoot><tr id="rpt-trips-total"></tr></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Clients -->
+    <div class="rpt-section" id="rpt-clients">
+      <div class="card">
+        <div class="rpt-table-head">
+          <div class="card-title" style="margin-bottom:0;">Clients</div>
+          <button class="rpt-export-btn" data-export="clients">Export CSV</button>
+        </div>
+        <table>
+          <thead><tr><th>Client</th><th>Trips</th><th>Total Sales</th><th>Total Commission</th><th>Avg Commission %</th></tr></thead>
+          <tbody id="rpt-clients-body"><tr><td colspan="5" class="empty-cell">Connect to load.</td></tr></tbody>
+          <tfoot><tr id="rpt-clients-total"></tr></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Suppliers -->
+    <div class="rpt-section" id="rpt-suppliers">
+      <div class="card">
+        <div class="rpt-table-head">
+          <div class="card-title" style="margin-bottom:0;">Suppliers</div>
+          <button class="rpt-export-btn" data-export="suppliers">Export CSV</button>
+        </div>
+        <table>
+          <thead><tr><th>Supplier</th><th>Trips</th><th>Total Sales</th><th>Total Commission</th><th>Avg Commission %</th></tr></thead>
+          <tbody id="rpt-suppliers-body"><tr><td colspan="5" class="empty-cell">Connect to load.</td></tr></tbody>
+          <tfoot><tr id="rpt-suppliers-total"></tr></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MARKETING ============ -->
+  <div class="panel" id="panel-marketing">
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-title" style="margin-bottom:8px;">Client Reminders</div>
+      <p style="margin:0;color:var(--muted);font-size:0.86rem;line-height:1.5;">
+        Flags clients with an upcoming birthday, anniversary, or passport expiration so you can reach out at the
+        right moment. Pulled straight from Notion &mdash; add or update a client's Date of Birth, Anniversary, or
+        Passport Expiry there and it shows up here automatically.
+      </p>
+    </div>
+    <div class="mkt-tabs">
+      <button class="mkt-tab active" data-mkt="passports">Passport Expirations</button>
+      <button class="mkt-tab" data-mkt="birthdays">Birthdays</button>
+      <button class="mkt-tab" data-mkt="anniversaries">Anniversaries</button>
+      <button class="mkt-tab" data-mkt="calendar">Calendar <span class="tag">Soon</span></button>
+    </div>
+
+    <div class="mkt-section active" id="mkt-passports">
+      <div class="card">
+        <div class="rpt-table-head">
+          <div class="card-title" style="margin-bottom:0;">Upcoming Passport Expirations</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <input id="mkt-search" type="text" placeholder="Search clients..." style="padding:7px 12px;border:1px solid var(--border);border-radius:7px;font-size:0.82rem;min-width:180px;" />
+            <button class="rpt-export-btn" data-export="passports">Export CSV</button>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Client</th><th>Email</th><th>Phone</th><th>Passport Expires</th><th>Time Left</th><th>Status</th></tr></thead>
+          <tbody id="mkt-passports-body"><tr><td colspan="6" class="empty-cell">Connect to load.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="mkt-section" id="mkt-birthdays">
+      <div class="card">
+        <div class="rpt-table-head">
+          <div class="card-title" style="margin-bottom:0;">Upcoming Birthdays</div>
+          <button class="rpt-export-btn" data-export="birthdays">Export CSV</button>
+        </div>
+        <table>
+          <thead><tr><th>Client</th><th>Email</th><th>Phone</th><th>Birthday</th><th>Turns</th><th>When</th></tr></thead>
+          <tbody id="mkt-birthdays-body"><tr><td colspan="6" class="empty-cell">Connect to load.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="mkt-section" id="mkt-anniversaries">
+      <div class="card">
+        <div class="rpt-table-head">
+          <div class="card-title" style="margin-bottom:0;">Upcoming Anniversaries</div>
+          <button class="rpt-export-btn" data-export="anniversaries">Export CSV</button>
+        </div>
+        <table>
+          <thead><tr><th>Client</th><th>Email</th><th>Phone</th><th>Anniversary</th><th>Years</th><th>When</th></tr></thead>
+          <tbody id="mkt-anniversaries-body"><tr><td colspan="6" class="empty-cell">Connect to load.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="mkt-section" id="mkt-calendar">
+      <div class="card">
+        <div class="rpt-table-head">
+          <div class="card-title" style="margin-bottom:0;">Next 30 Days</div>
+          <div style="display:flex;gap:14px;align-items:center;font-size:0.78rem;color:var(--muted);">
+            <span><span class="cal-dot cal-dot-bday"></span> Birthday</span>
+            <span><span class="cal-dot cal-dot-anniv"></span> Anniversary</span>
+          </div>
+        </div>
+        <div class="cal-grid" id="mkt-calendar-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SETTINGS ============ -->
+  <div class="panel" id="panel-settings">
+    <div class="card">
+      <div class="card-title">Connection Settings</div>
+      <div class="settings">
+        <div>
+          <label for="server-url">Server URL</label>
+          <input id="server-url" type="text" placeholder="https://your-server.example.com" autocomplete="off" data-lpignore="true" data-1p-ignore autocorrect="off" spellcheck="false" />
+        </div>
+        <div>
+          <label for="api-key">API Key</label>
+          <input id="api-key" type="password" placeholder="DASHBOARD_API_KEY" />
+        </div>
+        <button id="connect-btn">Connect &amp; Reload</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const els = {
+    serverUrl: document.getElementById('server-url'),
+    apiKey: document.getElementById('api-key'),
+    connectBtn: document.getElementById('connect-btn'),
+    connIndicator: document.getElementById('conn-indicator'),
+    pageTitle: document.getElementById('page-title'),
+    pageSubtitle: document.getElementById('page-subtitle'),
+    navItems: document.querySelectorAll('.nav-item[data-panel]'),
+    panels: {
+      dashboard: document.getElementById('panel-dashboard'),
+      tasks: document.getElementById('panel-tasks'),
+      trips: document.getElementById('panel-trips'),
+      clients: document.getElementById('panel-clients'),
+      suppliers: document.getElementById('panel-suppliers'),
+      templates: document.getElementById('panel-templates'),
+      reports: document.getElementById('panel-reports'),
+      marketing: document.getElementById('panel-marketing'),
+      settings: document.getElementById('panel-settings'),
+    },
+    tripsBody: document.getElementById('trips-body'),
+    tripsSearch: document.getElementById('trips-search'),
+    tripsTypeFilter: document.getElementById('trips-type-filter'),
+    tripsStatusFilter: document.getElementById('trips-status-filter'),
+    clientsBody: document.getElementById('clients-body'),
+    suppliersBody: document.getElementById('suppliers-body'),
+    supplierSearch: document.getElementById('supplier-search'),
+    supplierTypeFilter: document.getElementById('supplier-type-filter'),
+    recentBody: document.getElementById('recent-bookings-body'),
+    upcomingList: document.getElementById('upcoming-list'),
+    tasksDueList: document.getElementById('tasks-due-list'),
+    tasksFullList: document.getElementById('tasks-full-list'),
+    tasksConfigNote: document.getElementById('tasks-config-note'),
+    taskForm: document.getElementById('task-form'),
+    taskTitle: document.getElementById('task-title'),
+    taskDue: document.getElementById('task-due'),
+    taskRelated: document.getElementById('task-related'),
+  };
+
+  const titles = {
+    dashboard: ['Dashboard', "Welcome back — here's what's happening."],
+    tasks: ['Tasks', 'Everything due or waiting on you.'],
+    trips: ['Trips', 'All trips synced from Notion.'],
+    clients: ['Clients', 'Your travelers on file.'],
+    suppliers: ['Suppliers', 'Hotels, cruise lines, and partners.'],
+    templates: ['Templates', 'Ready-to-use content for emails, proposals, invoices, and policies.'],
+    reports: ['Reports', 'Sales, commission, trip, client, and supplier reports.'],
+    marketing: ['Marketing', 'Client reminders for passports, birthdays, and anniversaries.'],
+    settings: ['Settings', 'Connect the dashboard to your server.'],
+  };
+
+  let tripsCache = [];
+  let tasksCache = [];
+  let clientsCache = [];
+  let suppliersCache = [];
+  let activeTripCategory = '';
+
+  // Remember server URL + key locally (small internal tool; for anything beyond
+  // a solo agent, put this behind real auth instead of a shared API key).
+  els.apiKey.value = (localStorage.getItem('pharin_api_key') || '').trim();
+  // This dashboard is always served from the same origin as its API (see
+  // nginx /api/ proxy_pass). Always force this field to the current origin
+  // -- never trust a stored or autofilled value -- so devices with a bad
+  // cached Server URL (from before this fix existed, or from browser
+  // autofill) self-heal automatically instead of failing silently forever.
+  els.serverUrl.value = window.location.origin;
+  localStorage.setItem('pharin_server_url', els.serverUrl.value);
+
+  function showPanel(name) {
+    els.navItems.forEach((n) => n.classList.toggle('active', n.dataset.panel === name));
+    Object.entries(els.panels).forEach(([key, el]) => el.classList.toggle('active', key === name));
+    const t = titles[name] || ['Dashboard', ''];
+    els.pageTitle.textContent = t[0];
+    els.pageSubtitle.textContent = t[1];
+  }
+  els.navItems.forEach((item) => {
+    item.addEventListener('click', () => showPanel(item.dataset.panel));
+  });
+  document.querySelectorAll('[data-panel-link]').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      showPanel(link.dataset.panelLink);
+    });
+  });
+
+  function esc(v) {
+    if (v === null || v === undefined) return '';
+    return String(v).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+  function money(n) {
+    if (n === null || n === undefined || n === '') return '$0';
+    return '$' + Math.round(Number(n)).toLocaleString();
+  }
+  function statusBadge(status) {
+    if (!status) return '';
+    const slug = status.toLowerCase().replace(/\s+/g, '-');
+    return `<span class="badge ${slug}">${esc(status)}</span>`;
+  }
+  function fmtDate(d) {
+    if (!d) return '';
+    const dt = new Date(/^\d{4}-\d{2}-\d{2}$/.test(d) ? d + 'T00:00:00' : d);
+    if (isNaN(dt)) return d;
+    return dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function apiBase() {
+    return (els.serverUrl.value.trim() || window.location.origin).replace(/\/$/, '');
+  }
+  async function apiGet(path) {
+    const res = await fetch(apiBase() + path, { headers: { 'X-Api-Key': els.apiKey.value.trim() } });
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`${res.status} ${res.statusText} ${text}`);
+    }
+    return res.json();
+  }
+  async function apiSend(method, path, body) {
+    const res = await fetch(apiBase() + path, {
+      method,
+      headers: { 'Content-Type': 'application/json', 'X-Api-Key': els.apiKey.value.trim() },
+      body: JSON.stringify(body || {}),
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`${res.status} ${res.statusText} ${text}`);
+    }
+    return res.json();
+  }
+
+  // ---------------- Charts ----------------
+  let salesChart = null;
+  let commissionChart = null;
+  const monthLabels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  function renderSalesChart(monthlyTotals, year) {
+    document.getElementById('sales-chart-year').textContent = year;
+    const ctx = document.getElementById('sales-chart').getContext('2d');
+    if (salesChart) salesChart.destroy();
+    salesChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: monthLabels,
+        datasets: [{
+          label: 'Sales',
+          data: monthlyTotals,
+          borderColor: '#1fa3c9',
+          backgroundColor: 'rgba(31,163,201,0.12)',
+          fill: true,
+          tension: 0.35,
+          pointRadius: 3,
+        }],
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { ticks: { callback: (v) => '$' + (v >= 1000 ? (v/1000) + 'k' : v) } },
+        },
+      },
+    });
+  }
+
+  function renderCommissionChart(buckets) {
+    const labels = Object.keys(buckets);
+    const values = Object.values(buckets);
+    const colors = { Collected: '#16a34a', Expected: '#1fa3c9', 'Past Due': '#dc2626' };
+    const total = values.reduce((a, b) => a + b, 0);
+    document.getElementById('commission-total').innerHTML = total
+      ? `<strong>${money(total)}</strong> total commission`
+      : 'No commission data yet.';
+    document.getElementById('commission-legend').innerHTML = labels.map((l) => `
+      <span><span class="legend-dot" style="background:${colors[l] || '#999'}"></span>${esc(l)} (${money(buckets[l])})</span>
+    `).join('');
+
+    const ctx = document.getElementById('commission-chart').getContext('2d');
+    if (commissionChart) commissionChart.destroy();
+    if (!total) return;
+    commissionChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [{ data: values, backgroundColor: labels.map((l) => colors[l] || '#999'), borderWidth: 0 }],
+      },
+      options: { plugins: { legend: { display: false } }, cutout: '65%' },
+    });
+  }
+
+  // ---------------- Dashboard computation ----------------
+  function deltaEl(el, curr, prev, suffix) {
+    if (!prev) {
+      el.textContent = curr ? 'New activity' + (suffix || '') : '—';
+      el.className = 'stat-delta neutral';
+      return;
+    }
+    const pct = ((curr - prev) / prev) * 100;
+    const sign = pct >= 0 ? '+' : '';
+    el.textContent = `${sign}${pct.toFixed(1)}%${suffix || ' vs last year'}`;
+    el.className = 'stat-delta ' + (pct >= 0 ? 'up' : 'down');
+  }
+
+  function renderDashboard(trips, tasks) {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const thisYear = now.getFullYear();
+    const lastYear = thisYear - 1;
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const yearOf = (d) => (d ? new Date(d).getFullYear() : null);
+    const nonCancelled = trips.filter((t) => t.booking_status !== 'Cancelled');
+    const thisYearTrips = nonCancelled.filter((t) => yearOf(t.departure_date) === thisYear);
+    const lastYearTrips = nonCancelled.filter((t) => yearOf(t.departure_date) === lastYear);
+    const sum = (arr, key) => arr.reduce((s, t) => s + (Number(t[key]) || 0), 0);
+
+    const salesYTD = sum(thisYearTrips, 'trip_value');
+    const salesLastYear = sum(lastYearTrips, 'trip_value');
+    const commissionYTD = sum(thisYearTrips, 'commission');
+    const commissionLastYear = sum(lastYearTrips, 'commission');
+
+    document.getElementById('stat-sales').textContent = money(salesYTD);
+    document.getElementById('stat-commissions').textContent = money(commissionYTD);
+    deltaEl(document.getElementById('stat-sales-delta'), salesYTD, salesLastYear);
+    deltaEl(document.getElementById('stat-commissions-delta'), commissionYTD, commissionLastYear);
+
+    const activeStatuses = ['Booked', 'Deposit Paid', 'Paid in Full'];
+    const pendingStatuses = ['Inquiry', 'Quoted'];
+    const activeTrips = trips.filter((t) => activeStatuses.includes(t.booking_status));
+    const pendingQuotes = trips.filter((t) => pendingStatuses.includes(t.booking_status));
+    const newActive = activeTrips.filter((t) => t.created_time && new Date(t.created_time) >= weekAgo).length;
+    const newPending = pendingQuotes.filter((t) => t.created_time && new Date(t.created_time) >= weekAgo).length;
+
+    document.getElementById('stat-active').textContent = activeTrips.length;
+    document.getElementById('stat-pending').textContent = pendingQuotes.length;
+    const activeDeltaEl = document.getElementById('stat-active-delta');
+    activeDeltaEl.textContent = newActive ? `+${newActive} new this week` : 'No new activity this week';
+    activeDeltaEl.className = 'stat-delta ' + (newActive ? 'up' : 'neutral');
+    const pendingDeltaEl = document.getElementById('stat-pending-delta');
+    pendingDeltaEl.textContent = newPending ? `+${newPending} new this week` : 'No new activity this week';
+    pendingDeltaEl.className = 'stat-delta ' + (newPending ? 'up' : 'neutral');
+
+    const monthlyTotals = new Array(12).fill(0);
+    thisYearTrips.forEach((t) => {
+      if (!t.departure_date) return;
+      const m = new Date(t.departure_date).getMonth();
+      monthlyTotals[m] += Number(t.trip_value) || 0;
+    });
+    renderSalesChart(monthlyTotals, thisYear);
+
+    const commissionBuckets = {};
+    trips.forEach((t) => {
+      const c = Number(t.commission) || 0;
+      if (!c) return;
+      const status = t.commission_status || 'Expected';
+      commissionBuckets[status] = (commissionBuckets[status] || 0) + c;
+    });
+    renderCommissionChart(commissionBuckets);
+
+    const upcoming = trips
+      .filter((t) => t.departure_date && new Date(t.departure_date) >= today && t.booking_status !== 'Cancelled')
+      .sort((a, b) => new Date(a.departure_date) - new Date(b.departure_date))
+      .slice(0, 5);
+    els.upcomingList.innerHTML = upcoming.length ? upcoming.map((t) => {
+      const days = Math.round((new Date(t.departure_date) - today) / 86400000);
+      return `<li>
+        <div>
+          <div class="item-main">${esc(t.trip_name || t.destination || 'Trip')}</div>
+          <div class="item-sub">${esc(t.client_name || '')}${t.destination ? ' · ' + esc(t.destination) : ''}</div>
+        </div>
+        <div class="item-meta">${fmtDate(t.departure_date)}<small>in ${days} day${days === 1 ? '' : 's'}</small></div>
+      </li>`;
+    }).join('') : '<li class="empty">No upcoming departures.</li>';
+
+    const dueTasks = tasks
+      .filter((t) => !t.done)
+      .sort((a, b) => new Date(a.due_date || '9999-12-31') - new Date(b.due_date || '9999-12-31'))
+      .slice(0, 5);
+    els.tasksDueList.innerHTML = dueTasks.length ? dueTasks.map((t) => `
+      <li>
+        <div>
+          <div class="item-main">${esc(t.title)}</div>
+          <div class="item-sub">${esc(t.related_to || '')}</div>
+        </div>
+        <div class="item-meta">${t.due_date ? fmtDate(t.due_date) : 'No due date'}</div>
+      </li>
+    `).join('') : '<li class="empty">No open tasks. Add one from the Tasks tab.</li>';
+
+    const recent = [...trips]
+      .sort((a, b) => new Date(b.created_time || 0) - new Date(a.created_time || 0))
+      .slice(0, 6);
+    els.recentBody.innerHTML = recent.length ? recent.map((t) => `
+      <tr>
+        <td>${esc(t.client_name)}</td>
+        <td>${esc(t.trip_name)}</td>
+        <td>${fmtDate(t.departure_date)}</td>
+        <td>${money(t.trip_value)}</td>
+        <td>${statusBadge(t.booking_status)}</td>
+      </tr>
+    `).join('') : '<tr><td colspan="5" class="empty-cell">No bookings yet.</td></tr>';
+  }
+
+  // ---------------- Tasks panel ----------------
+  function renderTasksFullList(tasks) {
+    if (!tasks.length) {
+      els.tasksFullList.innerHTML = '<div class="list"><div class="empty">No tasks yet — add one above.</div></div>';
+      return;
+    }
+    const sorted = [...tasks].sort((a, b) => {
+      if (a.done !== b.done) return a.done ? 1 : -1;
+      return new Date(a.due_date || '9999-12-31') - new Date(b.due_date || '9999-12-31');
+    });
+    els.tasksFullList.innerHTML = sorted.map((t) => `
+      <div class="task-row">
+        <input type="checkbox" data-task-id="${esc(t.id)}" ${t.done ? 'checked' : ''} />
+        <div>
+          <div class="task-title ${t.done ? 'done' : ''}">${esc(t.title)}</div>
+          <div class="task-meta">${esc(t.related_to || '')}${t.due_date ? ' · Due ' + fmtDate(t.due_date) : ''}</div>
+        </div>
+      </div>
+    `).join('');
+    els.tasksFullList.querySelectorAll('input[type="checkbox"]').forEach((box) => {
+      box.addEventListener('change', async () => {
+        try {
+          await apiSend('PUT', `/api/tasks/${box.dataset.taskId}`, { done: box.checked });
+          await loadTasks();
+          renderDashboard(tripsCache, tasksCache);
+        } catch (err) {
+          alert('Failed to update task: ' + err.message);
+        }
+      });
+    });
+  }
+
+  els.taskForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await apiSend('POST', '/api/tasks', {
+        title: els.taskTitle.value,
+        dueDate: els.taskDue.value || undefined,
+        relatedTo: els.taskRelated.value,
+        done: false,
+      });
+      els.taskForm.reset();
+      await loadTasks();
+      renderDashboard(tripsCache, tasksCache);
+    } catch (err) {
+      alert('Failed to add task (check that the server\'s Activities database is configured): ' + err.message);
+    }
+  });
+
+  // ---------------- Table loaders (Trips/Clients/Suppliers) ----------------
+  async function loadTrips() {
+    els.tripsBody.innerHTML = '<tr><td colspan="10" class="empty-cell">Loading…</td></tr>';
+    try {
+      const { trips } = await apiGet('/api/trips');
+      tripsCache = trips;
+      populateTripsFilters(trips);
+      renderTripsTable();
+      return trips;
+    } catch (err) {
+      els.tripsBody.innerHTML = `<tr><td colspan="10" class="error-cell">Failed to load trips: ${esc(err.message)}</td></tr>`;
+      return [];
+    }
+  }
+
+  function populateTripsFilters(trips) {
+    if (!els.tripsStatusFilter) return;
+    const statuses = Array.from(new Set((trips || []).map((t) => t.booking_status).filter(Boolean))).sort();
+
+    const prevStatus = els.tripsStatusFilter.value;
+    els.tripsStatusFilter.innerHTML = '<option value="">All Statuses</option>' +
+      statuses.map((s) => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
+    if (statuses.includes(prevStatus)) els.tripsStatusFilter.value = prevStatus;
+  }
+
+  function renderTripsTable() {
+    const search = els.tripsSearch ? els.tripsSearch.value.trim().toLowerCase() : '';
+    const typeFilter = activeTripCategory;
+    const statusFilter = els.tripsStatusFilter ? els.tripsStatusFilter.value : '';
+
+    if (!tripsCache.length) {
+      els.tripsBody.innerHTML = '<tr><td colspan="10" class="empty-cell">No trips yet.</td></tr>';
+      return;
+    }
+
+    const filtered = tripsCache.filter((t) => {
+      if (typeFilter && t.trip_type !== typeFilter) return false;
+      if (statusFilter && t.booking_status !== statusFilter) return false;
+      if (search) {
+        const haystack = [t.trip_name, t.client_name, t.destination].filter(Boolean).join(' ').toLowerCase();
+        if (!haystack.includes(search)) return false;
+      }
+      return true;
+    });
+
+    if (!filtered.length) {
+      els.tripsBody.innerHTML = '<tr><td colspan="10" class="empty-cell">No trips match your search/filters.</td></tr>';
+      return;
+    }
+
+    els.tripsBody.innerHTML = filtered.map((t) => `
+      <tr>
+        <td>${esc(t.trip_name)}</td>
+        <td>${esc(t.client_name)}</td>
+        <td>${esc(t.destination)}</td>
+        <td>${esc(t.trip_type)}</td>
+        <td>${fmtDate(t.departure_date)}</td>
+        <td>${fmtDate(t.return_date)}</td>
+        <td>${esc(t.number_of_travelers)}</td>
+        <td>${money(t.trip_value)}</td>
+        <td>${money(t.commission)}</td>
+        <td>${statusBadge(t.booking_status)}</td>
+      </tr>
+    `).join('');
+  }
+
+  async function loadClients() {
+    els.clientsBody.innerHTML = '<tr><td colspan="8" class="empty-cell">Loading…</td></tr>';
+    try {
+      const { clients } = await apiGet('/api/clients');
+      clientsCache = clients;
+      if (!clients.length) {
+        els.clientsBody.innerHTML = '<tr><td colspan="8" class="empty-cell">No clients yet.</td></tr>';
+        return;
+      }
+      els.clientsBody.innerHTML = clients.map((c) => `
+        <tr>
+          <td>${esc(c.name)}</td>
+          <td>${esc(c.email)}</td>
+          <td>${esc(c.phone)}</td>
+          <td>${esc(c.passport_number)}</td>
+          <td>${esc(c.frequent_flyer_numbers)}</td>
+          <td>${fmtDate(c.passport_expiry)}</td>
+          <td>${esc(c.referral_source)}</td>
+          <td><a class="view-profile-btn" href="client.html?id=${esc(c.id)}">View</a></td>
+        </tr>
+      `).join('');
+    } catch (err) {
+      els.clientsBody.innerHTML = `<tr><td colspan="8" class="error-cell">Failed to load clients: ${esc(err.message)}</td></tr>`;
+    }
+  }
+
+  function supplierIcon(type) {
+    const icons = {
+      'Airline': '&#9992;', 'Hotel': '&#127976;', 'Cruise Line': '&#9973;',
+      'Tour Operator': '&#127757;', 'Car Rental': '&#128663;', 'Insurance': '&#128737;',
+      'Ground Operator/DMC': '&#128205;',
+    };
+    return icons[type] || '&#127970;';
+  }
+  function catSlug(type) {
+    return (type || 'other').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  }
+
+  async function loadSuppliers() {
+    try {
+      const { suppliers } = await apiGet('/api/suppliers');
+      suppliersCache = suppliers || [];
+      return suppliersCache;
+    } catch (err) {
+      els.suppliersBody.innerHTML = `<tr><td colspan="7" class="error-cell">Failed to load suppliers: ${esc(err.message)}</td></tr>`;
+      return [];
+    }
+  }
+
+  function renderSuppliersPanel(trips, suppliers) {
+    const totalSalesEl = document.getElementById('sup-total-sales');
+    const totalCommEl = document.getElementById('sup-total-commission');
+    const totalOutEl = document.getElementById('sup-total-outstanding');
+    const activeEl = document.getElementById('sup-active-count');
+    if (!suppliers || !suppliers.length) {
+      els.suppliersBody.innerHTML = '<tr><td colspan="7" class="empty-cell">No suppliers yet.</td></tr>';
+      totalSalesEl.textContent = money(0);
+      totalCommEl.textContent = money(0);
+      totalOutEl.textContent = money(0);
+      activeEl.textContent = '0';
+      return;
+    }
+    const bySupplier = {};
+    suppliers.forEach((s) => {
+      bySupplier[s.id] = { supplier: s, sales: 0, commission: 0, outstanding: 0, bookings: 0 };
+    });
+    (trips || []).forEach((t) => {
+      if (!t.supplier_id || !bySupplier[t.supplier_id]) return;
+      const agg = bySupplier[t.supplier_id];
+      agg.sales += Number(t.trip_value) || 0;
+      agg.commission += Number(t.commission) || 0;
+      agg.bookings += 1;
+      if (t.commission_status === 'Past Due') agg.outstanding += Number(t.commission) || 0;
+    });
+
+    const search = (els.supplierSearch && els.supplierSearch.value.trim().toLowerCase()) || '';
+    const typeFilter = (els.supplierTypeFilter && els.supplierTypeFilter.value) || '';
+
+    let rows = Object.values(bySupplier);
+    if (search) {
+      rows = rows.filter((r) => (r.supplier.name || '').toLowerCase().includes(search));
+    }
+    if (typeFilter) {
+      rows = rows.filter((r) => r.supplier.supplier_type === typeFilter);
+    }
+    rows.sort((a, b) => b.sales - a.sales);
+
+    if (!rows.length) {
+      els.suppliersBody.innerHTML = '<tr><td colspan="7" class="empty-cell">No suppliers match your search.</td></tr>';
+    } else {
+      els.suppliersBody.innerHTML = rows.map((r) => {
+        const s = r.supplier;
+        return `
+          <tr>
+            <td>
+              <div class="sup-row">
+                <div class="sup-avatar">${supplierIcon(s.supplier_type)}</div>
+                <span class="sup-name">${esc(s.name)}</span>
+              </div>
+            </td>
+            <td>${s.supplier_type ? `<span class="badge cat-${catSlug(s.supplier_type)}">${esc(s.supplier_type)}</span>` : ''}</td>
+            <td>${money(r.sales)}</td>
+            <td>${money(r.commission)}</td>
+            <td>${r.outstanding ? `<span class="sup-outstanding">${money(r.outstanding)}</span>` : money(0)}</td>
+            <td>${r.bookings}</td>
+            <td><a href="supplier-detail.html?id=${esc(s.id)}" class="link">View</a></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    const allRows = Object.values(bySupplier);
+    const totalSales = allRows.reduce((sum, r) => sum + r.sales, 0);
+    const totalCommission = allRows.reduce((sum, r) => sum + r.commission, 0);
+    const totalOutstanding = allRows.reduce((sum, r) => sum + r.outstanding, 0);
+    totalSalesEl.textContent = money(totalSales);
+    totalCommEl.textContent = money(totalCommission);
+    totalOutEl.textContent = money(totalOutstanding);
+    activeEl.textContent = String(suppliers.length);
+  }
+
+  async function loadTasks() {
+    try {
+      const { tasks } = await apiGet('/api/tasks');
+      tasksCache = tasks;
+      els.tasksConfigNote.style.display = tasks.length === 0 ? 'block' : 'none';
+      renderTasksFullList(tasks);
+      return tasks;
+    } catch (err) {
+      els.tasksFullList.innerHTML = `<div class="list"><div class="error">Failed to load tasks: ${esc(err.message)}</div></div>`;
+      return [];
+    }
+  }
+
+  els.connectBtn.addEventListener('click', async () => {
+    const serverUrl = els.serverUrl.value.trim() || window.location.origin;
+    const apiKey = els.apiKey.value.trim();
+    els.serverUrl.value = serverUrl;
+    els.apiKey.value = apiKey;
+    localStorage.setItem('pharin_server_url', serverUrl);
+    localStorage.setItem('pharin_api_key', apiKey);
+    els.connIndicator.textContent = 'Loading…';
+    els.connIndicator.style.color = '';
+    let connError = null;
+    try {
+      await apiGet('/api/trips');
+    } catch (err) {
+      connError = err;
+    }
+    const [trips, , suppliers, tasks] = await Promise.all([loadTrips(), loadClients(), loadSuppliers(), loadTasks()]);
+    tripsCache = trips || [];
+    tasksCache = tasks || [];
+    suppliersCache = suppliers || [];
+    renderDashboard(tripsCache, tasksCache);
+    renderMarketing(clientsCache);
+    renderSuppliersPanel(tripsCache, suppliersCache);
+    if (connError) {
+      els.connIndicator.textContent = 'Connection failed — ' + connError.message;
+      els.connIndicator.style.color = '#b91c1c';
+    } else {
+      els.connIndicator.textContent = 'Connected · ' + new Date().toLocaleTimeString();
+    }
+  });
+
+  // Auto-load if we already have saved settings.
+  if (els.serverUrl.value && els.apiKey.value) {
+    els.connectBtn.click();
+  }
+
+  document.getElementById('logout-link').addEventListener('click', function (e) {
+    e.preventDefault();
+    sessionStorage.removeItem('d4d_crm_authed');
+    window.location.href = 'login.html';
+  });
+
+  // ---- Templates panel: tab switching + copy-to-clipboard ----
+  document.querySelectorAll('.tpl-tab').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tpl;
+      document.querySelectorAll('.tpl-tab').forEach((b) => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.tpl-section').forEach((s) => s.classList.toggle('active', s.id === 'tpl-' + target));
+    });
+  });
+  window.tplCopy = function (btn) {
+    const block = btn.closest('.tpl-block');
+    const body = block.querySelector('.tpl-body');
+    const subject = block.querySelector('.tpl-subject');
+    let text = '';
+    if (subject) text += subject.textContent.trim() + '\n\n';
+    text += body ? body.textContent.trim() : '';
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = orig; }, 1500);
+    }).catch(() => { alert('Could not copy - please select and copy manually.'); });
+  };
+
+  // ---- Reports panel ----
+  document.querySelectorAll('.rpt-tab').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.rpt;
+      document.querySelectorAll('.rpt-tab').forEach((b) => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.rpt-section').forEach((s) => s.classList.toggle('active', s.id === 'rpt-' + target));
+    });
+  });
+
+  function rptPct(n) {
+    if (!isFinite(n)) return '0.00%';
+    return n.toFixed(2) + '%';
+  }
+
+  function rptToCSV(rows) {
+    return rows.map((r) => r.map((c) => {
+      const s = String(c === null || c === undefined ? '' : c);
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }).join(',')).join('\n');
+  }
+
+  function rptDownloadCSV(filename, rows) {
+    const blob = new Blob([rptToCSV(rows)], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  const rptExportData = {};
+
+  document.querySelectorAll('.rpt-export-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.export;
+      const data = rptExportData[key];
+      if (data) rptDownloadCSV('report-' + key + '.csv', data);
+    });
+  });
+
+  function rptYearOf(d) {
+    return d ? new Date(d).getFullYear() : null;
+  }
+
+  const rptYearSelect = document.getElementById('rpt-year');
+
+  function rptPopulateYears(trips) {
+    const years = new Set();
+    trips.forEach((t) => {
+      const y = rptYearOf(t.departure_date);
+      if (y) years.add(y);
+    });
+    const sorted = [...years].sort((a, b) => b - a);
+    const current = new Date().getFullYear();
+    let options = '<option value="all">All Time</option>';
+    sorted.forEach((y) => {
+      options += `<option value="${y}">${y}</option>`;
+    });
+    rptYearSelect.innerHTML = options;
+    rptYearSelect.value = sorted.includes(current) ? String(current) : 'all';
+  }
+
+  function renderReports(trips) {
+    if (!trips || !rptYearSelect) return;
+    if (!rptYearSelect.options.length) rptPopulateYears(trips);
+
+    const yearVal = rptYearSelect.value || 'all';
+    const nonCancelled = trips.filter((t) => t.booking_status !== 'Cancelled');
+    const current = yearVal === 'all' ? nonCancelled : nonCancelled.filter((t) => rptYearOf(t.departure_date) === Number(yearVal));
+    const prevYearVal = yearVal === 'all' ? null : Number(yearVal) - 1;
+    const previous = prevYearVal ? nonCancelled.filter((t) => rptYearOf(t.departure_date) === prevYearVal) : [];
+
+    const sum = (arr, key) => arr.reduce((s, t) => s + (Number(t[key]) || 0), 0);
+
+    const curSales = sum(current, 'trip_value');
+    const curComm = sum(current, 'commission');
+    const curTrips = current.length;
+    const curAvg = curSales ? (curComm / curSales) * 100 : 0;
+    const prevSales = sum(previous, 'trip_value');
+    const prevComm = sum(previous, 'commission');
+    const prevTrips = previous.length;
+    const prevAvg = prevSales ? (prevComm / prevSales) * 100 : 0;
+
+    document.getElementById('rpt-ov-sales').textContent = money(curSales);
+    document.getElementById('rpt-ov-commission').textContent = money(curComm);
+    document.getElementById('rpt-ov-trips').textContent = curTrips;
+    document.getElementById('rpt-ov-avgcomm').textContent = rptPct(curAvg);
+
+    function rptSetDelta(id, curr, prev) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (yearVal === 'all' || !prev) {
+        el.textContent = '';
+        el.className = 'rpt-delta neutral';
+        return;
+      }
+      const pct = prev ? ((curr - prev) / prev) * 100 : 0;
+      const sign = pct >= 0 ? '+' : '';
+      el.textContent = `${sign}${pct.toFixed(1)}% vs ${prevYearVal}`;
+      el.className = 'rpt-delta ' + (pct >= 0 ? 'up' : 'down');
+    }
+    rptSetDelta('rpt-ov-sales-delta', curSales, prevSales);
+    rptSetDelta('rpt-ov-commission-delta', curComm, prevComm);
+    rptSetDelta('rpt-ov-trips-delta', curTrips, prevTrips);
+    rptSetDelta('rpt-ov-avgcomm-delta', curAvg, prevAvg);
+
+    function rptGroupBy(arr, keyFn, labelFn) {
+      const map = new Map();
+      arr.forEach((t) => {
+        const key = keyFn(t) || 'Unknown';
+        if (!map.has(key)) map.set(key, { label: labelFn(t) || key, sales: 0, commission: 0, count: 0 });
+        const g = map.get(key);
+        g.sales += Number(t.trip_value) || 0;
+        g.commission += Number(t.commission) || 0;
+        g.count += 1;
+      });
+      return [...map.values()];
+    }
+
+    const byClient = rptGroupBy(current, (t) => t.client_name, (t) => t.client_name).sort((a, b) => b.sales - a.sales);
+    const bySupplier = rptGroupBy(current, (t) => t.supplier_name || 'No supplier listed', (t) => t.supplier_name || 'No supplier listed').sort((a, b) => b.sales - a.sales);
+
+    function rptRenderTop(bodyId, rows, n) {
+      const body = document.getElementById(bodyId);
+      const top = rows.slice(0, n);
+      body.innerHTML = top.length ? top.map((r) => `
+        <tr><td>${esc(r.label)}</td><td>${money(r.sales)}</td><td>${money(r.commission)}</td><td>${rptPct(r.sales ? (r.commission / r.sales) * 100 : 0)}</td></tr>
+      `).join('') : '<tr><td colspan="4" class="empty-cell">No data for this period.</td></tr>';
+    }
+    rptRenderTop('rpt-top-clients-body', byClient, 10);
+    rptRenderTop('rpt-top-suppliers-body', bySupplier, 10);
+
+    document.getElementById('rpt-mo-sales').textContent = money(curSales);
+    document.getElementById('rpt-mo-commission').textContent = money(curComm);
+    const expected = sum(current.filter((t) => t.commission_status === 'Expected'), 'commission');
+    const collected = sum(current.filter((t) => t.commission_status === 'Collected'), 'commission');
+    document.getElementById('rpt-mo-expected').textContent = money(expected);
+    document.getElementById('rpt-mo-collected').textContent = money(collected);
+
+    const rptMonthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const monthly = new Map();
+    current.forEach((t) => {
+      if (!t.departure_date) return;
+      const d = new Date(t.departure_date);
+      const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+      if (!monthly.has(key)) {
+        monthly.set(key, { label: rptMonthNames[d.getMonth()] + ' ' + d.getFullYear(), sales: 0, commission: 0, expected: 0, collected: 0, sortKey: key });
+      }
+      const m = monthly.get(key);
+      m.sales += Number(t.trip_value) || 0;
+      m.commission += Number(t.commission) || 0;
+      if (t.commission_status === 'Expected') m.expected += Number(t.commission) || 0;
+      if (t.commission_status === 'Collected') m.collected += Number(t.commission) || 0;
+    });
+    const monthRows = [...monthly.values()].sort((a, b) => b.sortKey.localeCompare(a.sortKey));
+    document.getElementById('rpt-monthly-body').innerHTML = monthRows.length ? monthRows.map((m) => `
+      <tr><td>${esc(m.label)}</td><td>${money(m.sales)}</td><td>${money(m.commission)}</td><td>${money(m.expected)}</td><td>${money(m.collected)}</td></tr>
+    `).join('') : '<tr><td colspan="5" class="empty-cell">No trips with departure dates in this period.</td></tr>';
+    rptExportData.monthly = [['Month', 'Total Sales', 'Total Commission', 'Expected', 'Collected']].concat(
+      monthRows.map((m) => [m.label, m.sales.toFixed(2), m.commission.toFixed(2), m.expected.toFixed(2), m.collected.toFixed(2)])
+    );
+
+    const tripRows = [...current].sort((a, b) => (Number(b.trip_value) || 0) - (Number(a.trip_value) || 0));
+    document.getElementById('rpt-trips-body').innerHTML = tripRows.length ? tripRows.map((t) => `
+      <tr>
+        <td>${esc(t.trip_name)}</td>
+        <td>${esc(t.client_name)}</td>
+        <td>${fmtDate(t.departure_date)}</td>
+        <td>${money(t.trip_value)}</td>
+        <td>${money(t.commission)}</td>
+        <td>${rptPct(t.trip_value ? (Number(t.commission) / Number(t.trip_value)) * 100 : 0)}</td>
+        <td>${statusBadge(t.booking_status)}</td>
+      </tr>
+    `).join('') : '<tr><td colspan="7" class="empty-cell">No trips for this period.</td></tr>';
+    document.getElementById('rpt-trips-total').innerHTML = `<td>TOTAL (${tripRows.length})</td><td></td><td></td><td>${money(curSales)}</td><td>${money(curComm)}</td><td>${rptPct(curAvg)}</td><td></td>`;
+    rptExportData.trips = [['Trip', 'Client', 'Departure', 'Total Sales', 'Commission', 'Avg %', 'Status']].concat(
+      tripRows.map((t) => [t.trip_name, t.client_name, t.departure_date || '', (Number(t.trip_value) || 0).toFixed(2), (Number(t.commission) || 0).toFixed(2), (t.trip_value ? (Number(t.commission) / Number(t.trip_value)) * 100 : 0).toFixed(2), t.booking_status || ''])
+    );
+
+    document.getElementById('rpt-clients-body').innerHTML = byClient.length ? byClient.map((c) => `
+      <tr><td>${esc(c.label)}</td><td>${c.count}</td><td>${money(c.sales)}</td><td>${money(c.commission)}</td><td>${rptPct(c.sales ? (c.commission / c.sales) * 100 : 0)}</td></tr>
+    `).join('') : '<tr><td colspan="5" class="empty-cell">No clients for this period.</td></tr>';
+    document.getElementById('rpt-clients-total').innerHTML = `<td>TOTAL (${byClient.length})</td><td>${curTrips}</td><td>${money(curSales)}</td><td>${money(curComm)}</td><td>${rptPct(curAvg)}</td>`;
+    rptExportData.clients = [['Client', 'Trips', 'Total Sales', 'Total Commission', 'Avg Commission %']].concat(
+      byClient.map((c) => [c.label, c.count, c.sales.toFixed(2), c.commission.toFixed(2), (c.sales ? (c.commission / c.sales) * 100 : 0).toFixed(2)])
+    );
+
+    document.getElementById('rpt-suppliers-body').innerHTML = bySupplier.length ? bySupplier.map((s) => `
+      <tr><td>${esc(s.label)}</td><td>${s.count}</td><td>${money(s.sales)}</td><td>${money(s.commission)}</td><td>${rptPct(s.sales ? (s.commission / s.sales) * 100 : 0)}</td></tr>
+    `).join('') : '<tr><td colspan="5" class="empty-cell">No suppliers for this period.</td></tr>';
+    document.getElementById('rpt-suppliers-total').innerHTML = `<td>TOTAL (${bySupplier.length})</td><td>${curTrips}</td><td>${money(curSales)}</td><td>${money(curComm)}</td><td>${rptPct(curAvg)}</td>`;
+    rptExportData.suppliers = [['Supplier', 'Trips', 'Total Sales', 'Total Commission', 'Avg Commission %']].concat(
+      bySupplier.map((s) => [s.label, s.count, s.sales.toFixed(2), s.commission.toFixed(2), (s.sales ? (s.commission / s.sales) * 100 : 0).toFixed(2)])
+    );
+  }
+
+  if (rptYearSelect) {
+    rptYearSelect.addEventListener('change', () => renderReports(tripsCache));
+  }
+  document.querySelectorAll('.nav-item[data-panel="reports"]').forEach((btn) => {
+    btn.addEventListener('click', () => renderReports(tripsCache));
+  });
+
+  // ---- Marketing panel: Client Reminders ----
+  document.querySelectorAll('.mkt-tab').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.mkt;
+      document.querySelectorAll('.mkt-tab').forEach((b) => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.mkt-section').forEach((s) => s.classList.toggle('active', s.id === 'mkt-' + target));
+    });
+  });
+
+  function mktDaysUntil(dateStr) {
+    if (!dateStr) return null;
+    const target = new Date(dateStr);
+    if (isNaN(target)) return null;
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    target.setHours(0, 0, 0, 0);
+    return Math.round((target - now) / 86400000);
+  }
+
+  function mktTimeLeftLabel(days) {
+    if (days === null) return '';
+    if (days < 0) return Math.abs(days) + ' day' + (Math.abs(days) === 1 ? '' : 's') + ' ago';
+    if (days === 0) return 'Today';
+    if (days < 60) return days + ' day' + (days === 1 ? '' : 's');
+    const months = Math.round(days / 30);
+    return months + ' month' + (months === 1 ? '' : 's');
+  }
+
+  function mktStatusBadge(days) {
+    if (days === null) return '';
+    if (days < 0) return '<span class="badge mkt-expired">Expired</span>';
+    if (days <= 180) return '<span class="badge mkt-soon">Expiring Soon</span>';
+    return '<span class="badge mkt-ok">OK</span>';
+  }
+
+  let mktPassportRows = [];
+
+  function mktNextOccurrence(dateStr) {
+    if (!dateStr) return null;
+    const orig = new Date(dateStr);
+    if (isNaN(orig)) return null;
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    let next = new Date(now.getFullYear(), orig.getMonth(), orig.getDate());
+    next.setHours(0, 0, 0, 0);
+    if (next < now) next = new Date(now.getFullYear() + 1, orig.getMonth(), orig.getDate());
+    const days = Math.round((next - now) / 86400000);
+    const years = next.getFullYear() - orig.getFullYear();
+    return { days, years };
+  }
+
+  function mktWhenLabel(days) {
+    if (days === null || days === undefined) return '';
+    if (days === 0) return 'Today';
+    if (days === 1) return 'Tomorrow';
+    if (days < 30) return 'in ' + days + ' days';
+    const months = Math.round(days / 30);
+    return 'in ' + months + ' month' + (months === 1 ? '' : 's');
+  }
+
+  function renderMarketing(clients) {
+    const list = clients || [];
+
+    const withPassport = list
+      .filter((c) => c.passport_expiry)
+      .map((c) => Object.assign({}, c, { days: mktDaysUntil(c.passport_expiry) }))
+      .sort((a, b) => (a.days === null ? Infinity : a.days) - (b.days === null ? Infinity : b.days));
+
+    mktPassportRows = withPassport;
+    const searchEl = document.getElementById('mkt-search');
+    mktRenderPassportTable(searchEl ? searchEl.value.trim().toLowerCase() : '');
+
+    rptExportData.passports = [
+      ['Client', 'Email', 'Phone', 'Passport Expires', 'Days Until Expiry'],
+    ].concat(withPassport.map((c) => [c.name, c.email, c.phone, c.passport_expiry, c.days]));
+
+    const withBirthday = list
+      .filter((c) => c.date_of_birth)
+      .map((c) => Object.assign({}, c, mktNextOccurrence(c.date_of_birth)))
+      .sort((a, b) => a.days - b.days);
+    const bdayBody = document.getElementById('mkt-birthdays-body');
+    if (bdayBody) {
+      bdayBody.innerHTML = withBirthday.length
+        ? withBirthday.map((c) => `
+            <tr>
+              <td>${esc(c.name)}</td>
+              <td>${esc(c.email)}</td>
+              <td>${esc(c.phone)}</td>
+              <td>${fmtDate(c.date_of_birth)}</td>
+              <td>${c.years} years old</td>
+              <td>${mktWhenLabel(c.days)}</td>
+            </tr>
+          `).join('')
+        : '<tr><td colspan="6" class="empty-cell">No clients with a date of birth on file yet.</td></tr>';
+    }
+    rptExportData.birthdays = [
+      ['Client', 'Email', 'Phone', 'Birthday', 'Turns', 'Days Until'],
+    ].concat(withBirthday.map((c) => [c.name, c.email, c.phone, c.date_of_birth, c.years, c.days]));
+
+    const withAnniversary = list
+      .filter((c) => c.anniversary)
+      .map((c) => Object.assign({}, c, mktNextOccurrence(c.anniversary)))
+      .sort((a, b) => a.days - b.days);
+    const annivBody = document.getElementById('mkt-anniversaries-body');
+    if (annivBody) {
+      annivBody.innerHTML = withAnniversary.length
+        ? withAnniversary.map((c) => `
+            <tr>
+              <td>${esc(c.name)}</td>
+              <td>${esc(c.email)}</td>
+              <td>${esc(c.phone)}</td>
+              <td>${fmtDate(c.anniversary)}</td>
+              <td>${c.years} years</td>
+              <td>${mktWhenLabel(c.days)}</td>
+            </tr>
+          `).join('')
+        : '<tr><td colspan="6" class="empty-cell">No clients with an anniversary date on file yet.</td></tr>';
+    }
+    rptExportData.anniversaries = [
+      ['Client', 'Email', 'Phone', 'Anniversary', 'Years', 'Days Until'],
+    ].concat(withAnniversary.map((c) => [c.name, c.email, c.phone, c.anniversary, c.years, c.days]));
+
+    renderMktCalendar(list);
+  }
+
+  function renderMktCalendar(clients) {
+    const grid = document.getElementById('mkt-calendar-grid');
+    if (!grid) return;
+    const list = clients || [];
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const days = [];
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() + i);
+      days.push({ date: d, events: [] });
+    }
+
+    const addEvents = (dateField, type) => {
+      list.filter((c) => c[dateField]).forEach((c) => {
+        const occ = mktNextOccurrence(c[dateField]);
+        if (occ && occ.days >= 0 && occ.days < 30) {
+          days[occ.days].events.push({ type, name: c.name, years: occ.years });
+        }
+      });
+    };
+    addEvents('date_of_birth', 'bday');
+    addEvents('anniversary', 'anniv');
+
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    grid.innerHTML = days.map((day, i) => {
+      const label = weekdayNames[day.date.getDay()] + ', ' + monthNames[day.date.getMonth()] + ' ' + day.date.getDate();
+      const events = day.events.map((e) => {
+        const cls = e.type === 'bday' ? 'cal-bday' : 'cal-anniv';
+        const detail = e.type === 'bday' ? ('turns ' + e.years) : (e.years + ' yr anniversary');
+        return `<div class="cal-event ${cls}" title="${esc(e.name)} \u2013 ${detail}">${esc(e.name)}</div>`;
+      }).join('');
+      return `
+        <div class="cal-cell${i === 0 ? ' today' : ''}">
+          <div class="cal-date">${label}</div>
+          ${events}
+        </div>
+      `;
+    }).join('');
+  }
+
+  function mktRenderPassportTable(filter) {
+    const body = document.getElementById('mkt-passports-body');
+    if (!body) return;
+    const rows = filter
+      ? mktPassportRows.filter((c) => (c.name || '').toLowerCase().includes(filter) || (c.email || '').toLowerCase().includes(filter))
+      : mktPassportRows;
+    if (!rows.length) {
+      body.innerHTML = `<tr><td colspan="6" class="empty-cell">${mktPassportRows.length ? 'No matches.' : 'No clients with a passport expiration date on file yet.'}</td></tr>`;
+      return;
+    }
+    body.innerHTML = rows.map((c) => `
+      <tr>
+        <td>${esc(c.name)}</td>
+        <td>${esc(c.email)}</td>
+        <td>${esc(c.phone)}</td>
+        <td>${fmtDate(c.passport_expiry)}</td>
+        <td>${mktTimeLeftLabel(c.days)}</td>
+        <td>${mktStatusBadge(c.days)}</td>
+      </tr>
+    `).join('');
+  }
+
+  const mktSearchInput = document.getElementById('mkt-search');
+  if (mktSearchInput) {
+    mktSearchInput.addEventListener('input', () => mktRenderPassportTable(mktSearchInput.value.trim().toLowerCase()));
+  }
+
+  document.querySelectorAll('.nav-item[data-panel="marketing"]').forEach((btn) => {
+    btn.addEventListener('click', () => renderMarketing(clientsCache));
+  });
+
+  if (els.tripsSearch) els.tripsSearch.addEventListener('input', renderTripsTable);
+  if (els.tripsTypeFilter) els.tripsTypeFilter.addEventListener('change', renderTripsTable);
+  if (els.tripsStatusFilter) els.tripsStatusFilter.addEventListener('change', renderTripsTable);
+  if (els.supplierSearch) els.supplierSearch.addEventListener('input', () => renderSuppliersPanel(tripsCache, suppliersCache));
+  if (els.supplierTypeFilter) els.supplierTypeFilter.addEventListener('change', () => renderSuppliersPanel(tripsCache, suppliersCache));
+  document.querySelectorAll('#trip-cat-filters .cat-chip').forEach((chip) => {
+    chip.addEventListener('click', () => {
+      activeTripCategory = chip.dataset.cat;
+      document.querySelectorAll('#trip-cat-filters .cat-chip').forEach((c) => c.classList.toggle('active', c === chip));
+      renderTripsTable();
+    });
+  });
+
+  // ---- Mobile sidebar toggle ----
+  (function () {
+    const btn = document.getElementById('mobile-menu-btn');
+    const overlay = document.getElementById('sidebar-overlay');
+    const sidebarEl = document.querySelector('.sidebar');
+    if (!btn || !overlay || !sidebarEl) return;
+    function closeSidebar() {
+      sidebarEl.classList.remove('open');
+      overlay.classList.remove('show');
+    }
+    function toggleSidebar() {
+      sidebarEl.classList.toggle('open');
+      overlay.classList.toggle('show');
+    }
+    btn.addEventListener('click', toggleSidebar);
+    overlay.addEventListener('click', closeSidebar);
+    document.querySelectorAll('.nav-item[data-panel]').forEach((item) => {
+      item.addEventListener('click', closeSidebar);
+    });
+  })();
+
+  async function openClientProfile(id) {
+    const overlay = document.getElementById('client-profile-overlay');
+    const body = document.getElementById('client-profile-body');
+    const nameEl = document.getElementById('client-profile-name');
+    if (!overlay || !body) return;
+    nameEl.textContent = 'Client Profile';
+    body.innerHTML = 'Loading…';
+    overlay.classList.add('show');
+    try {
+      const { client } = await apiGet('/api/clients/' + id);
+      nameEl.textContent = client.name || 'Client Profile';
+      const rows = [
+        ['Email', client.email],
+        ['Phone', client.phone],
+        ['Date of Birth', client.date_of_birth ? fmtDate(client.date_of_birth) : null],
+        ['Anniversary', client.anniversary ? fmtDate(client.anniversary) : null],
+        ['Passport Number', client.passport_number],
+        ['Passport Country', client.passport_country],
+        ['Passport Expiry', client.passport_expiry ? fmtDate(client.passport_expiry) : null],
+        ['Frequent Flyer #', client.frequent_flyer_numbers],
+        ['Seat Preference', client.seat_preference],
+        ['Dietary Restrictions', client.dietary_restrictions],
+        ['Emergency Contact', client.emergency_contact],
+        ['Referral Source', client.referral_source],
+        ['TravelJoy Client ID', client.travel_joy_client_id],
+        ['Notes', client.notes],
+      ].filter(([, v]) => v);
+      body.innerHTML = rows.length ? rows.map(([label, value]) => `
+        <div class="profile-modal-row"><span class="label">${esc(label)}</span><span class="value">${esc(value)}</span></div>
+      `).join('') : '<div class="profile-modal-row"><span class="label">No additional profile details on file.</span></div>';
+    } catch (err) {
+      body.innerHTML = `<div class="profile-modal-row"><span class="label">Failed to load profile: ${esc(err.message)}</span></div>`;
+    }
+  }
+  function closeClientProfile() {
+    const overlay = document.getElementById('client-profile-overlay');
+    if (overlay) overlay.classList.remove('show');
+  }
+  document.addEventListener('click', (e) => {
+    const viewBtn = e.target.closest('.view-profile-btn');
+    if (viewBtn && viewBtn.dataset.clientId) {
+      openClientProfile(viewBtn.dataset.clientId);
+      return;
+    }
+    if (e.target.id === 'client-profile-close' || e.target.id === 'client-profile-overlay') {
+      closeClientProfile();
+    }
+  });
+</script>
+
+<div class="profile-modal-overlay" id="client-profile-overlay">
+  <div class="profile-modal">
+    <div class="profile-modal-head">
+      <h3 id="client-profile-name">Client Profile</h3>
+      <button class="profile-modal-close" id="client-profile-close" aria-label="Close">&times;</button>
+    </div>
+    <div id="client-profile-body">Loading&hellip;</div>
+  </div>
+</div>
+
+</body>
+</html>

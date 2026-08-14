@@ -61,8 +61,8 @@ nav.main-nav a.employee-link {
 
 /* Page hero (interior pages) */
 .page-hero {
-  background: linear-gradient(135deg, rgba(11,61,107,0.88), rgba(31,163,201,0.75)),
-              url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop') center/cover;
+  position: relative; overflow: hidden;
+  background: var(--navy);
   color: white; text-align: center; padding: 80px 24px 70px;
 }
 .page-hero h1 { color: white; font-size: 2.6rem; margin-bottom: 14px; }
@@ -70,10 +70,27 @@ nav.main-nav a.employee-link {
 
 /* Home hero */
 .home-hero {
-  position: relative;
-  background: linear-gradient(135deg, rgba(11,61,107,0.85), rgba(31,163,201,0.7)),
-              url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop') center/cover;
+  position: relative; overflow: hidden;
+  background: var(--navy);
   color: white; padding: 90px 0 110px;
+}
+
+/* Shared video-hero background treatment */
+.page-hero::after, .home-hero::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(11,61,107,0.85), rgba(31,163,201,0.72));
+  z-index: 1;
+}
+.hero-video-bg {
+  position: absolute; inset: 0;
+  width: 100%%; height: 100%%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+}
+.home-hero .container, .page-hero .container {
+  position: relative; z-index: 2;
 }
 .home-hero-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 40px; align-items: center; }
 .eyebrow { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--sky-light); margin-bottom: 16px; }
@@ -89,6 +106,8 @@ nav.main-nav a.employee-link {
 .btn-secondary:hover { background: var(--sky-light); }
 .btn-outline { background: transparent; color: white; border: 1.5px solid rgba(255,255,255,0.7); }
 .btn-outline:hover { background: rgba(255,255,255,0.12); }
+.hero-subtext-link { display: inline-block; margin-top: 16px; color: rgba(255,255,255,0.72); font-size: 0.85rem; text-decoration: underline; text-underline-offset: 3px; }
+.hero-subtext-link:hover { color: white; }
 
 .hero-card {
   background: white; color: var(--ink); border-radius: 18px; padding: 32px;
@@ -118,8 +137,19 @@ section { padding: 72px 0; }
 }
 .card h3 { font-size: 1.15rem; margin-bottom: 12px; }
 .card ul { list-style: none; color: var(--muted); font-size: 0.92rem; }
-.card ul li { padding: 6px 0; }
-.card ul li::before { content: "✓ "; color: var(--sky); font-weight: 700; }
+.card ul li { padding: 6px 0 6px 26px; position: relative; }
+.card ul li::before {
+  content: "";
+  position: absolute; left: 0; top: 9px;
+  width: 16px; height: 16px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%231fa3c9'/%3E%3Cpath d='M7 12.5l3 3 7-7' stroke='white' stroke-width='2.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center/contain;
+}
+.card-icon {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--navy), var(--sky));
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px; color: white;
+}
 
 .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 26px; counter-reset: step; }
 .step { text-align: center; }
@@ -195,4 +225,68 @@ footer.site-footer {
   .nav-toggle { display: block; }
   nav.main-nav.open { display: flex; flex-direction: column; width: 100%; align-items: stretch; }
   nav.main-nav.open a { text-align: center; }
+}
+
+
+/* Reviews section */
+.reviews-summary {
+  text-align: center; margin: 0 auto 36px; max-width: 320px;
+  background: white; border-radius: 16px; padding: 28px 24px;
+  box-shadow: 0 6px 20px rgba(8,42,74,0.06); border-top: 4px solid var(--sky);
+}
+.reviews-summary .avg-score { font-size: 2.6rem; font-family: Georgia, serif; color: var(--navy); font-weight: 700; line-height: 1; }
+.reviews-summary .stars { color: #f5a623; font-size: 1.3rem; letter-spacing: 3px; margin: 8px 0; }
+.reviews-summary .review-count { color: var(--muted); font-size: 0.9rem; }
+.reviews-empty { text-align: center; color: var(--muted); margin-bottom: 40px; }
+.reviews-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 22px; margin-bottom: 48px; }
+.review-card { background: var(--sky-light); border-radius: 16px; padding: 24px; }
+.review-card .stars { color: #f5a623; font-size: 1rem; display: block; margin-bottom: 8px; letter-spacing: 2px; }
+.review-card .review-name { font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+.review-card .review-date { color: var(--muted); font-size: 0.76rem; margin-bottom: 12px; }
+.review-card .review-text { color: var(--ink); font-size: 0.92rem; }
+.review-form-card { max-width: 560px; margin: 0 auto; }
+.review-form-card h3 { text-align: center; margin-bottom: 4px; }
+.review-form-card > p { text-align: center; color: var(--muted); font-size: 0.9rem; margin-bottom: 18px; }
+.star-input { display: flex; gap: 8px; font-size: 1.9rem; margin: 2px 0 4px; }
+.star-input .star { color: #d1d5db; cursor: pointer; transition: color .12s; }
+.star-input .star.active { color: #f5a623; }
+
+
+/* Real logo images (replacing text badges) */
+.brand .logo-badge {
+  width: 46px; height: 46px; border-radius: 50%;
+  object-fit: cover; border: 2px solid var(--navy);
+  background: none; display: block;
+}
+.hero-card .logo-badge-lg {
+  width: 96px; height: 96px; border-radius: 50%; margin: 0 auto 18px;
+  object-fit: cover; border: 3px solid var(--navy);
+  background: none; display: block;
+}
+.footer-logo {
+  width: 56px; height: 56px; border-radius: 50%; object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.5); margin-bottom: 12px; display: block;
+}
+.agent-band { background: var(--sky-light); }
+.agent-card-frame {
+  max-width: 900px; margin: 0 auto; background: white; border-radius: 20px;
+  padding: 14px; box-shadow: 0 20px 50px rgba(8,42,74,0.18); border-top: 4px solid var(--sky);
+}
+.agent-card-img {
+  display: block; width: 100%;
+  border-radius: 12px;
+}
+
+
+/* Social icon links (footer) */
+.social-links { display: flex; flex-direction: column; gap: 12px; }
+.social-link {
+  display: flex; align-items: center; gap: 10px;
+  color: inherit; text-decoration: none;
+}
+.social-link:hover .social-icon { color: var(--sky); }
+.social-link span:last-child { font-size: 0.92rem; }
+.social-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  color: white; flex-shrink: 0; transition: color 0.15s ease;
 }

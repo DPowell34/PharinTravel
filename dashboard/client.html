@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Destined 4 Destinations — Client Profile</title>
+<script src="auth-guard.js"></script>
+<style>
+  :root {
+    --teal: #1fa3c9; --teal-dark: #0b3d6b; --gold: #1fa3c9;
+    --bg: #f6f5f1; --ink: #1f2937; --muted: #6b7280; --border: #e5e7eb;
+    --ok-bg: #d1fae5; --ok-ink: #065f46; --err-bg: #fee2e2; --err-ink: #991b1b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--ink);
+  }
+  header {
+    background: var(--teal-dark); color: white; padding: 20px 28px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  }
+  header h1 { font-size: 1.3rem; margin: 0; }
+  header h1 span { color: var(--gold); }
+  header .links { display: flex; align-items: center; gap: 16px; }
+  header a { color: white; font-size: 0.85rem; text-decoration: underline; }
+  .container { max-width: 1180px; margin: 0 auto; padding: 24px; }
+
+  .settings {
+    background: white; border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px 22px; margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: end;
+  }
+  .settings label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+  .settings input { padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; width: 260px; font-size: 0.9rem; }
+  .settings button {
+    background: var(--teal); color: white; border: none; padding: 10px 18px;
+    border-radius: 8px; font-weight: 600; cursor: pointer;
+  }
+  .settings button:hover { background: var(--teal-dark); }
+  .status { font-size: 0.85rem; color: var(--muted); margin-left: auto; }
+
+  .picker-row {
+    background: white; border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 20px; margin-bottom: 20px; display: flex; gap: 12px; align-items: end; flex-wrap: wrap;
+  }
+  .picker-row label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+  .picker-row select { padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; width: 320px; font-size: 0.9rem; }
+  .btn-secondary {
+    background: white; color: var(--teal-dark); border: 1px solid var(--border); padding: 9px 16px;
+    border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.85rem;
+  }
+  .btn-secondary:hover { background: #fafaf9; }
+
+  .layout { display: grid; grid-template-columns: 220px 1fr; gap: 20px; align-items: start; }
+  .sidebar {
+    background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+  }
+  .sidebar-item {
+    display: block; padding: 12px 18px; font-size: 0.88rem; font-weight: 600; color: var(--ink);
+    cursor: pointer; border-bottom: 1px solid var(--border); user-select: none;
+  }
+  .sidebar-item:last-child { border-bottom: none; }
+  .sidebar-item:hover { background: #fafaf9; }
+  .sidebar-item.active { background: var(--teal); color: white; }
+
+  .content-card {
+    background: white; border: 1px solid var(--border); border-radius: 12px; padding: 24px; min-height: 360px;
+  }
+  .section { display: none; }
+  .section.active { display: block; }
+  .section h2 { margin: 0 0 18px; font-size: 1.1rem; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 18px; }
+  .form-grid .full { grid-column: 1 / -1; }
+  .field label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--muted); margin-bottom: 5px; }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem;
+    font-family: inherit;
+  }
+  .field textarea { resize: vertical; min-height: 70px; }
+  .required-mark { color: #b91c1c; }
+
+  .coming-soon {
+    display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px;
+    padding: 50px 20px; color: var(--muted); text-align: center;
+  }
+  .coming-soon .badge {
+    background: #fef3c7; color: #92400e; font-size: 0.72rem; font-weight: 700;
+    padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .coming-soon p { max-width: 360px; margin: 0; font-size: 0.86rem; }
+
+  .trips-list { list-style: none; margin: 0; padding: 0; }
+  .trips-list li {
+    display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+  }
+  .trips-list li:last-child { border-bottom: none; }
+  .trips-list .trip-name { font-weight: 600; }
+  .trips-list .trip-meta { color: var(--muted); font-size: 0.8rem; }
+  .empty { color: var(--muted); font-size: 0.88rem; padding: 10px 0; }
+
+  .actions { margin-top: 22px; display: flex; align-items: center; gap: 14px; }
+  .btn-primary {
+    background: var(--teal); color: white; border: none; padding: 11px 22px;
+    border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.92rem;
+  }
+  .btn-primary:hover { background: var(--teal-dark); }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .msg { padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; display: none; margin-bottom: 16px; }
+  .msg.ok { background: var(--ok-bg); color: var(--ok-ink); display: block; }
+  .msg.err { background: var(--err-bg); color: var(--err-ink); display: block; }
+
+  @media (max-width: 760px) {
+    .container { padding: 14px; }
+    header { padding: 14px 16px; }
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: flex; overflow-x: auto; border-radius: 10px; }
+    .sidebar-item { border-bottom: none; border-right: 1px solid var(--border); white-space: nowrap; }
+    .form-grid { grid-template-columns: 1fr; }
+    .settings, .picker-row { flex-direction: column; align-items: stretch; }
+    .settings input, .picker-row select { width: 100%; }
+    .status { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Destined 4 <span>Destinations</span> — Client Profile</h1>
+  <div class="links">
+    <a href="index.html">&larr; Dashboard</a>
+    <a href="#" id="logout-link">Log out</a>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="settings">
+    <div>
+      <label for="server-url">Server URL</label>
+      <input id="server-url" type="text" placeholder="https://your-server.example.com" autocomplete="off" data-lpignore="true" data-1p-ignore autocorrect="off" spellcheck="false" />
+    </div>
+    <div>
+      <label for="api-key">API Key</label>
+      <input id="api-key" type="password" placeholder="DASHBOARD_API_KEY" />
+    </div>
+    <button id="connect-btn">Connect &amp; Load</button>
+    <div class="status" id="conn-indicator">Not connected</div>
+  </div>
+
+  <div class="picker-row">
+    <div>
+      <label for="client-picker">Client</label>
+      <select id="client-picker"><option value="">— New client —</option></select>
+    </div>
+    <button class="btn-secondary" id="client-new-btn" type="button">+ New client</button>
+  </div>
+
+  <div id="client-msg" class="msg"></div>
+
+  <div class="layout">
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-item active" data-section="contact">Contact info</div>
+      <div class="sidebar-item" data-section="relationships">Relationships</div>
+      <div class="sidebar-item" data-section="loyalty">Loyalty programs</div>
+      <div class="sidebar-item" data-section="dates">Important dates</div>
+      <div class="sidebar-item" data-section="preferences">Travel preferences</div>
+      <div class="sidebar-item" data-section="passport">Passport info</div>
+      <div class="sidebar-item" data-section="vaccine">Vaccine info</div>
+      <div class="sidebar-item" data-section="payment">Payment info</div>
+      <div class="sidebar-item" data-section="files">Files</div>
+      <div class="sidebar-item" data-section="notes">Notes</div>
+      <div class="sidebar-item" data-section="trips">Trips</div>
+    </div>
+
+    <div class="content-card">
+      <form id="client-form">
+
+        <div class="section active" id="section-contact">
+          <h2>Contact info</h2>
+          <div class="form-grid">
+            <div class="field full">
+              <label>Name <span class="required-mark">*</span></label>
+              <input type="text" id="client-name" required />
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input type="email" id="client-email" />
+            </div>
+            <div class="field">
+              <label>Phone</label>
+              <input type="text" id="client-phone" />
+            </div>
+            <div class="field">
+              <label>TravelJoy Client ID</label>
+              <input type="text" id="client-tjid" />
+            </div>
+            <div class="field">
+              <label>Referral source</label>
+              <select id="client-referral">
+                <option value="">—</option>
+                <option>Website</option>
+                <option>Referral</option>
+                <option>Social Media</option>
+                <option>Repeat Client</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label>Emergency contact</label>
+              <input type="text" id="client-emergency" placeholder="Name and phone number" />
+            </div>
+          </div>
+        </div>
+
+        <div class="section" id="section-relationships">
+          <div class="coming-soon">
+            <span class="badge">Coming soon</span>
+            <p>Relationships (spouses, family, travel companions) aren't tracked in the CRM yet. This section will populate once that's added.</p>
+          </div>
+        </div>
+
+        <div class="section" id="section-loyalty">
+          <h2>Loyalty programs</h2>
+          <div class="form-grid">
+            <div class="field full">
+              <label>Frequent flyer numbers</label>
+              <input type="text" id="client-ffn" placeholder="e.g. Delta: 1234567 · United: 7654321" />
+            </div>
+          </div>
+        </div>
+
+        <div class="section" id="section-dates">
+          <h2>Important dates</h2>
+          <div class="form-grid">
+            <div class="field">
+              <label>Date of birth</label>
+              <input type="date" id="client-dob" />
+            </div>
+            <div class="field">
+              <label>Anniversary</label>
+              <input type="date" id="client-anniversary" />
+            </div>
+          </div>
+        </div>
+
+        <div class="section" id="section-preferences">
+          <h2>Travel preferences</h2>
+          <div class="form-grid">
+            <div class="field">
+              <label>Seat preference</label>
+              <select id="client-seat">
+                <option value="">—</option>
+                <option>Aisle</option>
+                <option>Window</option>
+                <option>Middle</option>
+                <option>No preference</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label>Dietary restrictions</label>
+              <textarea id="client-dietary"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="section" id="section-passport">
+          <h2>Passport info</h2>
+          <div class="form-grid">
+            <div class="field">
+              <label>Passport number</label>
+              <input type="text" id="client-passport-number" />
+            </div>
+            <div class="field">
+              <label>Passport expiry</label>
+              <input type="date" id="client-passport-expiry" />
+            </div>
+            <div class="field full">
+              <label>Passport country</label>
+              <input type="text" id="client-passport-country" />
+            </div>
+          </div>
+        </div>
+
+        <div class="section" id="section-vaccine">
+          <div class="coming-soon">
+            <span class="badge">Coming soon</span>
+            <p>Vaccine info isn't tracked in the CRM yet. This section will populate once that's added.</p>
+          </div>
+        </div>
+
+        <div class="section" id="section-payment">
+          <div class="coming-soon">
+            <span class="badge">Coming soon</span>
+            <p>Payment info isn't tracked in the CRM yet. This section will populate once that's added.</p>
+          </div>
+        </div>
+
+        <div class="section" id="section-files">
+          <div class="coming-soon">
+            <span class="badge">Coming soon</span>
+            <p>File attachments aren't tracked in the CRM yet. This section will populate once that's added.</p>
+          </div>
+        </div>
+
+        <div class="section" id="section-notes">
+          <h2>Notes</h2>
+          <div class="form-grid">
+            <div class="field full">
+              <textarea id="client-notes" style="min-height:160px;"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="section" id="section-trips">
+          <h2>Trips</h2>
+          <div id="client-trips-list"><div class="empty">Save this client (or select an existing one) to see their trips here.</div></div>
+        </div>
+
+        <div class="actions" id="form-actions">
+          <button type="submit" class="btn-primary" id="client-save-btn">Save client</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const els = {
+    serverUrl: document.getElementById('server-url'),
+    apiKey: document.getElementById('api-key'),
+    connectBtn: document.getElementById('connect-btn'),
+    connIndicator: document.getElementById('conn-indicator'),
+    clientPicker: document.getElementById('client-picker'),
+    clientNewBtn: document.getElementById('client-new-btn'),
+    clientMsg: document.getElementById('client-msg'),
+    sidebar: document.getElementById('sidebar'),
+    sections: document.querySelectorAll('.section'),
+    form: document.getElementById('client-form'),
+    tripsList: document.getElementById('client-trips-list'),
+  };
+
+  let currentClientId = null;
+  let clientsCache = [];
+
+  els.apiKey.value = (localStorage.getItem('pharin_api_key') || '').trim();
+  els.serverUrl.value = window.location.origin;
+  localStorage.setItem('pharin_server_url', els.serverUrl.value);
+
+  els.sidebar.querySelectorAll('.sidebar-item').forEach((item) => {
+    item.addEventListener('click', () => {
+      els.sidebar.querySelectorAll('.sidebar-item').forEach((i) => i.classList.remove('active'));
+      els.sections.forEach((s) => s.classList.remove('active'));
+      item.classList.add('active');
+      document.getElementById('section-' + item.dataset.section).classList.add('active');
+    });
+  });
+
+  function esc(v) {
+    if (v === null || v === undefined) return '';
+    return String(v).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+  function showMsg(ok, text) {
+    els.clientMsg.className = 'msg ' + (ok ? 'ok' : 'err');
+    els.clientMsg.textContent = text;
+  }
+  function clearMsg() {
+    els.clientMsg.className = 'msg';
+    els.clientMsg.textContent = '';
+  }
+  function fmtDate(d) {
+    if (!d) return '';
+    const dt = new Date(d + 'T00:00:00');
+    if (isNaN(dt)) return d;
+    return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function base() {
+    return (els.serverUrl.value.trim() || window.location.origin).replace(/\/$/, '');
+  }
+  async function apiGet(path) {
+    const res = await fetch(base() + path, { headers: { 'X-Api-Key': els.apiKey.value.trim() } });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${await res.text().catch(() => '')}`);
+    return res.json();
+  }
+  async function apiSend(method, path, body) {
+    const res = await fetch(base() + path, {
+      method,
+      headers: { 'X-Api-Key': els.apiKey.value.trim(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${await res.text().catch(() => '')}`);
+    return res.json();
+  }
+
+  function resetForm() {
+    currentClientId = null;
+    els.form.reset();
+    els.tripsList.innerHTML = '<div class="empty">Save this client (or select an existing one) to see their trips here.</div>';
+    clearMsg();
+  }
+
+  function fillForm(c) {
+    document.getElementById('client-name').value = c.name || '';
+    document.getElementById('client-email').value = c.email || '';
+    document.getElementById('client-phone').value = c.phone || '';
+    document.getElementById('client-tjid').value = c.travel_joy_client_id || '';
+    document.getElementById('client-referral').value = c.referral_source || '';
+    document.getElementById('client-emergency').value = c.emergency_contact || '';
+    document.getElementById('client-ffn').value = c.frequent_flyer_numbers || '';
+    document.getElementById('client-dob').value = c.date_of_birth || '';
+    document.getElementById('client-anniversary').value = c.anniversary || '';
+    document.getElementById('client-seat').value = c.seat_preference || '';
+    document.getElementById('client-dietary').value = c.dietary_restrictions || '';
+    document.getElementById('client-passport-number').value = c.passport_number || '';
+    document.getElementById('client-passport-expiry').value = c.passport_expiry || '';
+    document.getElementById('client-passport-country').value = c.passport_country || '';
+    document.getElementById('client-notes').value = c.notes || '';
+  }
+
+  async function loadClientTrips(clientId) {
+    try {
+      const { trips } = await apiGet('/api/trips');
+      const mine = (trips || []).filter((t) => t.client_id === clientId);
+      if (!mine.length) {
+        els.tripsList.innerHTML = '<div class="empty">No trips on file for this client.</div>';
+        return;
+      }
+      els.tripsList.innerHTML = '<ul class="trips-list">' + mine.map((t) => `
+        <li>
+          <div>
+            <div class="trip-name">${esc(t.trip_name)}</div>
+            <div class="trip-meta">${esc(t.destination || '')}${t.destination ? ' · ' : ''}${fmtDate(t.departure_date)}${t.departure_date ? ' – ' : ''}${fmtDate(t.return_date)}</div>
+          </div>
+          <div class="trip-meta">${esc(t.booking_status || '')}</div>
+        </li>
+      `).join('') + '</ul>';
+    } catch (err) {
+      els.tripsList.innerHTML = `<div class="empty">Failed to load trips: ${esc(err.message)}</div>`;
+    }
+  }
+
+  async function loadClientById(id, { updateUrl } = { updateUrl: true }) {
+    clearMsg();
+    try {
+      const { client } = await apiGet('/api/clients/' + id);
+      currentClientId = id;
+      fillForm(client);
+      els.clientPicker.value = id;
+      if (updateUrl) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('id', id);
+        window.history.replaceState({}, '', url);
+      }
+      loadClientTrips(id);
+    } catch (err) {
+      showMsg(false, 'Failed to load client: ' + err.message);
+    }
+  }
+
+  async function populateClientPicker(selectedId) {
+    try {
+      const { clients } = await apiGet('/api/clients');
+      clientsCache = clients;
+      const sorted = [...clients].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      els.clientPicker.innerHTML = '<option value="">— New client —</option>' +
+        sorted.map((c) => `<option value="${esc(c.id)}">${esc(c.name)}${c.email ? ' — ' + esc(c.email) : ''}</option>`).join('');
+      if (selectedId) els.clientPicker.value = selectedId;
+      els.connIndicator.textContent = 'Connected · ' + new Date().toLocaleTimeString();
+    } catch (err) {
+      els.connIndicator.textContent = 'Connection failed';
+      showMsg(false, 'Failed to load clients: ' + err.message);
+    }
+  }
+
+  async function connectAndLoad() {
+    localStorage.setItem('pharin_api_key', els.apiKey.value.trim());
+    localStorage.setItem('pharin_server_url', els.serverUrl.value.trim());
+    const params = new URLSearchParams(window.location.search);
+    const idParam = params.get('id');
+    await populateClientPicker(idParam);
+    if (idParam) {
+      await loadClientById(idParam, { updateUrl: false });
+    } else {
+      resetForm();
+    }
+  }
+
+  els.connectBtn.addEventListener('click', connectAndLoad);
+  els.clientNewBtn.addEventListener('click', () => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('id');
+    window.history.replaceState({}, '', url);
+    els.clientPicker.value = '';
+    resetForm();
+  });
+  els.clientPicker.addEventListener('change', () => {
+    if (els.clientPicker.value) {
+      loadClientById(els.clientPicker.value);
+    } else {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('id');
+      window.history.replaceState({}, '', url);
+      resetForm();
+    }
+  });
+
+  els.form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearMsg();
+    const saveBtn = document.getElementById('client-save-btn');
+    saveBtn.disabled = true;
+    const payload = {
+      name: document.getElementById('client-name').value.trim(),
+      email: document.getElementById('client-email').value.trim(),
+      phone: document.getElementById('client-phone').value.trim(),
+      travelJoyClientId: document.getElementById('client-tjid').value.trim(),
+      referralSource: document.getElementById('client-referral').value,
+      emergencyContact: document.getElementById('client-emergency').value.trim(),
+      frequentFlyerNumbers: document.getElementById('client-ffn').value.trim(),
+      dateOfBirth: document.getElementById('client-dob').value,
+      anniversary: document.getElementById('client-anniversary').value,
+      seatPreference: document.getElementById('client-seat').value,
+      dietaryRestrictions: document.getElementById('client-dietary').value.trim(),
+      passportNumber: document.getElementById('client-passport-number').value.trim(),
+      passportExpiry: document.getElementById('client-passport-expiry').value,
+      passportCountry: document.getElementById('client-passport-country').value.trim(),
+      notes: document.getElementById('client-notes').value.trim(),
+    };
+    try {
+      if (currentClientId) {
+        await apiSend('PUT', '/api/clients/' + currentClientId, payload);
+        showMsg(true, 'Client updated.');
+      } else {
+        const result = await apiSend('POST', '/api/clients', payload);
+        currentClientId = result.id;
+        const url = new URL(window.location.href);
+        url.searchParams.set('id', currentClientId);
+        window.history.replaceState({}, '', url);
+        showMsg(true, 'Client created.');
+      }
+      await populateClientPicker(currentClientId);
+      loadClientTrips(currentClientId);
+    } catch (err) {
+      showMsg(false, 'Save failed: ' + err.message);
+    } finally {
+      saveBtn.disabled = false;
+    }
+  });
+
+  document.getElementById('logout-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    sessionStorage.removeItem('d4d_crm_authed');
+    window.location.href = 'login.html';
+  });
+
+  if (els.apiKey.value) {
+    connectAndLoad();
+  }
+</script>
+
+</body>
+</html>
