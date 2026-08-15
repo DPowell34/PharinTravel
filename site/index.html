@@ -5784,6 +5784,77 @@ function saveData(key,val){
 }
 
 // ====================================================
+// CLIENT WRITE-THROUGH TO THE DATABASE
+// ====================================================
+// Keeps the Postgres clients table in step as clients are added, edited and
+// deleted, instead of waiting for the nightly Notion sync. Never blocks the
+// user: if the API cannot be reached the local change stands and the toast
+// says it did not reach the database.
+function clientToApiPayload(c){
+  return {
+    name: ((c.fname || '') + ' ' + (c.lname || '')).trim(),
+    email: c.email || '', phone: c.phone || '',
+    travelJoyClientId: c.tjid || '',
+    dateOfBirth: c.dob || null,
+    anniversary: c.anniversary || null,
+    passportNumber: c.passportnum || '',
+    passportExpiry: c.passport || null,
+    passportCountry: c.passportcountry || '',
+    frequentFlyerNumbers: c.ffn || '',
+    dietaryRestrictions: c.dietary || '',
+    seatPreference: c.seat || '',
+    emergencyContact: c.emergency || '',
+    referralSource: c.referral || '',
+    notes: c.notes || ''
+  };
+}
+
+// POST when the record has no database id yet, PUT when it does.
+function pushClientToDb(idx){
+  const c = clients[idx];
+  if(!c) return Promise.resolve({error:'no such client'});
+  const isNew = !c._apiId;
+  const url = isNew ? '/api/clients' : '/api/clients/' + encodeURIComponent(c._apiId);
+  return fetch(url, {
+    method: isNew ? 'POST' : 'PUT',
+    credentials: 'same-origin',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(clientToApiPayload(c))
+  }).then(function(r){
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  }).then(function(res){
+    // Remember the new id so the next edit updates instead of duplicating.
+    if(isNew && res && res.id){
+      c._apiId = res.id;
+      saveData('clients', clients);
+    }
+    return {ok:true, id: c._apiId};
+  }).catch(function(err){
+    crmToast('Saved here — database not updated (' + err.message + ')');
+    return {error: err.message};
+  });
+}
+
+function deleteClientFromDb(apiId){
+  return fetch('/api/clients/' + encodeURIComponent(apiId), {
+    method: 'DELETE', credentials: 'same-origin'
+  }).then(function(r){
+    if(r.status === 409){
+      return r.json().then(function(b){
+        return {blocked:true, error:(b && b.error) || 'still referenced by trips'};
+      });
+    }
+    // Already gone server-side is a success as far as the CRM is concerned.
+    if(r.status === 404) return {ok:true};
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    return {ok:true};
+  }).catch(function(err){
+    return {ok:false, error: err.message};
+  });
+}
+
+// ====================================================
 // PHONE FORMATTING -- (xxx) xxx-xxxx
 // ====================================================
 // Display formatter. Returns the input untouched unless it is confidently a
@@ -6583,10 +6654,36 @@ function saveClient(){
     c[f] = el ? (el.type === 'date' ? el.value : el.value.trim()) : '';
   });
   if(!c.fname || !c.lname){ crmToast('First and last name are required'); clientSectionReset(); return; }
+  // Carry the database id across an edit. saveClient rebuilds the record from
+  // CLIENT_FIELDS, which does not include _apiId, so without this every edit
+  // would look like a new client and be POSTed again as a duplicate.
+  const prior = editingClientIdx >= 0 ? clients[editingClientIdx] : null;
+  if(prior && prior._apiId) c._apiId = prior._apiId;
   if(editingClientIdx >= 0) clients[editingClientIdx] = c; else clients.push(c);
+  const savedAt = editingClientIdx >= 0 ? editingClientIdx : clients.length - 1;
   saveData('clients', clients); closeModal('modal-client'); renderClients(); crmToast('Client saved ✓');
+  pushClientToDb(savedAt);
 }
-function deleteClient(idx){ if(!confirm('Delete this client?')) return; clients.splice(idx,1); saveData('clients',clients); renderClients(); crmToast('Client deleted'); }
+function deleteClient(idx){
+  if(!confirm('Delete this client?')) return;
+  const c = clients[idx];
+  const finishLocally = function(){
+    clients.splice(idx,1); saveData('clients',clients); renderClients();
+  };
+  // Not in the database yet -- nothing to ask.
+  if(!c || !c._apiId){ finishLocally(); crmToast('Client deleted'); return; }
+
+  deleteClientFromDb(c._apiId).then(function(res){
+    if(res.blocked){
+      // The server refused because trips still point at this client. Leaving it
+      // in the CRM keeps the two stores agreeing.
+      crmToast('Not deleted — ' + res.error);
+      return;
+    }
+    finishLocally();
+    crmToast(res.ok ? 'Client deleted' : 'Client deleted here — database not reached');
+  });
+}
 
 // ====================================================
 // TRIPS

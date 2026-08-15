@@ -529,6 +529,25 @@ app.put("/api/clients/:pageId", requireApiKey, async (req, res) => {
   }
 });
 
+// Delete a client. Refuses while trips still reference it, rather than
+// orphaning them or cascading -- trips.client_id and activities.client_id are
+// FKs, and a booking silently losing its client is worse than a blocked delete.
+app.delete("/api/clients/:pageId", requireApiKey, async (req, res) => {
+  try {
+    const inUse = await q1("SELECT COUNT(*)::int AS n FROM trips WHERE client_id = $1", [req.params.pageId]);
+    if (inUse && inUse.n > 0) {
+      return res.status(409).json({ ok: false, error: "client still has " + inUse.n + " trip(s)", trips: inUse.n });
+    }
+    await q("UPDATE activities SET client_id = NULL WHERE client_id = $1", [req.params.pageId]);
+    const row = await q1("DELETE FROM clients WHERE id = $1 RETURNING id", [req.params.pageId]);
+    if (!row) return res.status(404).json({ ok: false, error: "no client with that id" });
+    res.json({ ok: true, id: row.id });
+  } catch (err) {
+    console.error("DELETE /api/clients/:pageId failed:", err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 app.post("/api/suppliers", requireApiKey, async (req, res) => {
   try {
     const b = req.body || {};
