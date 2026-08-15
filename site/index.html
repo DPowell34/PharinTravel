@@ -264,8 +264,8 @@ footer{background:var(--navy-dark);color:rgba(255,255,255,0.75);padding:48px 24p
 .admin-sidebar{width:220px;background:#fff;border-right:1px solid var(--gray-light);padding:16px 0;flex-shrink:0}
 .admin-sidebar a{display:flex;align-items:center;gap:10px;padding:11px 20px;font-size:13px;font-weight:500;color:var(--gray);cursor:pointer;text-decoration:none;transition:all .2s}
 .admin-sidebar a:hover,.admin-sidebar a.active{color:var(--navy);background:var(--teal-bg);border-right:3px solid var(--teal)}
-.admin-sidebar .sidebar-section{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--navy);background:var(--offwhite);border-top:1px solid var(--gray-light);border-bottom:1px solid var(--gray-light);padding:8px 20px;margin-top:10px}
-.admin-sidebar .sidebar-section:first-child{margin-top:0;border-top:none}
+.admin-sidebar .sidebar-section{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#fff;background:var(--navy);padding:8px 20px;margin-top:10px}
+.admin-sidebar .sidebar-section:first-child{margin-top:0}
 .admin-main{flex:1;padding:28px;overflow-y:auto}
 .admin-section{display:none}
 .admin-section.active{display:block}
@@ -6116,12 +6116,8 @@ function renderClients(filter=''){
   tbody.innerHTML = filtered.map((c,i)=>{
     const idx = clients.indexOf(c);
     const passport = c.passport ? `<span style="color:${daysUntil(c.passport)<90?'var(--coral)':'var(--gray)'}">${fmtDate(c.passport)}</span>` : '—';
-    const initials = (c.fname[0]||'')+(c.lname[0]||'');
-    const avatarHtml = c.photo
-      ? `<img src="${c.photo}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid var(--teal-bg);flex-shrink:0" onerror="this.style.display='none'">`
-      : `<div style="width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${initials}</div>`;
     return `<tr>
-      <td><div style="display:flex;align-items:center;gap:10px">${avatarHtml}<strong>${c.fname} ${c.lname}</strong></div></td>
+      <td><strong>${c.fname} ${c.lname}</strong></td>
       <td>${[c.address,c.city,c.state].filter(Boolean).join(', ')||'—'}</td>
       <td>${c.phone||'—'}</td>
       <td>${c.email||'—'}</td>
