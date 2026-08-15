@@ -2034,7 +2034,7 @@ Ongoing support before, during, and after your trip</textarea></div>
       </div>
       <div class="field-row cols-2">
         <div class="field-group"><label>Email *</label><input id="c-email" type="email" placeholder="client@email.com"></div>
-        <div class="field-group"><label>Phone</label><input id="c-phone" type="tel" placeholder="(305)000-0000" inputmode="tel" oninput="phoneInput(this)"></div>
+        <div class="field-group"><label>Phone</label><input id="c-phone" type="tel" placeholder="(305) 000-0000" inputmode="tel" oninput="phoneInput(this)"></div>
       </div>
       <div class="field-row cols-2">
         <div class="field-group"><label>TravelJoy Client ID</label><input id="c-tjid" type="text"></div>
@@ -5784,7 +5784,7 @@ function saveData(key,val){
 }
 
 // ====================================================
-// PHONE FORMATTING -- (xxx)xxx-xxxx
+// PHONE FORMATTING -- (xxx) xxx-xxxx
 // ====================================================
 // Display formatter. Returns the input untouched unless it is confidently a
 // US 10-digit number, so international numbers, extensions and partial records
@@ -5796,7 +5796,7 @@ function fmtPhone(v){
   let d = raw.replace(/\D/g, '');
   if(d.length === 11 && d.charAt(0) === '1') d = d.slice(1);
   if(d.length !== 10) return raw;                  // not a shape we recognise
-  return '(' + d.slice(0,3) + ')' + d.slice(3,6) + '-' + d.slice(6);
+  return '(' + d.slice(0,3) + ') ' + d.slice(3,6) + '-' + d.slice(6);
 }
 
 // Live formatter for the client Phone field. Rebuilds from digits on every
@@ -5811,7 +5811,7 @@ function phoneInput(el){
   d = d.slice(0, 10);
   let out = '';
   if(d.length) out = '(' + d.slice(0,3);
-  if(d.length >= 4) out += ')' + d.slice(3,6);
+  if(d.length >= 4) out += ') ' + d.slice(3,6);
   if(d.length >= 7) out += '-' + d.slice(6,10);
   el.value = out;
 }
@@ -5837,7 +5837,7 @@ function clientSortValue(c, key){
   if(key === 'name')    return clientDisplayName(c);   // sorts by last name, matching the cell
   if(key === 'address') return [c.address, c.city, c.state].filter(Boolean).join(', ');
   // Sort on the digits behind the displayed format, so the visible order in
-  // the (xxx)xxx-xxxx column is actually ascending.
+  // the (xxx) xxx-xxxx column is actually ascending.
   if(key === 'phone')   return fmtPhone(c.phone || '').replace(/\D/g, '');
   return c[key] || '';
 }
