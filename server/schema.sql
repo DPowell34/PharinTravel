@@ -73,3 +73,15 @@ ALTER TABLE trips ADD COLUMN IF NOT EXISTS notes TEXT;
 ALTER TABLE trips ADD COLUMN IF NOT EXISTS commission_status TEXT DEFAULT 'Expected';
 ALTER TABLE activities ADD COLUMN IF NOT EXISTS related_to TEXT;
 ALTER TABLE activities ADD COLUMN IF NOT EXISTS notes TEXT;
+
+-- Admin data blob mirror -- added 2026-08-13.
+-- DB-backed persistence for the admin SPA's localStorage-only data
+-- (clients, trips, commissions, invoices, pay schedules, etc). The
+-- frontend's saveData() write-through-syncs here on every write, and
+-- hydrateFromServer() seeds a fresh/cleared browser from here on login.
+-- See server/index.js: /api/data, /api/data/:key, /api/data-bulk-import.
+CREATE TABLE IF NOT EXISTS admin_data_blobs (
+  key TEXT PRIMARY KEY,
+  data JSONB NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT now()
+);

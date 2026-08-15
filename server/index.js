@@ -295,6 +295,10 @@ function requireWebhookSecret(req, res, next) {
 }
 
 function requireApiKey(req, res, next) {
+  // Allow either a valid admin session cookie (browser SPA calls) or the X-Api-Key header (webhook/integration calls).
+  try {
+    if (d4dVerify(d4dCookies(req)["d4d_session"])) return next();
+  } catch (e) {}
   const provided = (req.header("X-Api-Key") || "").trim();
   const expected = (process.env.DASHBOARD_API_KEY || "").trim();
   if (!expected || provided !== expected) {
@@ -697,6 +701,74 @@ app.post("/api/reviews", (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+// ============================================================
+// Admin data blob mirror -- DB-backed persistence for the admin
+// SPA's localStorage-only data (clients, trips, commissions, etc).
+// Added 2026-08-13.
+// ============================================================
+function isValidBlobKey(key) {
+  return typeof key === "string" && key.length > 0 && key.length <= 100 && /^[a-zA-Z0-9_]+$/.test(key);
+}
+
+app.get("/api/data", requireApiKey, async (_req, res) => {
+  try {
+    const rows = await q("SELECT key, data, updated_at FROM admin_data_blobs");
+    const out = {};
+    rows.forEach(r => { out[r.key] = r.data; });
+    res.json({ ok: true, data: out });
+  } catch (err) {
+    console.error("GET /api/data failed:", err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+app.get("/api/data/:key", requireApiKey, async (req, res) => {
+  try {
+    const row = await q1("SELECT data, updated_at FROM admin_data_blobs WHERE key = $1", [req.params.key]);
+    if (!row) return res.status(404).json({ ok: false, error: "no blob for key" });
+    res.json({ ok: true, data: row.data, updated_at: row.updated_at });
+  } catch (err) {
+    console.error("GET /api/data/:key failed:", err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+app.post("/api/data/:key", requireApiKey, async (req, res) => {
+  try {
+    const key = req.params.key;
+    if (!isValidBlobKey(key)) return res.status(400).json({ ok: false, error: "invalid key" });
+    const data = JSON.stringify(req.body);
+    await q("INSERT INTO admin_data_blobs (key, data, updated_at) VALUES ($1, $2, now()) ON CONFLICT (key) DO UPDATE SET data = $2, updated_at = now()", [key, data]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("POST /api/data/:key failed:", err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// Bulk import: accepts the full localStorage backup JSON exactly as produced by
+// the admin panel's exportAllData() (Settings -> Security -> Download Backup),
+// and upserts every d4d_/d4dcrm_-prefixed key into the blob mirror in one shot.
+app.post("/api/data-bulk-import", requireApiKey, async (req, res) => {
+  try {
+    const backup = req.body || {};
+    const imported = [];
+    const skipped = [];
+    for (const rawKey of Object.keys(backup)) {
+      let key = rawKey;
+      if (key.indexOf("d4d_") === 0) key = key.slice(4);
+      else if (key.indexOf("d4dcrm_") === 0) key = key.slice(7);
+      if (!isValidBlobKey(key)) { skipped.push(rawKey); continue; }
+      await q("INSERT INTO admin_data_blobs (key, data, updated_at) VALUES ($1, $2, now()) ON CONFLICT (key) DO UPDATE SET data = $2, updated_at = now()", [key, JSON.stringify(backup[rawKey])]);
+      imported.push(key);
+    }
+    res.json({ ok: true, imported, skipped });
+  } catch (err) {
+    console.error("POST /api/data-bulk-import failed:", err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Pharin's Travel server (Postgres-backed) listening on port ${PORT}`);
 });
