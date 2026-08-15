@@ -3823,6 +3823,7 @@ function showAdminPage() {
       document.getElementById('admin-login').style.display='none';
       document.getElementById('admin-panel').style.display='block';
       renderAllAdmin();
+      hydrateFromServer().then(function(res){ if(res && res.applied) renderAllAdmin(); });
     } else {
       adminLoggedIn = false;
       document.getElementById('admin-login').style.display='flex';
@@ -3845,6 +3846,7 @@ function adminLogin() {
       document.getElementById('admin-login').style.display='none';
       document.getElementById('admin-panel').style.display='block';
       renderAllAdmin();
+      hydrateFromServer().then(function(res){ if(res && res.applied) renderAllAdmin(); });
       if (typeof showAdminCRM === 'function') showAdminCRM('crm-overview');
     } else {
       document.getElementById('login-error').style.display='block';
@@ -5647,7 +5649,133 @@ init();
 // DATA STORE (localStorage)
 // ====================================================
 function loadData(key, def){ try{ return JSON.parse(localStorage.getItem('d4d_'+key))||def; }catch(e){ return def; } }
-function saveData(key,val){ localStorage.setItem('d4d_'+key, JSON.stringify(val)); }
+function saveData(key,val){
+  localStorage.setItem('d4d_'+key, JSON.stringify(val));
+  d4dPush(key, val);
+}
+
+// ============================================================
+// SERVER-BACKED PERSISTENCE
+// Mirrors every localStorage write to the blob API so a cleared browser or a
+// second device can be re-seeded. See server/index.js (/api/data*) and
+// server/schema.sql (admin_data_blobs).
+//
+// Fails soft everywhere: if the API is unreachable the admin behaves exactly
+// as it did before this existed -- localStorage only, nothing surfaced.
+// ============================================================
+const D4D_DIRTY = 'd4d__sync_dirty';            // keys whose last push failed
+const D4D_SKIP  = {'_demo_ver':1, '_sync_dirty':1};
+let d4dSyncOn = true;                            // off once the API says no
+
+function d4dValidKey(k){
+  // Mirrors isValidBlobKey() server-side, so we never send a request that 400s.
+  return typeof k === 'string' && k.length > 0 && k.length <= 100 && /^[a-zA-Z0-9_]+$/.test(k);
+}
+function d4dDirty(){ try { return JSON.parse(localStorage.getItem(D4D_DIRTY)) || []; } catch(e){ return []; } }
+function d4dMarkDirty(key, failed){
+  const list = d4dDirty(); const i = list.indexOf(key);
+  if(failed && i < 0) list.push(key);
+  if(!failed && i >= 0) list.splice(i, 1);
+  try { localStorage.setItem(D4D_DIRTY, JSON.stringify(list)); } catch(e){}
+}
+
+// Push one key. Resolves true only if the server accepted it.
+function d4dPush(key, val){
+  if(!d4dSyncOn || !d4dValidKey(key) || D4D_SKIP[key]) return Promise.resolve(false);
+  return fetch('/api/data/' + encodeURIComponent(key), {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(val)
+  }).then(function(r){
+    // Not logged in / no key configured: stop trying, stay local-only.
+    if(r.status === 401 || r.status === 403){ d4dSyncOn = false; return false; }
+    d4dMarkDirty(key, !r.ok);
+    return r.ok;
+  }).catch(function(){
+    d4dMarkDirty(key, true);   // offline; retried on next hydrate
+    return false;
+  });
+}
+
+// Re-point the in-memory globals at localStorage. They are initialised once at
+// script load, so hydrating localStorage alone would leave the UI stale.
+// Keeps the current value when a key is absent, so built-in defaults survive.
+function d4dReseedGlobals(){
+  function g(key, cur){
+    const raw = localStorage.getItem('d4d_' + key);
+    if(raw === null) return cur;
+    try { return JSON.parse(raw); } catch(e){ return cur; }
+  }
+  try {
+    clients = g('clients', clients);
+    trips = g('trips', trips);
+    commissions = g('commissions', commissions);
+    tripPayments = g('payments', tripPayments);
+    tripMessages = g('messages', tripMessages);
+    tripFiles = g('files', tripFiles);
+    tripItinerary = g('itinerary', tripItinerary);
+    tripTravelers = g('travelers', tripTravelers);
+    tripForms = g('trip_forms', tripForms);
+    tripFormRequests = g('form_requests', tripFormRequests);
+    inquiries = g('inquiries', inquiries);
+    weSlides = g('we_slides', weSlides);
+    weGallery = g('we_gallery', weGallery);
+    weDestinations = g('we_destinations', weDestinations);
+    weFaqs = g('we_faqs', weFaqs);
+    wePromos = g('we_promos', wePromos);
+    weBlog = g('we_blog', weBlog);
+    weTestimonials = g('we_testimonials', weTestimonials);
+    weTestimonialsPending = g('we_testimonials_pending', weTestimonialsPending);
+    weServices = g('we_services', weServices);
+  } catch(e){ console.warn('[D4D] reseed skipped:', e && e.message); }
+}
+
+// Pull the server's copy, then push anything it is missing.
+// Resolves {applied, pushed} / {offline:true} / {skipped:true} -- never rejects.
+function hydrateFromServer(){
+  if(!d4dSyncOn) return Promise.resolve({skipped: true});
+  return fetch('/api/data', {credentials: 'same-origin'})
+    .then(function(r){
+      if(r.status === 401 || r.status === 403){ d4dSyncOn = false; throw new Error('unauthorised'); }
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(payload){
+      const server = (payload && payload.ok && payload.data) ? payload.data : {};
+      const dirty = d4dDirty();
+      let applied = 0;
+
+      // server -> local, except where an unsynced local write is newer
+      Object.keys(server).forEach(function(k){
+        if(dirty.indexOf(k) >= 0) return;
+        try {
+          const next = JSON.stringify(server[k]);
+          if(localStorage.getItem('d4d_' + k) !== next){
+            localStorage.setItem('d4d_' + k, next);
+            applied++;
+          }
+        } catch(e){}
+      });
+
+      // local -> server for anything the mirror lacks (first run) or that is dirty
+      const pushes = [];
+      Object.keys(localStorage).forEach(function(storageKey){
+        if(storageKey.indexOf('d4d_') !== 0) return;
+        const k = storageKey.slice(4);
+        if(!d4dValidKey(k) || D4D_SKIP[k]) return;
+        const onServer = Object.prototype.hasOwnProperty.call(server, k);
+        if(onServer && dirty.indexOf(k) < 0) return;
+        try { pushes.push(d4dPush(k, JSON.parse(localStorage.getItem(storageKey)))); } catch(e){}
+      });
+
+      return Promise.all(pushes).then(function(results){
+        if(applied) d4dReseedGlobals();
+        return {applied: applied, pushed: results.filter(Boolean).length};
+      });
+    })
+    .catch(function(){ return {offline: true}; });
+}
 
 // ── Demo Data Version Gate ──────────────────────────────────────────────────
 // Bump DEMO_VER whenever you want a clean reset (wipes all d4d_ localStorage)
