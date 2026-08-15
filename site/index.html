@@ -433,6 +433,17 @@ body.admin-open .admin-topbar{top:24px}
 #crm-root .frm-doc-sub{font-size:13px;color:#555;margin-bottom:6px}
 }
 
+
+#crm-root .cm-spacer-fix{display:none}
+#crm-root .cm-layout{display:flex;min-height:480px;margin:-28px -36px}
+#crm-root .cm-sidebar{width:210px;flex-shrink:0;background:#fff;border-right:1px solid var(--gray-light);padding:16px 0}
+#crm-root .cm-sidebar-item{padding:11px 20px;font-size:13px;font-weight:600;color:var(--gray);cursor:pointer;transition:all .15s}
+#crm-root .cm-sidebar-item:hover:not(.active){background:var(--teal-bg)}
+#crm-root .cm-sidebar-item.active{background:var(--teal);color:#fff}
+#crm-root .cm-content{flex:1;padding:28px 36px;overflow-y:auto}
+#crm-root .cm-panel{display:none}
+#crm-root .cm-panel.active{display:block}
+#crm-root .cm-panel-title{font-size:18px;font-weight:700;color:var(--navy);margin-bottom:20px}
 </style>
 </head>
 <body>
@@ -541,15 +552,15 @@ body.admin-open .admin-topbar{top:24px}
         <p class="section-sub" style="margin:0 auto">No stress, no endless searching — just share your vision and we handle the rest.</p>
       </div>
       <div class="why-grid" style="margin-top:0">
-        <div class="why-item" style="flex-direction:column;align-items:flex-start;gap:8px;padding:24px">
+        <div class="why-item" style="flex-direction:column;align-items:center;text-align:center;gap:8px;padding:24px">
           <div class="wi-icon" style="font-size:22px">1️⃣</div>
           <p style="font-size:15px">Share your trip details — destination, dates, travelers, and budget.</p>
         </div>
-        <div class="why-item" style="flex-direction:column;align-items:flex-start;gap:8px;padding:24px">
+        <div class="why-item" style="flex-direction:column;align-items:center;text-align:center;gap:8px;padding:24px">
           <div class="wi-icon" style="font-size:22px">2️⃣</div>
           <p style="font-size:15px">Receive curated options with resort, cruise, and destination comparisons.</p>
         </div>
-        <div class="why-item" style="flex-direction:column;align-items:flex-start;gap:8px;padding:24px">
+        <div class="why-item" style="flex-direction:column;align-items:center;text-align:center;gap:8px;padding:24px">
           <div class="wi-icon" style="font-size:22px">3️⃣</div>
           <p style="font-size:15px">Approve your favorite, book with a low deposit, and travel with confidence.</p>
         </div>
@@ -563,7 +574,7 @@ body.admin-open .admin-topbar{top:24px}
       <div class="services-header">
         <div class="section-label">OUR SERVICES</div>
         <h2 class="section-title" style="font-size:clamp(1.2rem,2.2vw,1.7rem)">Travel experiences designed around your dreams, budget, and travel style.</h2>
-        <p class="section-sub">Whether you're planning a relaxing getaway, an unforgettable celebration, or joining one of our hosted group adventures, Destined 4 Destinations makes every step seamless.</p>
+        <p class="section-sub" style="margin:0 auto">Whether you're planning a relaxing getaway, an unforgettable celebration, or joining one of our hosted group adventures, Destined 4 Destinations makes every step seamless.</p>
       </div>
       <div class="services-grid">
         <div class="service-card">
@@ -906,7 +917,7 @@ body.admin-open .admin-topbar{top:24px}
     <h1>Contact Us</h1>
     <p>Ready to start planning? Let's connect!</p>
   </div>
-  <div class="contact-grid">
+  <div class="contact-grid" style="grid-template-columns:1fr;justify-items:center;text-align:center;max-width:640px">
     <div class="contact-info">
       <h2>Let's Plan Your Dream Vacation</h2>
       <p>Whether you have questions, want to start planning, or are ready to book — reach out and Pharin will respond within 24–48 hours.</p>
@@ -935,17 +946,7 @@ body.admin-open .admin-topbar{top:24px}
         <button class="btn-coral" onclick="scrollToForm()">Fill Out Travel Inquiry →</button>
       </div>
     </div>
-    <div>
-      <div class="admin-card" style="border-radius:12px">
-        <h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:16px">Send a Quick Message</h3>
-        <form onsubmit="submitContact(event)">
-          <div class="form-group" style="margin-bottom:12px"><label>Your Name</label><input type="text" required placeholder="Full name"></div>
-          <div class="form-group" style="margin-bottom:12px"><label>Email</label><input type="email" required placeholder="your@email.com"></div>
-          <div class="form-group" style="margin-bottom:12px"><label>Message</label><textarea required placeholder="Tell us about your dream vacation..." style="min-height:120px"></textarea></div>
-          <button type="submit" class="btn-submit" style="max-width:none">Send Message</button>
-        </form>
-      </div>
-    </div>
+    
   </div>
   <footer>
     <div class="footer-inner">
@@ -1004,7 +1005,7 @@ body.admin-open .admin-topbar{top:24px}
   <section style="background:#fff">
     <div class="section-inner" style="max-width:860px">
 
-      <div id="terms-main-content">
+      <div id="terms-main-content" style="white-space:pre-wrap;line-height:1.8">
         <h2 style="font-size:22px;font-weight:800;color:var(--navy);margin-bottom:6px">Terms &amp; Conditions</h2>
         <p style="font-size:13px;color:var(--gray);margin-bottom:28px">Last updated: January 1, 2024 &nbsp;·&nbsp; Destined4Destinations LLC</p>
 
@@ -1055,7 +1056,7 @@ body.admin-open .admin-topbar{top:24px}
 
         <hr style="border:none;border-top:2px solid var(--gray-light);margin-bottom:40px">
 
-        <div id="terms-waiver-content">
+        <div id="terms-waiver-content" style="white-space:pre-wrap;line-height:1.8">
           <h2 style="font-size:22px;font-weight:800;color:var(--navy);margin-bottom:20px">Travel Waiver &amp; Release of Liability</h2>
 
           <div style="background:var(--teal-bg);border:1px solid rgba(74,184,213,0.3);border-radius:10px;padding:20px 24px;margin-bottom:28px">
@@ -1127,17 +1128,17 @@ body.admin-open .admin-topbar{top:24px}
     </div>
     <div class="admin-layout">
       <div class="admin-sidebar">
-        <div class="sidebar-section">Dashboard</div>
+        <div class="sidebar-section" style="display:inline-block;background:var(--navy);color:#fff;border-radius:12px;padding:4px 12px;margin:16px 20px 6px 0">Dashboard</div>
         <a onclick="showAdminCRM('crm-overview')" id="asid-crm-crm-overview" class="active">Pipeline Overview</a>
 
-        <div class="sidebar-section">CRM</div>
+        <div class="sidebar-section" style="display:inline-block;background:var(--navy);color:#fff;border-radius:12px;padding:4px 12px;margin:16px 20px 6px 0">CRM</div>
         <a onclick="showAdminCRM('crm-clients')" id="asid-crm-crm-clients">Clients</a>
         <a onclick="showAdminCRM('crm-trips')" id="asid-crm-crm-trips">Trips</a>
         <a onclick="showAdminCRM('crm-inquiries')" id="asid-crm-crm-inquiries">Inquiries <span id="crm-inq-count" class="nav-page-badge" style="display:none"></span></a>
         <a onclick="showAdminCRM('crm-commissions')" id="asid-crm-crm-commissions">Commissions</a>
         <a onclick="showAdminCRM('groups')" id="asid-crm-groups">Groups</a>
 
-        <div class="sidebar-section">Content</div>
+        <div class="sidebar-section" style="display:inline-block;background:var(--navy);color:#fff;border-radius:12px;padding:4px 12px;margin:16px 20px 6px 0">Content</div>
         <a onclick="showAdminWE('we-hero')" id="asid-we-we-hero">Hero</a>
         <a onclick="showAdminWE('we-about')" id="asid-we-we-about">About Us</a>
         <a onclick="showAdminWE('we-services')" id="asid-we-we-services">Services</a>
@@ -1149,7 +1150,7 @@ body.admin-open .admin-topbar{top:24px}
         <a onclick="showAdminWE('we-testimonials')" id="asid-we-we-testimonials">Testimonials</a>
         <a onclick="showAdmin('terms-admin')" id="asid-terms-admin">Terms &amp; Waivers</a>
 
-        <div class="sidebar-section">Site</div>
+        <div class="sidebar-section" style="display:inline-block;background:var(--navy);color:#fff;border-radius:12px;padding:4px 12px;margin:16px 20px 6px 0">Site</div>
         <a onclick="showPagesTab('pages')" id="asid-pages">Pages</a>
         <div id="custom-admin-links"></div>
         <a onclick="showAdmin('settings')" id="asid-settings">Settings</a>
@@ -1444,11 +1445,11 @@ body.admin-open .admin-topbar{top:24px}
           <div class="card-title">Payment Methods Accepted</div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
             <label class="check-toggle"><input type="checkbox" id="pay-zelle" checked> Zelle</label>
-            <label class="check-toggle"><input type="checkbox" id="pay-venmo"> Venmo</label>
+            
             <label class="check-toggle"><input type="checkbox" id="pay-cashapp"> Cash App</label>
             <label class="check-toggle"><input type="checkbox" id="pay-cc" checked> Credit / Debit Card</label>
             <label class="check-toggle"><input type="checkbox" id="pay-paypal"> PayPal</label>
-            <label class="check-toggle"><input type="checkbox" id="pay-check"> Check / Money Order</label>
+            
           </div>
           <div class="field-group" style="margin-bottom:14px"><label>Zelle ID / Handle</label><input id="s-zelle" type="text" value="Destined4Destinations@gmail.com"></div>
           <div class="field-group" style="margin-bottom:14px"><label>Venmo Handle</label><input id="s-venmo" type="text" placeholder="@yourhandle"></div>
@@ -1553,6 +1554,11 @@ Since launching my agency in 2018, I've had the privilege of helping travelers p
 
       <!-- SECURITY -->
       <div id="settings-security" class="settings-panel" style="display:none">
+      <div class="card" style="margin-bottom:20px;border:2px solid var(--teal)">
+        <div class="card-title">Data Backup</div>
+        <p style="font-size:13px;color:var(--gray);margin-bottom:14px">Your clients, trips, and commission records are stored in this browser only. Download a backup regularly, and always before clearing browser data or switching computers.</p>
+        <button class="btn btn-sm btn-teal" onclick="exportAllData()">Download Backup (JSON)</button>
+      </div>
         <div class="card">
           <div class="card-title">Change Admin Password</div>
           <div style="max-width:400px">
@@ -1967,39 +1973,131 @@ Ongoing support before, during, and after your trip</textarea></div>
       <button class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:#fff;border:none;font-size:12px;font-weight:700;padding:6px 14px;border-radius:8px;cursor:pointer" onclick="saveClient()">Save Client</button>
     </div>
     <div class="fp-body">
-     <div class="card" style="max-width:1000px;margin:0 auto">
-    <div class="field-row cols-2">
-      <div class="field-group"><label>First Name *</label><input id="c-fname" type="text" placeholder="First name"></div>
-      <div class="field-group"><label>Last Name *</label><input id="c-lname" type="text" placeholder="Last name"></div>
-    </div>
-    <div class="field-row cols-2">
-      <div class="field-group"><label>Email *</label><input id="c-email" type="email" placeholder="client@email.com"></div>
-      <div class="field-group"><label>Phone</label><input id="c-phone" type="tel" placeholder="305-000-0000"></div>
-    </div>
-    <div class="field-row cols-2">
-      <div class="field-group"><label>Date of Birth</label><input id="c-dob" type="date"></div>
-      <div class="field-group"><label>Passport Number</label><input id="c-passportnum" type="text" placeholder="e.g. 512345678"></div>
-    </div>
-    <div class="field-row cols-2">
-      <div class="field-group"><label>Passport Expiration</label><input id="c-passport" type="date"></div>
-      <div class="field-group"></div>
-    </div>
-    <div class="field-row">
-      <div class="field-group"><label>Address</label><input id="c-address" type="text" placeholder="Street address"></div>
-    </div>
-    <div class="field-row cols-3">
-      <div class="field-group"><label>City</label><input id="c-city" type="text"></div>
-      <div class="field-group"><label>State</label><input id="c-state" type="text"></div>
-      <div class="field-group"><label>Zip</label><input id="c-zip" type="text"></div>
-    </div>
-    <div class="field-row">
-      <div class="field-group"><label>Notes</label><textarea id="c-notes" placeholder="Any additional notes..."></textarea></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-primary" onclick="saveClient()">Save Client</button>
-      <button class="btn btn-outline" onclick="closeModal('modal-client')">Cancel</button>
-    </div>
-     </div>
+      <div class="cm-layout">
+        <div class="cm-sidebar">
+          <div class="cm-sidebar-item active" data-cm-tab="contact" onclick="showClientTab('contact')">Contact info</div>
+          <div class="cm-sidebar-item" data-cm-tab="relationships" onclick="showClientTab('relationships')">Relationships</div>
+          <div class="cm-sidebar-item" data-cm-tab="loyalty" onclick="showClientTab('loyalty')">Loyalty programs</div>
+          <div class="cm-sidebar-item" data-cm-tab="dates" onclick="showClientTab('dates')">Important dates</div>
+          <div class="cm-sidebar-item" data-cm-tab="preferences" onclick="showClientTab('preferences')">Travel preferences</div>
+          <div class="cm-sidebar-item" data-cm-tab="passport" onclick="showClientTab('passport')">Passport info</div>
+          <div class="cm-sidebar-item" data-cm-tab="vaccine" onclick="showClientTab('vaccine')">Vaccine info</div>
+          <div class="cm-sidebar-item" data-cm-tab="payment" onclick="showClientTab('payment')">Payment info</div>
+          <div class="cm-sidebar-item" data-cm-tab="files" onclick="showClientTab('files')">Files</div>
+          <div class="cm-sidebar-item" data-cm-tab="notes" onclick="showClientTab('notes')">Notes</div>
+        </div>
+        <div class="cm-content">
+
+          <div class="cm-panel active" id="cm-panel-contact">
+            <div class="cm-panel-title">Contact info</div>
+            <div class="field-group"><label>Name *</label><input id="c-name" type="text" placeholder="Client name"></div>
+            <div class="field-row cols-2">
+              <div class="field-group"><label>Email</label><input id="c-email" type="email" placeholder="client@email.com"></div>
+              <div class="field-group"><label>Phone</label><input id="c-phone" type="tel" placeholder="305-000-0000"></div>
+            </div>
+            <div class="field-row cols-2">
+              <div class="field-group"><label>TravelJoy Client ID</label><input id="c-travel-joy-id" type="text"></div>
+              <div class="field-group"><label>Referral source</label>
+                <select id="c-referral-source">
+                  <option value="">&mdash;</option>
+                  <option value="Referral">Referral</option>
+                  <option value="Website">Website</option>
+                  <option value="Social Media">Social Media</option>
+                  <option value="Repeat Client">Repeat Client</option>
+                  <option value="Google">Google</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="field-group"><label>Emergency contact</label><input id="c-emergency-contact" type="text" placeholder="Name and phone number"></div>
+            <div class="field-row">
+              <div class="field-group"><label>Address</label><input id="c-address" type="text" placeholder="Street address"></div>
+            </div>
+            <div class="field-row cols-3">
+              <div class="field-group"><label>City</label><input id="c-city" type="text"></div>
+              <div class="field-group"><label>State</label><input id="c-state" type="text"></div>
+              <div class="field-group"><label>Zip</label><input id="c-zip" type="text"></div>
+            </div>
+            <button class="btn btn-primary" onclick="saveClient()">Save client</button>
+          </div>
+
+          <div class="cm-panel" id="cm-panel-relationships">
+            <div class="cm-panel-title">Relationships</div>
+            <div class="field-group"><label>Spouse / partner name</label><input id="c-spouse-name" type="text" placeholder="Spouse or partner's name"></div>
+            <div class="field-group"><label>Family &amp; travel companions</label><textarea id="c-relationships-notes" rows="4" placeholder="Children, family members, or frequent travel companions"></textarea></div>
+            <button class="btn btn-primary" onclick="saveClient()">Save client</button>
+          </div>
+
+          <div class="cm-panel" id="cm-panel-loyalty">
+            <div class="cm-panel-title">Loyalty programs</div>
+            <div class="field-row cols-2">
+              <div class="field-group"><label>Airline loyalty #</label><input id="c-loyalty-airline" type="text" placeholder="e.g. Delta SkyMiles 123456"></div>
+              <div class="field-group"><label>Hotel loyalty #</label><input id="c-loyalty-hotel" type="text" placeholder="e.g. Marriott Bonvoy 123456"></div>
+            </div>
+            <button class="btn btn-primary" onclick="saveClient()">Save client</button>
+          </div>
+
+          <div class="cm-panel" id="cm-panel-dates">
+            <div class="cm-panel-title">Important dates</div>
+            <div class="field-row cols-2">
+              <div class="field-group"><label>Date of birth</label><input id="c-dob" type="date"></div>
+              <div class="field-group"><label>Anniversary</label><input id="c-anniversary" type="date"></div>
+            </div>
+            <button class="btn btn-primary" onclick="saveClient()">Save client</button>
+          </div>
+
+          <div class="cm-panel" id="cm-panel-preferences">
+            <div class="cm-panel-title">Travel preferences</div>
+            <div class="field-row cols-2">
+              <div class="field-group"><label>Seat preference</label><input id="c-seat-preference" type="text" placeholder="e.g. Aisle, Window"></div>
+              <div class="field-group"><label>Dietary restrictions</label><input id="c-dietary" type="text" placeholder="e.g. Vegetarian, Gluten-free"></div>
+            </div>
+            <button class="btn btn-primary" onclick="saveClient()">Save client</button>
+          </div>
+
+          <div class="cm-panel" id="cm-panel-passport">
+            <div class="cm-panel-title">Passport info</div>
+            <div class="field-row cols-2">
+              <div class="field-group"><label>Passport number</label><input id="c-passportnum" type="text" placeholder="e.g. 512345678"></div>
+              <div class="field-group"><label>Passport expiration</label><input id="c-passport" type="date"></div>
+            </div>
+            <div class="field-group"><label>Passport country</label><input id="c-passport-country" type="text" placeholder="e.g. United States"></div>
+            <button class="btn btn-primary" onclick="saveClient()">Save client</button>
+          </div>
+
+          <div class="cm-panel" id="cm-panel-vaccine">
+            <div class="cm-panel-title">Vaccine info</div>
+            <div class="field-group"><label>Vaccine / health notes</label><textarea id="c-vaccine-notes" rows="4" placeholder="Vaccination records, health notes for travel"></textarea></div>
+            <button class="btn btn-primary" onclick="saveClient()">Save client</button>
+          </div>
+
+          <div class="cm-panel" id="cm-panel-payment">
+            <div class="cm-panel-title">Payment info</div>
+            <div class="field-group"><label>Preferred payment method</label>
+              <select id="c-payment-method">
+                <option value="">&mdash;</option>
+                <option value="Credit Card">Credit Card</option>
+                <option value="ACH / Bank Transfer">ACH / Bank Transfer</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="field-group"><label>Billing notes</label><textarea id="c-billing-notes" rows="3" placeholder="Billing notes (never store card numbers here)"></textarea></div>
+            <button class="btn btn-primary" onclick="saveClient()">Save client</button>
+          </div>
+
+          <div class="cm-panel" id="cm-panel-files">
+            <div class="cm-panel-title">Files</div>
+            <div class="empty-state">No files uploaded yet.</div>
+          </div>
+
+          <div class="cm-panel" id="cm-panel-notes">
+            <div class="cm-panel-title">Notes</div>
+            <div class="field-group"><textarea id="c-notes" rows="10" placeholder="Any additional notes..."></textarea></div>
+            <button class="btn btn-primary" onclick="saveClient()">Save client</button>
+          </div>
+
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -2084,6 +2182,7 @@ Ongoing support before, during, and after your trip</textarea></div>
     <div class="tabs" id="td-tabs" style="margin:0;border:none;gap:0;flex-wrap:nowrap;padding:0 20px;display:flex">
       <div class="tab active" onclick="tdTab(this,'td-overview')" style="white-space:nowrap;flex-shrink:0">Overview</div>
       <div class="tab" onclick="tdTab(this,'td-travelers')" style="white-space:nowrap;flex-shrink:0">Travelers</div>
+      <div class="tab" onclick="tdTab(this,'td-requirements')" style="white-space:nowrap;flex-shrink:0">Requirements</div>
       <div class="tab" onclick="tdTab(this,'td-docs')" style="white-space:nowrap;flex-shrink:0">Documents</div>
       <div class="tab" onclick="tdTab(this,'td-invoice')" style="white-space:nowrap;flex-shrink:0">Invoice</div>
       <div class="tab" onclick="tdTab(this,'td-message')" style="white-space:nowrap;flex-shrink:0">Message</div>
@@ -2116,14 +2215,7 @@ Ongoing support before, during, and after your trip</textarea></div>
           <div class="detail-item"><span class="di-label">Comm. Status</span><span class="di-value" id="td-comm-status">—</span></div>
         </div>
       </div>
-      <div class="detail-block" style="margin-top:12px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <div class="detail-block-title" style="margin-bottom:0">Travelers</div>
-          <button class="btn btn-sm btn-outline" style="font-size:11px" onclick="openManageTravelers()">Manage Travelers</button>
-        </div>
-        <div id="td-traveler-names-overview" style="font-size:13px;color:var(--gray);line-height:1.9">—</div>
-        <div id="td-cc-travelers-note" style="display:none;margin-top:8px;font-size:11px;color:var(--teal)">Additional travelers will be CC'd on trip emails</div>
-      </div>
+      
       <!-- Itinerary (inline on Overview) -->
       <div class="detail-block" style="margin-top:12px">
         <div class="detail-block-title">Itinerary</div>
@@ -2151,36 +2243,96 @@ Ongoing support before, during, and after your trip</textarea></div>
     </div>
     <!-- TRAVELERS / REQUIREMENTS TAB -->
     <div id="td-travelers" class="td-panel" style="display:none">
-      <!-- Requirement Requests -->
-      <div style="background:#fff;border:1px solid var(--gray-light);border-radius:10px;padding:18px;margin-bottom:18px">
-        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px">Traveler Requirement Requests</div>
-        <div style="font-size:11px;color:var(--gray);margin-bottom:14px">Select what information you need from travelers. Each request will appear as a form on the client's portal.</div>
-        <div class="req-checklist" id="portal-req-checklist">
-          <label class="req-check"><input type="checkbox" value="passport-photo"><span>Passport Photo Upload</span></label>
-          <label class="req-check"><input type="checkbox" value="guest"><span>Guest / Traveler Info</span></label>
-          <label class="req-check"><input type="checkbox" value="covid"><span>COVID-19 Vaccine</span></label>
-          <label class="req-check"><input type="checkbox" value="other" onchange="togglePortalReqOther(this)"><span>Other (write in)</span></label>
+<div class="detail-block" style="margin-top:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="detail-block-title" style="margin-bottom:0">Travelers</div>
+          <button class="btn btn-sm btn-outline" style="font-size:11px" onclick="openManageTravelers()">Manage Travelers</button>
         </div>
-        <div class="field-group" id="portal-req-other-wrap" style="margin:10px 0 0;display:none">
-          <label>Describe Request</label>
-          <input type="text" id="portal-req-other-text" placeholder="e.g. Frequent flyer numbers…">
-        </div>
-        <div style="display:flex;gap:10px;align-items:center;margin:12px 0 4px;flex-wrap:wrap">
-          <button class="btn btn-sm btn-teal" onclick="addPortalReq()">+ Add Selected to Portal</button>
-          <button class="btn btn-sm btn-outline" onclick="clearPortalReqChecks()">Clear</button>
-          <span style="font-size:11px;color:var(--gray)" id="portal-req-count">Nothing selected</span>
-        </div>
-        <div id="portal-req-list" style="display:grid;gap:6px"></div>
+        <div id="td-traveler-names-overview" style="font-size:13px;color:var(--gray);line-height:1.9">—</div>
+        <div id="td-cc-travelers-note" style="display:none;margin-top:8px;font-size:11px;color:var(--teal)">Additional travelers will be CC'd on trip emails</div>
       </div>
-      <!-- Submitted portal requirement responses -->
-      <div id="portal-req-responses"></div>
       <!-- Filled-in traveler detail cards (populated from completed requests) -->
       <div id="td-traveler-cards"></div>
       <!-- Submitted traveler details from client portal -->
       <div id="td-submitted-traveler-details" style="margin-top:6px"></div>
     </div>
     <!-- DOCUMENTS TAB -->
+    <!-- REQUIREMENTS TAB -->
+    <div id="td-requirements" class="td-panel" style="display:none">
+<style>
+#td-requirements .rqm-card{background:#fff;border:1px solid var(--gray-light);border-radius:10px;margin-bottom:18px;overflow:visible}
+#td-requirements .rqm-card-header{padding:14px 18px;border-bottom:1px solid var(--gray-light);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+#td-requirements .rqm-title{font-size:14px;font-weight:700;color:var(--navy)}
+#td-requirements .rqm-subtitle{font-size:11px;color:var(--gray);margin-top:2px}
+#td-requirements .rqm-summary{display:flex;align-items:center;gap:18px;padding:12px 18px;background:#f7fafc;border-radius:8px;margin-bottom:18px;flex-wrap:wrap}
+#td-requirements .rqm-num{font-size:20px;font-weight:700;color:var(--navy)}
+#td-requirements .rqm-label{font-size:10px;color:var(--gray);line-height:1.3}
+#td-requirements .rqm-div{width:1px;height:32px;background:var(--gray-light)}
+#td-requirements .rqm-matrix{padding:0 18px 4px}
+#td-requirements .rqm-section-head{display:flex;align-items:center;gap:10px;padding:12px 0 6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gray);border-top:1px solid var(--gray-light)}
+#td-requirements .rqm-section-head:first-child{border-top:none}
+#td-requirements .rqm-section-line{flex:1;height:1px;background:var(--gray-light)}
+#td-requirements .rqm-header-row{display:grid;grid-template-columns:220px repeat(var(--rqmtc,1),1fr) 84px;gap:0;padding:6px 0;border-bottom:2px solid var(--gray-light)}
+#td-requirements .rqm-header-cell{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--gray);padding:0 6px;text-align:center}
+#td-requirements .rqm-header-cell:first-child{text-align:left;padding-left:0}
+#td-requirements .rqm-th-avatar{width:24px;height:24px;border-radius:50%;color:#fff;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-bottom:2px}
+#td-requirements .rqm-row{display:grid;grid-template-columns:220px repeat(var(--rqmtc,1),1fr) 84px;gap:0;padding:10px 0;border-bottom:1px solid #f0f4f8;align-items:center}
+#td-requirements .rqm-row:last-child{border-bottom:none}
+#td-requirements .rqm-req-label{display:flex;align-items:center;gap:7px;font-weight:600;color:#2d3748;font-size:12px;padding-right:8px}
+#td-requirements .rqm-req-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;background:#f0f4f8}
+#td-requirements .rqm-cell{display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 4px}
+#td-requirements .rqm-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
+#td-requirements .rqm-dot{width:6px;height:6px;border-radius:50%}
+#td-requirements .rqm-pill-pending{background:#fffbeb;color:#b7791f}
+#td-requirements .rqm-pill-pending .rqm-dot{background:#f6ad55}
+#td-requirements .rqm-pill-submitted{background:#f0fff4;color:#276749}
+#td-requirements .rqm-pill-submitted .rqm-dot{background:#48bb78}
+#td-requirements .rqm-pill-unassigned{background:#f7fafc;color:#a0aec0}
+#td-requirements .rqm-pill-unassigned .rqm-dot{background:#cbd5e0}
+#td-requirements .rqm-toggle{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--teal);cursor:pointer;background:none;border:none;padding:0}
+#td-requirements .rqm-toggle.rqm-unassign{color:#a0aec0}
+#td-requirements .rqm-send{display:inline-flex;align-items:center;gap:3px;background:#ebf8ff;color:#2b6cb0;border:1px solid #bee3f8;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer}
+#td-requirements .rqm-send.rqm-sent{background:#f0fff4;color:#276749;border-color:#9ae6b4;pointer-events:none}
+#td-requirements .rqm-actions{display:flex;justify-content:flex-end}
+#td-requirements .rqm-remove{background:none;border:none;color:var(--coral);cursor:pointer;font-size:11px;margin-left:6px}
+#td-requirements .rqm-add-row{padding:8px 0 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#td-requirements .rqm-add-row input{padding:6px 10px;border:1px solid var(--gray-light);border-radius:6px;font-size:12px;min-width:240px}
+#td-requirements .rqm-portal-footer{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-top:1px solid var(--gray-light);background:#f7fafc;border-radius:0 0 10px 10px;flex-wrap:wrap;gap:10px}
+#td-requirements .rqm-footer-note{font-size:11px;color:var(--gray)}
+#td-requirements .rqm-trav-row{display:flex;align-items:center;gap:10px;padding:10px 18px;border-bottom:1px solid #f0f4f8}
+#td-requirements .rqm-trav-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;flex-shrink:0}
+#td-requirements .rqm-trav-name{font-weight:600;color:var(--navy);font-size:13px}
+#td-requirements .rqm-trav-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;background:#ebf8ff;color:#2b6cb0}
+</style>
+
+<div class="rqm-summary" id="rqm-summary"></div>
+
+<div class="rqm-card">
+  <div class="rqm-card-header">
+    <div><div class="rqm-title">Travelers on this Trip</div><div class="rqm-subtitle">Manage who's linked to this booking</div></div>
+    <button class="btn btn-sm btn-outline" onclick="openManageTravelers()">Manage Travelers</button>
+  </div>
+  <div id="rqm-traveler-list"></div>
+</div>
+
+<div class="rqm-card">
+  <div class="rqm-card-header">
+    <div><div class="rqm-title">Requirement Requests</div><div class="rqm-subtitle">Assign items to specific travelers  use  to send a reminder</div></div>
+  </div>
+  <div class="rqm-matrix" id="rqm-matrix"></div>
+  <div class="rqm-portal-footer">
+    <div class="rqm-footer-note"> Share the trip's portal link so travelers can complete their assigned items.</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-sm btn-outline" onclick="openPortalPreview()">Preview Portal</button>
+      <button class="btn btn-sm btn-teal" onclick="sendPortalLink('email')"> Send / Resend Portal Link</button>
+    </div>
+  </div>
+</div>
+
+    </div>
     <div id="td-docs" class="td-panel" style="display:none">
+
+      
       <div class="upload-zone" id="drop-zone">
         <input type="file" multiple onchange="handleFiles(this.files)">
         <div class="uz-icon"></div>
@@ -2191,6 +2343,10 @@ Ongoing support before, during, and after your trip</textarea></div>
     </div>
     <!-- INVOICE TAB -->
     <div id="td-invoice" class="td-panel" style="display:none">
+      <div class="detail-block" style="margin-bottom:16px">
+        <div class="detail-block-title">Notes</div>
+        <textarea id="inv-notes" rows="3" style="width:100%;font-family:inherit;font-size:13px;padding:10px;border:1px solid var(--gray-light);border-radius:8px;resize:vertical" placeholder="Internal notes about this invoice..." onblur="saveInvoiceNotes()"></textarea>
+      </div>
       <!-- Trip Summary Header -->
       <div id="inv-trip-summary" style="background:linear-gradient(135deg,var(--navy),#2a4a7f);color:#fff;border-radius:12px;padding:18px 20px;margin-bottom:16px">
         <div style="font-size:11px;font-weight:700;letter-spacing:1px;opacity:.7;margin-bottom:8px">TRIP SUMMARY</div>
@@ -3764,6 +3920,15 @@ function adminLogin() {
       document.getElementById('admin-panel').style.display='block';
       renderAllAdmin();
       if (typeof showAdminCRM === 'function') showAdminCRM('crm-overview');
+      hydrateFromServer().then(function(changed){
+        if (changed) {
+          try { clients = loadData('clients', clients); } catch(e){}
+          try { trips = loadData('trips', trips); } catch(e){}
+          try { commissions = loadData('commissions', commissions); } catch(e){}
+          renderAllAdmin();
+          if (typeof showAdminCRM === 'function') showAdminCRM('crm-overview');
+        }
+      });
     } else {
       document.getElementById('login-error').style.display='block';
       document.getElementById('admin-pw').value='';
@@ -5408,23 +5573,61 @@ function saveInquiryAgreement() {
 }
 
 // ===================== TERMS & CONDITIONS ADMIN =====================
-const defaultTermsMain = `<h2 style="font-size:22px;font-weight:800;color:var(--navy);margin-bottom:6px">Terms &amp; Conditions</h2>
-<p style="font-size:13px;color:var(--gray);margin-bottom:28px">Last updated: <span id="tc-date-display">January 1, 2024</span> &nbsp;·&nbsp; Destined4Destinations LLC</p>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">1. Booking &amp; Payment</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">All bookings are subject to availability and confirmation. A deposit is required at the time of booking to hold your reservation. Final payment is due by the date specified on your invoice. Destined 4 Destinations LLC reserves the right to cancel any reservation for which final payment has not been received by the due date.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">2. Research &amp; Design (D&amp;B) Fee</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">A non-refundable Research &amp; Design fee may apply to custom itinerary planning. This fee covers time and expertise invested in designing a personalized travel experience and is separate from travel supplier costs.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">3. Cancellations &amp; Refunds</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">Cancellation policies vary by travel supplier. All cancellations must be submitted in writing to Destined4Destinations@gmail.com. Deposits are generally non-refundable unless otherwise stated. We strongly recommend purchasing travel protection.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">4. Travel Insurance</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">Destined 4 Destinations LLC strongly recommends all travelers purchase comprehensive travel insurance. Declining travel insurance is done at the traveler's own risk.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">5. Passports, Visas &amp; Travel Documents</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">Each traveler is responsible for holding valid travel documents for their destination. Passports must generally be valid for at least six months beyond the return date. Destined 4 Destinations LLC is not responsible for travelers denied boarding due to improper documentation.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">6. Limitation of Liability</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">Destined 4 Destinations LLC acts as an agent for travel suppliers. We are not responsible for any injury, damage, loss, or delay caused by defects of any vehicle or the acts of any company providing travel services.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">7. Force Majeure</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">Destined 4 Destinations LLC shall not be held liable for failures resulting from causes beyond our control, including acts of God, pandemics, government restrictions, war, or other extraordinary events.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">8. Privacy Policy</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">Personal information collected is used solely to process travel reservations and communicate relevant travel information. We do not sell or share your information with third parties except as necessary to fulfill bookings.</p></div>`;
+const defaultTermsMain = `Terms & Conditions
 
-const defaultTermsWaiver = `<h2 style="font-size:22px;font-weight:800;color:var(--navy);margin-bottom:20px">Travel Waiver &amp; Release of Liability</h2>
-<div style="background:var(--teal-bg);border:1px solid rgba(74,184,213,0.3);border-radius:10px;padding:20px 24px;margin-bottom:28px"><p style="font-size:14px;color:var(--navy);font-weight:600;line-height:1.7">By booking travel services through Destined 4 Destinations LLC, you acknowledge that you have read, understood, and agree to the following waiver and release of liability.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">Assumption of Risk</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">I/We understand that travel involves inherent risks including transportation delays, cancellations, health risks, and personal injury. I/We voluntarily assume all risks associated with travel services arranged through Destined 4 Destinations LLC.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">Release of Liability</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">I/We hereby release, waive, and discharge Destined 4 Destinations LLC, its owner Pharin A. Walker, agents, and employees from any and all liability, claims, or causes of action arising out of travel services arranged by Destined 4 Destinations LLC.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">Health &amp; Medical Acknowledgment</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">I/We confirm all travelers in our party are in satisfactory health to participate in planned travel activities and have disclosed any known medical conditions or special needs.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">Agreement to Terms</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">By submitting a travel inquiry, paying a deposit, or completing a booking, I/We confirm that I/We agree to be bound by these Terms &amp; Conditions and this Waiver in their entirety.</p></div>`;
+Last updated: January 1, 2024  ·  Destined4Destinations LLC
+
+1. Booking & Payment
+
+All bookings are subject to availability and confirmation. A deposit is required at the time of booking to hold your reservation. Final payment is due by the date specified on your invoice. Destined 4 Destinations LLC reserves the right to cancel any reservation for which final payment has not been received by the due date.
+
+2. Research & Design (D&B) Fee
+
+A non-refundable Research & Design fee may apply to custom itinerary planning. This fee covers time and expertise invested in designing a personalized travel experience and is separate from travel supplier costs.
+
+3. Cancellations & Refunds
+
+Cancellation policies vary by travel supplier. All cancellations must be submitted in writing to Destined4Destinations@gmail.com. Deposits are generally non-refundable unless otherwise stated. We strongly recommend purchasing travel protection.
+
+4. Travel Insurance
+
+Destined 4 Destinations LLC strongly recommends all travelers purchase comprehensive travel insurance. Declining travel insurance is done at the traveler's own risk.
+
+5. Passports, Visas & Travel Documents
+
+Each traveler is responsible for holding valid travel documents for their destination. Passports must generally be valid for at least six months beyond the return date. Destined 4 Destinations LLC is not responsible for travelers denied boarding due to improper documentation.
+
+6. Limitation of Liability
+
+Destined 4 Destinations LLC acts as an agent for travel suppliers. We are not responsible for any injury, damage, loss, or delay caused by defects of any vehicle or the acts of any company providing travel services.
+
+7. Force Majeure
+
+Destined 4 Destinations LLC shall not be held liable for failures resulting from causes beyond our control, including acts of God, pandemics, government restrictions, war, or other extraordinary events.
+
+8. Privacy Policy
+
+Personal information collected is used solely to process travel reservations and communicate relevant travel information. We do not sell or share your information with third parties except as necessary to fulfill bookings.`;
+
+const defaultTermsWaiver = `Travel Waiver & Release of Liability
+
+By booking travel services through Destined 4 Destinations LLC, you acknowledge that you have read, understood, and agree to the following waiver and release of liability.
+
+Assumption of Risk
+
+I/We understand that travel involves inherent risks including transportation delays, cancellations, health risks, and personal injury. I/We voluntarily assume all risks associated with travel services arranged through Destined 4 Destinations LLC.
+
+Release of Liability
+
+I/We hereby release, waive, and discharge Destined 4 Destinations LLC, its owner Pharin A. Walker, agents, and employees from any and all liability, claims, or causes of action arising out of travel services arranged by Destined 4 Destinations LLC.
+
+Health & Medical Acknowledgment
+
+I/We confirm all travelers in our party are in satisfactory health to participate in planned travel activities and have disclosed any known medical conditions or special needs.
+
+Agreement to Terms
+
+By submitting a travel inquiry, paying a deposit, or completing a booking, I/We confirm that I/We agree to be bound by these Terms & Conditions and this Waiver in their entirety.`;
 
 function loadTermsAdmin() {
   const saved = store.get('termsContent', {});
@@ -5480,8 +5683,8 @@ function applyTermsToPage(saved) {
   const waiver = document.getElementById('terms-waiver-content');
   if (hl && saved.headline) hl.textContent = saved.headline;
   if (sub && saved.sub) sub.textContent = saved.sub;
-  if (main && saved.main !== undefined) main.innerHTML = saved.main;
-  if (waiver && saved.waiver !== undefined) waiver.innerHTML = saved.waiver;
+  if (main && saved.main !== undefined) main.textContent = saved.main;
+  if (waiver && saved.waiver !== undefined) waiver.textContent = saved.waiver;
   // update date display if it exists inside the main content
   const dd = document.getElementById('tc-date-display');
   if (dd && saved.date) dd.textContent = saved.date;
@@ -5565,7 +5768,69 @@ init();
 // DATA STORE (localStorage)
 // ====================================================
 function loadData(key, def){ try{ return JSON.parse(localStorage.getItem('d4d_'+key))||def; }catch(e){ return def; } }
-function saveData(key,val){ localStorage.setItem('d4d_'+key, JSON.stringify(val)); }
+function saveData(key,val){
+  localStorage.setItem('d4d_'+key, JSON.stringify(val));
+  try {
+    fetch('/api/data/'+encodeURIComponent(key), {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(val)
+    }).catch(function(){});
+  } catch(e) {}
+}
+function hydrateFromServer(){
+  return fetch('/api/data', {credentials:'same-origin'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(resp){
+    if (!resp || !resp.ok || !resp.data) return false;
+    var changed = false;
+    Object.keys(resp.data).forEach(function(key){
+      var lsKey = 'd4d_'+key;
+      var current = localStorage.getItem(lsKey);
+      var isEmpty = !current || current === '[]' || current === '{}' || current === 'null';
+      if (isEmpty) {
+        localStorage.setItem(lsKey, JSON.stringify(resp.data[key]));
+        changed = true;
+      }
+    });
+    return changed;
+  }).catch(function(){ return false; });
+}
+function exportAllData(){
+  const backup = {};
+  for(let i=0;i<localStorage.length;i++){
+    const k = localStorage.key(i);
+    if(k && (k.indexOf('d4d_')===0 || k.indexOf('d4dcrm_')===0)){
+      try{ backup[k] = JSON.parse(localStorage.getItem(k)); }
+      catch(e){ backup[k] = localStorage.getItem(k); }
+    }
+  }
+  const blob = new Blob([JSON.stringify(backup, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateStr = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = 'd4d-backup-' + dateStr + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  if(typeof crmToast === 'function') crmToast('Backup downloaded');
+}
+
+function loadInvoiceNotes(idx){
+  const el = document.getElementById('inv-notes');
+  if(!el) return;
+  const notes = loadData('invoice_notes', {});
+  el.value = notes[idx] || '';
+}
+function saveInvoiceNotes(){
+  const el = document.getElementById('inv-notes');
+  if(!el) return;
+  const notes = loadData('invoice_notes', {});
+  notes[currentTripDetailIdx] = el.value;
+  saveData('invoice_notes', notes);
+}
+
 
 // ── Demo Data Version Gate ──────────────────────────────────────────────────
 // Bump DEMO_VER whenever you want a clean reset (wipes all d4d_ localStorage)
@@ -5891,9 +6156,7 @@ function renderClients(filter=''){
     const idx = clients.indexOf(c);
     const passport = c.passport ? `<span style="color:${daysUntil(c.passport)<90?'var(--coral)':'var(--gray)'}">${fmtDate(c.passport)}</span>` : '—';
     const initials = (c.fname[0]||'')+(c.lname[0]||'');
-    const avatarHtml = c.photo
-      ? `<img src="${c.photo}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid var(--teal-bg);flex-shrink:0" onerror="this.style.display='none'">`
-      : `<div style="width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${initials}</div>`;
+    const avatarHtml = `<div style="width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${initials}</div>`;
     return `<tr>
       <td><div style="display:flex;align-items:center;gap:10px">${avatarHtml}<strong>${c.fname} ${c.lname}</strong></div></td>
       <td>${[c.address,c.city,c.state].filter(Boolean).join(', ')||'—'}</td>
@@ -5910,13 +6173,64 @@ function renderClients(filter=''){
   }).join('');
 }
 function filterClients(v){ renderClients(v); }
-function openAddClient(){ editingClientIdx=-1; document.getElementById('modal-client-title').textContent='Add New Client'; ['fname','lname','email','phone','dob','passport','passportnum','address','city','state','zip','notes'].forEach(f=>{const el=document.getElementById('c-'+f); if(el) el.value='';}); openModal('modal-client'); }
-function editClient(idx){ editingClientIdx=idx; const c=clients[idx]; document.getElementById('modal-client-title').textContent='Edit Client'; ['fname','lname','email','phone','dob','passport','passportnum','address','city','state','zip','notes'].forEach(f=>{const el=document.getElementById('c-'+f); if(el) el.value=c[f]||'';}); openModal('modal-client'); }
+function openAddClient(){
+  editingClientIdx=-1;
+  document.getElementById('modal-client-title').textContent='Add New Client';
+  const nameEl=document.getElementById('c-name'); if(nameEl) nameEl.value='';
+  ['c-email','c-phone','c-travel-joy-id','c-emergency-contact','c-spouse-name','c-relationships-notes','c-loyalty-airline','c-loyalty-hotel','c-dob','c-anniversary','c-seat-preference','c-dietary','c-passportnum','c-passport','c-passport-country','c-vaccine-notes','c-billing-notes','c-address','c-city','c-state','c-zip','c-notes'].forEach(function(id){var el=document.getElementById(id); if(el) el.value='';});
+  var rs=document.getElementById('c-referral-source'); if(rs) rs.value='';
+  var pm=document.getElementById('c-payment-method'); if(pm) pm.value='';
+  showClientTab('contact');
+  openModal('modal-client');
+}
+function editClient(idx){
+  editingClientIdx=idx; var c=clients[idx]||{};
+  document.getElementById('modal-client-title').textContent='Edit Client';
+  var nameEl=document.getElementById('c-name'); if(nameEl) nameEl.value = c.name || ((c.fname||'')+' '+(c.lname||'')).trim();
+  var setv=function(id,val){var el=document.getElementById(id); if(el) el.value=val||'';};
+  setv('c-email', c.email); setv('c-phone', c.phone); setv('c-travel-joy-id', c.travelJoyClientId);
+  setv('c-referral-source', c.referralSource); setv('c-emergency-contact', c.emergencyContact);
+  setv('c-spouse-name', c.spouseName); setv('c-relationships-notes', c.relationshipsNotes);
+  setv('c-loyalty-airline', c.loyaltyAirline); setv('c-loyalty-hotel', c.loyaltyHotel);
+  setv('c-dob', c.dob); setv('c-anniversary', c.anniversary);
+  setv('c-seat-preference', c.seatPreference); setv('c-dietary', c.dietary);
+  setv('c-passportnum', c.passportnum); setv('c-passport', c.passport); setv('c-passport-country', c.passportCountry);
+  setv('c-vaccine-notes', c.vaccineNotes);
+  setv('c-payment-method', c.paymentMethod); setv('c-billing-notes', c.billingNotes);
+  setv('c-address', c.address); setv('c-city', c.city); setv('c-state', c.state); setv('c-zip', c.zip);
+  setv('c-notes', c.notes);
+  showClientTab('contact');
+  openModal('modal-client');
+}
 function saveClient(){
-  const c={fname:document.getElementById('c-fname').value.trim(),lname:document.getElementById('c-lname').value.trim(),email:document.getElementById('c-email').value.trim(),phone:document.getElementById('c-phone').value.trim(),dob:document.getElementById('c-dob').value,passport:document.getElementById('c-passport').value,passportnum:(document.getElementById('c-passportnum')||{value:''}).value.trim(),address:document.getElementById('c-address').value.trim(),city:document.getElementById('c-city').value.trim(),state:document.getElementById('c-state').value.trim(),zip:document.getElementById('c-zip').value.trim(),notes:document.getElementById('c-notes').value.trim()};
-  if(!c.fname||!c.lname){ crmToast('First and last name are required'); return; }
-  if(editingClientIdx>=0) clients[editingClientIdx]=c; else clients.push(c);
+  var fullName = document.getElementById('c-name').value.trim();
+  if(!fullName){ crmToast('Name is required'); return; }
+  var nameParts = fullName.split(' ');
+  var fname = nameParts[0] || '';
+  var lname = nameParts.slice(1).join(' ') || '';
+  var getv=function(id){var el=document.getElementById(id); return el ? el.value.trim() : '';};
+  var c = {
+    name: fullName, fname: fname, lname: lname,
+    email: getv('c-email'), phone: getv('c-phone'),
+    travelJoyClientId: getv('c-travel-joy-id'),
+    referralSource: document.getElementById('c-referral-source').value,
+    emergencyContact: getv('c-emergency-contact'),
+    spouseName: getv('c-spouse-name'), relationshipsNotes: getv('c-relationships-notes'),
+    loyaltyAirline: getv('c-loyalty-airline'), loyaltyHotel: getv('c-loyalty-hotel'),
+    dob: document.getElementById('c-dob').value, anniversary: document.getElementById('c-anniversary').value,
+    seatPreference: getv('c-seat-preference'), dietary: getv('c-dietary'),
+    passportnum: getv('c-passportnum'), passport: document.getElementById('c-passport').value, passportCountry: getv('c-passport-country'),
+    vaccineNotes: getv('c-vaccine-notes'),
+    paymentMethod: document.getElementById('c-payment-method').value, billingNotes: getv('c-billing-notes'),
+    address: getv('c-address'), city: getv('c-city'), state: getv('c-state'), zip: getv('c-zip'),
+    notes: getv('c-notes')
+  };
+  if(editingClientIdx>=0){ clients[editingClientIdx]=Object.assign({}, clients[editingClientIdx], c); } else clients.push(c);
   saveData('clients',clients); closeModal('modal-client'); renderClients(); crmToast('Client saved ✓');
+}
+function showClientTab(tab){
+  document.querySelectorAll('#modal-client .cm-sidebar-item').forEach(function(el){ el.classList.toggle('active', el.getAttribute('data-cm-tab')===tab); });
+  document.querySelectorAll('#modal-client .cm-panel').forEach(function(el){ el.classList.toggle('active', el.id==='cm-panel-'+tab); });
 }
 function deleteClient(idx){ if(!confirm('Delete this client?')) return; clients.splice(idx,1); saveData('clients',clients); renderClients(); crmToast('Client deleted'); }
 
@@ -6062,9 +6376,10 @@ function tdTab(el, panelId){
   document.querySelectorAll('.td-panel').forEach(p=>p.style.display='none');
   document.getElementById(panelId).style.display='';
   if(panelId==='td-portal'){ renderPortalReqs(currentTripDetailIdx); renderPaySchedule(currentTripDetailIdx); }
-  if(panelId==='td-travelers'){ renderPortalReqs(currentTripDetailIdx); renderTravelerSubmissions(currentTripDetailIdx); renderPortalReqResponses(currentTripDetailIdx); }
+  if(panelId==='td-travelers'){ renderTravelerSubmissions(currentTripDetailIdx); }
+  if(panelId==='td-requirements'){ renderRequirementsMatrix(currentTripDetailIdx); }
   if(panelId==='td-forms'){ updateFormsTabBadge(currentTripDetailIdx); }
-  if(panelId==='td-invoice'){ renderPaySchedule(currentTripDetailIdx); renderInvoiceItems(currentTripDetailIdx); }
+  if(panelId==='td-invoice'){ renderPaySchedule(currentTripDetailIdx); renderInvoiceItems(currentTripDetailIdx); loadInvoiceNotes(currentTripDetailIdx); }
   if(panelId==='td-proposals'){ renderProposals(currentTripDetailIdx); }
 }
 
@@ -6456,6 +6771,7 @@ function saveMtTravelers(){
   saveData('linked_travelers', saved);
   closeModal('modal-manage-travelers');
   renderTravelersOverview(idx);
+  if(document.getElementById('td-requirements') && document.getElementById('td-requirements').style.display!=='none'){ renderRequirementsMatrix(idx); }
   crmToast('Travelers updated ✓');
 }
 
@@ -6902,6 +7218,203 @@ function addPortalReq(){
   if(type==='other'){document.getElementById('portal-req-other-text').value=''; document.getElementById('portal-req-other-wrap').style.display='none'; document.getElementById('portal-req-type').value='passport';}
   crmToast('Request added to portal ✓');
 }
+
+/*  Requirements Matrix  */
+const RQM_AVATAR_COLORS = ['#4299e1','#38b2ac','#805ad5','#dd6b20','#d53f8c'];
+
+function rqmRoster(idx){
+  const t = trips[idx] || {};
+  const roster = [{ travKey:'primary', name: t.client || 'Primary Traveler', badge:'Client' }];
+  const linked = (loadData('linked_travelers',{})[idx] || { travelers: [] }).travelers || [];
+  linked.forEach((lt,i) => {
+    const c = clients[lt.clientIdx] || {};
+    const name = ((c.fname||'')+' '+(c.lname||'')).trim() || c.name || 'Traveler';
+    roster.push({ travKey:'linked_'+i, name, badge:'Client' });
+  });
+  return roster;
+}
+function rqmInitials(name){
+  return (name||'?').split(' ').filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2) || '?';
+}
+function rqmAssignments(idx){
+  const all = loadData('requirement_assignments', {});
+  if(!all[idx]) all[idx] = {};
+  return all;
+}
+function rqmSaveAssignments(all){ saveData('requirement_assignments', all); }
+
+function rqmUploadRows(idx){
+  const fixed = [
+    {reqKey:'passport-photo', type:'passport-photo', label: REQ_LABELS['passport-photo'], icon:''},
+    {reqKey:'guest', type:'guest', label: REQ_LABELS['guest'], icon:''},
+    {reqKey:'covid', type:'covid', label: REQ_LABELS['covid'], icon:''}
+  ];
+  const reqs = (loadData('portal_reqs',{})[idx]) || [];
+  const others = reqs.map((r,i)=>({r,i})).filter(x=>x.r.type==='other')
+    .map(x=>({reqKey:'other_'+x.i, type:'other', label:x.r.label, icon:'', entryIndex:x.i}));
+  return fixed.concat(others);
+}
+function rqmFormRows(){
+  return getFormDefs().map(fd => ({ reqKey:'form_'+fd.key, type:'form', formKey:fd.key, label: fd.name, icon: fd.icon || '' }));
+}
+function rqmFindPortalReqIndex(idx, type){
+  const reqs = (loadData('portal_reqs',{})[idx]) || [];
+  return reqs.findIndex(r => r.type === type);
+}
+function rqmEnsurePortalReq(idx, type){
+  let i = rqmFindPortalReqIndex(idx, type);
+  if(i>=0) return i;
+  const portalReqs = loadData('portal_reqs',{});
+  if(!portalReqs[idx]) portalReqs[idx] = [];
+  portalReqs[idx].push({ type, label: REQ_LABELS[type] || type, status:'pending', added: new Date().toLocaleDateString() });
+  saveData('portal_reqs', portalReqs);
+  return portalReqs[idx].length - 1;
+}
+function rqmCellStatus(idx, row, travKey){
+  const all = rqmAssignments(idx);
+  const assigned = (all[idx][row.reqKey] || []).includes(travKey);
+  if(!assigned) return 'unassigned';
+  if(row.type === 'form'){
+    const forms = loadData('trip_forms',{})[idx] || {};
+    const st = forms[row.formKey] && forms[row.formKey].status;
+    return st === 'completed' ? 'submitted' : 'pending';
+  }
+  const i = row.entryIndex != null ? row.entryIndex : rqmFindPortalReqIndex(idx, row.type);
+  const responses = loadData('portal_req_responses',{})[idx] || {};
+  return (i>=0 && responses[i]) ? 'submitted' : 'pending';
+}
+function rqmToggleAssign(reqKey, travKey, rowType){
+  const idx = currentTripDetailIdx;
+  const all = rqmAssignments(idx);
+  const list = all[idx][reqKey] || [];
+  const has = list.includes(travKey);
+  if(has){
+    all[idx][reqKey] = list.filter(k=>k!==travKey);
+    if(all[idx][reqKey].length===0 && rowType !== 'form' && rowType !== 'other'){
+      const ei = rqmFindPortalReqIndex(idx, rowType);
+      if(ei>=0){ removePortalReq(idx, ei); }
+    }
+  } else {
+    if(rowType !== 'form' && rowType !== 'other'){ rqmEnsurePortalReq(idx, rowType); }
+    all[idx][reqKey] = list.concat([travKey]);
+  }
+  rqmSaveAssignments(all);
+  renderRequirementsMatrix(idx);
+}
+function rqmAssignAll(reqKey, rowType){
+  const idx = currentTripDetailIdx;
+  const roster = rqmRoster(idx);
+  const all = rqmAssignments(idx);
+  if(rowType !== 'form' && rowType !== 'other'){ rqmEnsurePortalReq(idx, rowType); }
+  all[idx][reqKey] = roster.map(t=>t.travKey);
+  rqmSaveAssignments(all);
+  renderRequirementsMatrix(idx);
+}
+function rqmSendReminder(name, label, btn){
+  if(btn){ btn.classList.add('rqm-sent'); btn.textContent='Sent'; }
+  crmToast('Reminder noted for ' + name + ': ' + label);
+}
+function rqmRemoveUploadRow(reqKey, entryIndex){
+  if(entryIndex==null) return;
+  if(!confirm('Remove this request entirely? This removes it from the client portal too.')) return;
+  const idx = currentTripDetailIdx;
+  removePortalReq(idx, entryIndex);
+  const all = rqmAssignments(idx);
+  delete all[idx][reqKey];
+  rqmSaveAssignments(all);
+  renderRequirementsMatrix(idx);
+}
+function rqmAddCustomUpload(){
+  const input = document.getElementById('rqm-new-upload');
+  const text = (input.value||'').trim();
+  if(!text) return;
+  const idx = currentTripDetailIdx;
+  const portalReqs = loadData('portal_reqs',{});
+  if(!portalReqs[idx]) portalReqs[idx] = [];
+  portalReqs[idx].push({ type:'other', label:' '+text, status:'pending', added: new Date().toLocaleDateString() });
+  saveData('portal_reqs', portalReqs);
+  input.value='';
+  crmToast('Custom request added');
+  renderRequirementsMatrix(idx);
+}
+function renderRequirementsMatrix(idx){
+  const container = document.getElementById('rqm-matrix');
+  const travelerListEl = document.getElementById('rqm-traveler-list');
+  const summaryEl = document.getElementById('rqm-summary');
+  if(!container || idx==null) return;
+
+  const roster = rqmRoster(idx);
+  const uploadRows = rqmUploadRows(idx);
+  const formRows = rqmFormRows();
+
+  if(travelerListEl){
+    travelerListEl.innerHTML = roster.map((t,i) =>
+      '<div class="rqm-trav-row">'
+      + '<div class="rqm-trav-avatar" style="background:'+RQM_AVATAR_COLORS[i%RQM_AVATAR_COLORS.length]+'">'+rqmInitials(t.name)+'</div>'
+      + '<div style="flex:1"><div class="rqm-trav-name">'+escHtml(t.name)+'</div></div>'
+      + '<span class="rqm-trav-badge">'+t.badge+'</span>'
+      + '</div>'
+    ).join('') || '<div style="padding:14px 18px;color:var(--gray);font-size:12px">No travelers linked yet.</div>';
+  }
+
+  container.style.setProperty('--rqmtc', roster.length || 1);
+
+  let pending=0, submitted=0;
+
+  function rowsHtml(rows){
+    return rows.map(row => {
+      const cells = roster.map(t => {
+        const status = rqmCellStatus(idx, row, t.travKey);
+        if(status==='pending') pending++;
+        if(status==='submitted') submitted++;
+        let inner;
+        if(status==='unassigned'){
+          inner = '<button class="rqm-toggle" onclick="rqmToggleAssign(\''+row.reqKey+'\',\''+t.travKey+'\',\''+row.type+'\')">+ Assign</button>';
+        } else if(status==='pending'){
+          inner = '<div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center">'
+            + '<button class="rqm-toggle rqm-unassign" onclick="rqmToggleAssign(\''+row.reqKey+'\',\''+t.travKey+'\',\''+row.type+'\')"> Unassign</button>'
+            + '<button class="rqm-send" onclick="rqmSendReminder(\''+escHtml(t.name).replace(/'/g,"\\'")+'\',\''+escHtml(row.label).replace(/'/g,"\\'")+'\',this)"> Send</button>'
+            + '</div>';
+        } else {
+          inner = '<button class="rqm-toggle rqm-unassign" onclick="rqmToggleAssign(\''+row.reqKey+'\',\''+t.travKey+'\',\''+row.type+'\')"> Unassign</button>';
+        }
+        const pillCls = status==='unassigned' ? 'rqm-pill-unassigned' : status==='pending' ? 'rqm-pill-pending' : 'rqm-pill-submitted';
+        const pillText = status==='unassigned' ? 'Not assigned' : status==='pending' ? 'Pending' : 'Submitted';
+        return '<div class="rqm-cell"><span class="rqm-pill '+pillCls+'"><span class="rqm-dot"></span>'+pillText+'</span>'+inner+'</div>';
+      }).join('');
+      const removeBtn = (row.entryIndex!=null)
+        ? '<button class="rqm-remove" onclick="rqmRemoveUploadRow(\''+row.reqKey+'\','+row.entryIndex+')" title="Remove request"></button>' : '';
+      return '<div class="rqm-row">'
+        + '<div class="rqm-req-label"><div class="rqm-req-icon">'+row.icon+'</div>'+escHtml(row.label)+removeBtn+'</div>'
+        + cells
+        + '<div class="rqm-actions"><button class="btn btn-sm btn-outline" onclick="rqmAssignAll(\''+row.reqKey+'\',\''+row.type+'\')">Assign All</button></div>'
+        + '</div>';
+    }).join('');
+  }
+
+  const headerCells = roster.map((t,i) =>
+    '<div class="rqm-header-cell"><div class="rqm-th-avatar" style="background:'+RQM_AVATAR_COLORS[i%RQM_AVATAR_COLORS.length]+'">'+rqmInitials(t.name)+'</div><div>'+escHtml((t.name||'').split(' ')[0]||'')+'</div></div>'
+  ).join('');
+
+  container.innerHTML =
+    '<div class="rqm-header-row"><div class="rqm-header-cell"></div>'+headerCells+'<div class="rqm-header-cell" style="text-align:right">Assign All</div></div>'
+    + '<div class="rqm-section-head"><span>Uploads</span><span class="rqm-section-line"></span></div>'
+    + rowsHtml(uploadRows)
+    + '<div class="rqm-add-row"><input type="text" id="rqm-new-upload" placeholder="Add a custom upload requirement"><button class="btn btn-sm btn-outline" onclick="rqmAddCustomUpload()">+ Add Upload</button></div>'
+    + '<div class="rqm-section-head"><span>Forms</span><span class="rqm-section-line"></span></div>'
+    + rowsHtml(formRows);
+
+  if(summaryEl){
+    summaryEl.innerHTML =
+      '<div><div class="rqm-num">'+roster.length+'</div><div class="rqm-label">Travelers</div></div>'
+      + '<div class="rqm-div"></div>'
+      + '<div><div class="rqm-num" style="color:#b7791f">'+pending+'</div><div class="rqm-label">Pending<br>items</div></div>'
+      + '<div class="rqm-div"></div>'
+      + '<div><div class="rqm-num" style="color:#48bb78">'+submitted+'</div><div class="rqm-label">Completed<br>items</div></div>';
+  }
+}
+
+
 function renderPortalReqs(idx){
   const container=document.getElementById('portal-req-list'); if(!container) return;
   const reqs=(loadData('portal_reqs',{})[idx])||[];
@@ -7807,8 +8320,9 @@ function filterTemplates(el, type){ templateFilter=type; document.querySelectorA
 function renderTemplates(){
   const grid=document.getElementById('templates-grid');
   const filtered=TEMPLATES.filter(t=>templateFilter==='all'||t.type===templateFilter);
-  if(!filtered.length){ grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--gray);padding:40px;font-size:13px">No templates yet. Click <strong>New Template</strong> to create one.</div>'; return; }
-  grid.innerHTML=filtered.map((t)=>{
+  const builtInForms=(templateFilter==='all'||templateFilter==='Form')?FORM_DEFS:[];
+  if(!filtered.length && !builtInForms.length){ grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--gray);padding:40px;font-size:13px">No templates yet. Click <strong>New Template</strong> to create one.</div>'; return; }
+  const templateCards=filtered.map((t)=>{
     const realIdx=TEMPLATES.indexOf(t);
     return `
     <div class="template-card">
@@ -7823,6 +8337,29 @@ function renderTemplates(){
       </div>
     </div>`;
   }).join('');
+  const formCards=builtInForms.map(fd=>`
+    <div class="template-card">
+      <span class="tc-type tc-form">Form</span>
+      <h4>${fd.name} <span class="badge" style="background:var(--gray-light);color:var(--gray);font-size:10px;font-weight:700;padding:2px 6px;margin-left:6px">BUILT-IN</span></h4>
+      <p>${fd.desc||''}</p>
+      <div class="tc-actions">
+        <button class="btn btn-sm btn-outline" onclick="previewBuiltInForm('${fd.key}')">Preview</button>
+      </div>
+    </div>`).join('');
+  grid.innerHTML=templateCards+formCards;
+}
+
+function previewBuiltInForm(key){
+  const fd=FORM_DEFS.find(f=>f.key===key);
+  if(!fd) return;
+  document.getElementById('tpl-modal-title').textContent=fd.name;
+  document.getElementById('tpl-modal-type').textContent='Form';
+  document.getElementById('tpl-modal-type').className='badge tc-form';
+  document.getElementById('tpl-modal-body').textContent=(fd.desc||'')+'\n\nThis is a built-in form. Send it to a client from the trip\'s Forms tab.';
+  document.getElementById('tpl-modal-body').dataset.idx='';
+  const copyBtn=document.querySelector('#modal-template .modal-footer .btn-primary');
+  if(copyBtn) copyBtn.style.display='none';
+  openModal('modal-template');
 }
 
 function openNewTemplate(){
@@ -7901,7 +8438,7 @@ function confirmDeleteTemplate(idx){
   if(currentTripDetailIdx >= 0) renderTripForms(currentTripDetailIdx);
   crmToast('Template deleted');
 }
-function openTemplate(idx){ const t=TEMPLATES[idx]; document.getElementById('tpl-modal-title').textContent=t.name; document.getElementById('tpl-modal-type').textContent=t.type; document.getElementById('tpl-modal-type').className=`badge tc-${t.type.toLowerCase()}`; document.getElementById('tpl-modal-body').textContent=t.body; document.getElementById('tpl-modal-body').dataset.idx=idx; openModal('modal-template'); }
+function openTemplate(idx){ const t=TEMPLATES[idx]; document.getElementById('tpl-modal-title').textContent=t.name; document.getElementById('tpl-modal-type').textContent=t.type; document.getElementById('tpl-modal-type').className=`badge tc-${t.type.toLowerCase()}`; document.getElementById('tpl-modal-body').textContent=t.body; document.getElementById('tpl-modal-body').dataset.idx=idx; const copyBtn=document.querySelector('#modal-template .modal-footer .btn-primary'); if(copyBtn) copyBtn.style.display=''; openModal('modal-template'); }
 function copyTemplate(){ const idx=parseInt(document.getElementById('tpl-modal-body').dataset.idx); copyTemplateByIdx(idx); }
 function copyTemplateByIdx(idx){ navigator.clipboard.writeText(TEMPLATES[idx].body).then(()=>crmToast('Template copied to clipboard ✓')).catch(()=>{const t=document.createElement('textarea');t.value=TEMPLATES[idx].body;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);crmToast('Copied ✓');}); }
 
@@ -8276,8 +8813,6 @@ function renderInquiries() {
           <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
             ${inq.status !== 'converted' ? `<button class="btn btn-sm btn-primary" onclick="openConvertInquiry('${inq.id}')">Convert to Client + Trip</button>` : '<div style="font-size:12px;color:var(--green);font-weight:700;padding:8px">✓ Converted to CRM</div>'}
             ${inq.status !== 'converted' ? `<button class="btn btn-sm btn-teal" onclick="openConvertToGroup('${inq.id}')">Add to Group Page</button>` : ''}
-            ${inq.status === 'new' ? `<button class="btn btn-sm btn-outline" onclick="markInquiryReviewed('${inq.id}')">Mark Reviewed</button>` : ''}
-            <button class="btn btn-sm btn-outline" onclick="replyToInquiry('${inq.id}')" style="font-size:11px">Quick Reply</button>
             <button class="btn btn-sm btn-outline" onclick="deleteInquiry('${inq.id}')" style="color:var(--coral);font-size:11px">Delete</button>
           </div>
         </div>
@@ -8491,11 +9026,12 @@ function populateTemplatePicker(){
     emailTpls.forEach(t=>{ const i=TEMPLATES.indexOf(t); const opt=document.createElement('option'); opt.value='tpl:'+i; opt.textContent=t.name; g1.appendChild(opt); });
     sel.appendChild(g1);
   }
-  // All forms: built-in + custom Form templates
-  const allForms = getFormDefs();
-  if(allForms.length){
-    const g2=document.createElement('optgroup'); g2.label='Client Forms';
-    allForms.forEach(fd=>{ const opt=document.createElement('option'); opt.value='form:'+fd.key; opt.textContent=fd.icon+' '+fd.name; g2.appendChild(opt); });
+
+  // Client Forms (built-in + custom form templates)
+  const formDefs = (typeof getFormDefs==='function') ? getFormDefs() : [];
+  if(formDefs.length){
+    const g2=document.createElement('optgroup'); g2.label='Send a Form';
+    formDefs.forEach(fd=>{ const opt=document.createElement('option'); opt.value='form:'+fd.key; opt.textContent=fd.name; g2.appendChild(opt); });
     sel.appendChild(g2);
   }
 
