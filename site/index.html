@@ -1251,7 +1251,6 @@ body.admin-open .admin-topbar{top:24px}
 
     <!-- ====== CRM OVERVIEW ====== -->
     <div class="section" id="section-crm-overview">
-      <div class="page-title">CRM Overview</div>
       <div class="page-sub">Trip pipeline, reports, and upcoming action items.</div>
 
       <!-- Live data from the AWS Postgres database (read-only) -->
@@ -1326,6 +1325,7 @@ body.admin-open .admin-topbar{top:24px}
       <div class="toolbar">
         <div class="search-box"><span></span><input type="text" placeholder="Search clients..." oninput="filterClients(this.value)" id="client-search"></div>
         <button class="btn btn-primary" onclick="openAddClient()">+ Add Client</button>
+        <button class="btn btn-outline" onclick="syncClientsFromDb(true)" id="btn-sync-clients" title="Pull clients from the AWS database">Sync from database</button>
       </div>
       <div class="card" style="padding:0;overflow:hidden">
         <div class="tbl-wrap"><table>
@@ -3926,6 +3926,7 @@ function showAdminPage() {
       document.getElementById('admin-panel').style.display='block';
       renderAllAdmin();
       hydrateFromServer().then(function(res){ if(res && res.applied) renderAllAdmin(); });
+      syncClientsFromDb(false);
     } else {
       adminLoggedIn = false;
       document.getElementById('admin-login').style.display='flex';
@@ -3949,6 +3950,7 @@ function adminLogin() {
       document.getElementById('admin-panel').style.display='block';
       renderAllAdmin();
       hydrateFromServer().then(function(res){ if(res && res.applied) renderAllAdmin(); });
+      syncClientsFromDb(false);
       if (typeof showAdminCRM === 'function') showAdminCRM('crm-overview');
     } else {
       document.getElementById('login-error').style.display='block';
@@ -5769,6 +5771,103 @@ function loadData(key, def){ try{ return JSON.parse(localStorage.getItem('d4d_'+
 function saveData(key,val){
   localStorage.setItem('d4d_'+key, JSON.stringify(val));
   d4dPush(key, val);
+}
+
+// ====================================================
+// CLIENTS FROM THE DATABASE
+// ====================================================
+// Merges the AWS clients table into the CRM client list. See the note in
+// loadLiveActivity(): these are two separate stores, so this merges rather than
+// replaces -- CRM-only clients survive, and a blank DB column never wipes a
+// value captured in the CRM.
+function dbRowToClient(r){
+  const parts = String(r.name || '').trim().split(/\s+/);
+  const fname = parts.shift() || '';
+  const lname = parts.join(' ');
+  return {
+    fname: fname, lname: lname,
+    email: r.email || '', phone: r.phone || '',
+    dob: (r.date_of_birth || '').toString().slice(0,10),
+    anniversary: (r.anniversary || '').toString().slice(0,10),
+    passportnum: r.passport_number || '',
+    passport: (r.passport_expiry || '').toString().slice(0,10),
+    passportcountry: r.passport_country || '',
+    ffn: r.frequent_flyer_numbers || '',
+    dietary: r.dietary_restrictions || '',
+    seat: r.seat_preference || '',
+    emergency: r.emergency_contact || '',
+    referral: r.referral_source || '',
+    tjid: r.travel_joy_client_id || '',
+    notes: r.notes || '',
+    _apiId: r.id
+  };
+}
+
+function clientKey(c){
+  const e = (c.email || '').trim().toLowerCase();
+  if(e) return 'e:' + e;
+  return 'n:' + ((c.fname || '') + ' ' + (c.lname || '')).trim().toLowerCase();
+}
+
+// quiet=false shows a toast. Resolves {added, updated, total} or {error}.
+function syncClientsFromDb(announce){
+  const btn = document.getElementById('btn-sync-clients');
+  if(btn){ btn.disabled = true; btn.textContent = 'Syncing…'; }
+  const done = function(){ if(btn){ btn.disabled = false; btn.textContent = 'Sync from database'; } };
+
+  return fetch('/api/clients', {credentials:'same-origin', headers:{'Accept':'application/json'}})
+    .then(function(r){
+      if(r.status === 401 || r.status === 403) throw new Error('not signed in');
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(payload){
+      const rows = ((payload && payload.clients) || []).filter(function(r){
+        return String(r.name || '').trim() !== '';
+      });
+      const index = {};
+      clients.forEach(function(c, i){ index[clientKey(c)] = i; });
+
+      let added = 0, updated = 0;
+      rows.forEach(function(r){
+        const incoming = dbRowToClient(r);
+        const at = index[clientKey(incoming)];
+        if(at === undefined){
+          clients.push(incoming); index[clientKey(incoming)] = clients.length - 1; added++;
+        } else {
+          // Fill-only. The database may fill a blank, never overwrite something
+          // already entered in the CRM -- otherwise an agent's notes would be
+          // silently reverted by the next sync. _apiId is always refreshed so
+          // the record stays traceable to its DB row.
+          const cur = clients[at];
+          let touched = false;
+          Object.keys(incoming).forEach(function(k){
+            const val = incoming[k];
+            if(val === '' || val === undefined) return;
+            const existing = cur[k];
+            const isBlank = existing === '' || existing === undefined || existing === null;
+            if(k === '_apiId' || isBlank){
+              if(existing !== val){ cur[k] = val; touched = true; }
+            }
+          });
+          if(touched) updated++;
+        }
+      });
+
+      if(added || updated){
+        saveData('clients', clients);
+        if(typeof renderClients === 'function') renderClients();
+        if(typeof refreshDashboard === 'function') refreshDashboard();
+      }
+      done();
+      if(announce) crmToast('Clients synced — ' + added + ' added, ' + updated + ' updated');
+      return {added: added, updated: updated, total: rows.length};
+    })
+    .catch(function(err){
+      done();
+      if(announce) crmToast('Could not reach the database — showing saved clients');
+      return {error: err.message};
+    });
 }
 
 // ====================================================
