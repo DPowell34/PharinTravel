@@ -372,7 +372,7 @@ footer{background:var(--navy-dark);color:rgba(255,255,255,0.75);padding:48px 24p
 #crm-root .crm-imgzone .crm-up-clear{margin-left:auto;border:none;background:var(--red-bg);color:var(--red);font-size:11px;font-weight:700;padding:5px 10px;border-radius:6px;cursor:pointer}
 #crm-root .crm-imgzone.compact{flex:1;padding:6px 10px;min-height:0}
 #crm-root .modal-overlay{z-index:11000}
-#crm-root #modal-client.fullpage{z-index:11200}
+#crm-root #modal-client{z-index:11200}
 /* CRM full-page overlays carry their own z-index from the source file (600-700),
    which left them under the preview banner and clipped their topbars */
 #crm-root #modal-group-bookings-view{z-index:11100}
@@ -381,7 +381,6 @@ footer{background:var(--navy-dark);color:rgba(255,255,255,0.75);padding:48px 24p
 #crm-root #modal-template .modal-lg{max-width:940px}
 #crm-root #pp-itinerary{font-size:13px;color:var(--text)}
 #crm-root #pp-itinerary .gpp-itin-card:last-child{margin-bottom:0}
-#crm-root #modal-client .fp-body .card{padding:26px 28px}
 #crm-root .req-checklist{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
 #crm-root .req-check{display:flex;align-items:center;gap:10px;border:1px solid var(--gray-light);border-radius:8px;padding:10px 12px;font-size:12.5px;color:var(--navy);cursor:pointer;background:#fff;transition:border-color .15s,background .15s}
 #crm-root .req-check:hover{border-color:var(--teal);background:var(--teal-bg)}
@@ -1956,20 +1955,15 @@ Ongoing support before, during, and after your trip</textarea></div>
 
 <!-- MODALS -->
 <!-- Add/Edit Client Modal -->
-<div class="modal-overlay fullpage" id="modal-client">
-  <div class="modal-fullpage">
-    <div class="fp-topbar">
-      <div class="fp-topbar-left">
-        <button class="fp-back" onclick="closeModal('modal-client')">← Back to Clients</button>
-        <div>
-          <div class="fp-title" id="modal-client-title">Add New Client</div>
-          <div class="fp-sub" id="modal-client-sub">Client record</div>
-        </div>
+<div class="modal-overlay" id="modal-client">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div>
+        <h3 id="modal-client-title">Add New Client</h3>
+        <div id="modal-client-sub" style="font-size:12px;color:var(--gray);margin-top:3px">Client record</div>
       </div>
-      <button class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:#fff;border:none;font-size:12px;font-weight:700;padding:6px 14px;border-radius:8px;cursor:pointer" onclick="saveClient()">Save Client</button>
+      <button class="modal-close" onclick="closeModal('modal-client')">✕</button>
     </div>
-    <div class="fp-body">
-     <div class="card" style="max-width:1000px;margin:0 auto">
     <div class="field-row cols-2">
       <div class="field-group"><label>First Name *</label><input id="c-fname" type="text" placeholder="First name"></div>
       <div class="field-group"><label>Last Name *</label><input id="c-lname" type="text" placeholder="Last name"></div>
@@ -2000,8 +1994,6 @@ Ongoing support before, during, and after your trip</textarea></div>
     <div class="modal-footer">
       <button class="btn btn-primary" onclick="saveClient()">Save Client</button>
       <button class="btn btn-outline" onclick="closeModal('modal-client')">Cancel</button>
-    </div>
-     </div>
     </div>
   </div>
 </div>
@@ -12494,7 +12486,7 @@ function addPortalReq(){
   window.renderPortalReqs = function(idx){ _renderReqs(idx); try{ markAlreadyAdded(idx); }catch(e){} };
 })();
 
-// ---- Client editor opens as a full page ----------------------------
+// ---- Client editor dialog: subtitle + Esc to close ------------------
 (function(){
   const sub = () => document.getElementById('modal-client-sub');
   const _openAdd = window.openAddClient;
