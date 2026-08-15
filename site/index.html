@@ -2085,7 +2085,6 @@ Ongoing support before, during, and after your trip</textarea></div>
     <div id="td-tabs-wrap" style="background:#fff;border-bottom:2px solid var(--gray-light);overflow-x:auto;-webkit-overflow-scrolling:touch">
     <div class="tabs" id="td-tabs" style="margin:0;border:none;gap:0;flex-wrap:nowrap;padding:0 20px;display:flex">
       <div class="tab active" onclick="tdTab(this,'td-overview')" style="white-space:nowrap;flex-shrink:0">Overview</div>
-      <div class="tab" onclick="tdTab(this,'td-travelers')" style="white-space:nowrap;flex-shrink:0">Travelers</div>
       <div class="tab" onclick="tdTab(this,'td-requirements')" style="white-space:nowrap;flex-shrink:0">Requirements</div>
       <div class="tab" onclick="tdTab(this,'td-docs')" style="white-space:nowrap;flex-shrink:0">Documents</div>
       <div class="tab" onclick="tdTab(this,'td-invoice')" style="white-space:nowrap;flex-shrink:0">Invoice</div>
@@ -2153,20 +2152,6 @@ Ongoing support before, during, and after your trip</textarea></div>
       </div>
     </div>
     <!-- TRAVELERS / REQUIREMENTS TAB -->
-    <div id="td-travelers" class="td-panel" style="display:none">
-      <!-- Travelers on this trip -->
-      <div style="background:#fff;border:1px solid var(--gray-light);border-radius:10px;padding:16px 18px;margin-bottom:18px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <div style="font-size:13px;font-weight:700;color:var(--navy)">Travelers on this Trip</div>
-          <button class="btn btn-sm btn-outline" style="font-size:11px" onclick="openManageTravelers()">+ Add Traveler</button>
-        </div>
-        <div id="td-req-traveler-list" style="font-size:13px;color:var(--gray);line-height:1.9">—</div>
-      </div>
-      <!-- Filled-in traveler detail cards (populated from completed requests) -->
-      <div id="td-traveler-cards"></div>
-      <!-- Submitted traveler details from client portal -->
-      <div id="td-submitted-traveler-details" style="margin-top:6px"></div>
-    </div>
     <!-- DOCUMENTS TAB -->
     <div id="td-requirements" class="td-panel" style="display:none">
 <style>
@@ -2238,6 +2223,11 @@ Ongoing support before, during, and after your trip</textarea></div>
     </div>
   </div>
 </div>
+
+<!-- Filled-in traveler detail cards (populated from completed requests) -->
+<div id="td-traveler-cards"></div>
+<!-- Submitted traveler details from client portal -->
+<div id="td-submitted-traveler-details" style="margin-top:6px"></div>
 
     </div>
     <div id="td-docs" class="td-panel" style="display:none">
@@ -6284,8 +6274,7 @@ function tdTab(el, panelId){
   document.querySelectorAll('.td-panel').forEach(p=>p.style.display='none');
   document.getElementById(panelId).style.display='';
   if(panelId==='td-portal'){ renderPortalReqs(currentTripDetailIdx); renderPaySchedule(currentTripDetailIdx); }
-  if(panelId==='td-travelers'){ renderPortalReqs(currentTripDetailIdx); renderTravelerSubmissions(currentTripDetailIdx); renderPortalReqResponses(currentTripDetailIdx); }
-  if(panelId==='td-requirements'){ renderRequirementsMatrix(currentTripDetailIdx); }
+  if(panelId==='td-requirements'){ renderRequirementsMatrix(currentTripDetailIdx); renderTravelersTable(currentTripDetailIdx); renderTravelerSubmissions(currentTripDetailIdx); renderPortalReqs(currentTripDetailIdx); }
   if(panelId==='td-forms'){ renderTripForms(currentTripDetailIdx); }
   if(panelId==='td-invoice'){ renderPaySchedule(currentTripDetailIdx); renderInvoiceItems(currentTripDetailIdx); }
   if(panelId==='td-proposals'){ renderProposals(currentTripDetailIdx); }
