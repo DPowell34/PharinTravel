@@ -12803,11 +12803,6 @@ const REQ_LABELS = {
   covid:'\u{1F489} COVID-19 Vaccine'
 };
 function reqBoxes(){ return [...document.querySelectorAll('#portal-req-checklist input[type=checkbox]')]; }
-function togglePortalReqOther(el){
-  const wrap = document.getElementById('portal-req-other-wrap');
-  if(wrap) wrap.style.display = (el && el.checked) ? '' : 'none';
-  if(el && el.checked){ const t=document.getElementById('portal-req-other-text'); if(t) t.focus(); }
-}
 function updateReqCount(){
   const n = reqBoxes().filter(b=>b.checked).length;
   const el = document.getElementById('portal-req-count');
@@ -12834,33 +12829,6 @@ document.addEventListener('change', function(e){
   if(e.target && e.target.closest && e.target.closest('#portal-req-checklist')) updateReqCount();
 });
 
-function addPortalReq(){
-  const idx = currentTripDetailIdx;
-  const picked = reqBoxes().filter(b=>b.checked).map(b=>b.value);
-  if(!picked.length){ crmToast('Tick at least one item first'); return; }
-  const otherText = (document.getElementById('portal-req-other-text')||{value:''}).value.trim();
-  if(picked.indexOf('other')>=0 && !otherText){ crmToast('Describe the "Other" request'); return; }
-
-  const portalReqs = loadData('portal_reqs',{});
-  if(!portalReqs[idx]) portalReqs[idx] = [];
-  const existing = portalReqs[idx].map(r=>r.type);
-  let added = 0;
-  picked.forEach(type=>{
-    if(type!=='other' && existing.indexOf(type)>=0) return;      // no duplicates
-    portalReqs[idx].push({
-      type,
-      label: type==='other' ? ('\u{270F}\u{FE0F} ' + otherText) : REQ_LABELS[type],
-      status:'pending',
-      added: new Date().toLocaleDateString()
-    });
-    added++;
-  });
-  saveData('portal_reqs', portalReqs);
-  renderPortalReqs(idx);
-  clearPortalReqChecks();
-  markAlreadyAdded(idx);
-  crmToast(added===1 ? 'Request added to portal ✓' : added + ' requests added to portal ✓');
-}
 
 (function(){
   const _renderReqs = window.renderPortalReqs;
