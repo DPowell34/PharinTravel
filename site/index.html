@@ -376,6 +376,7 @@ footer{background:var(--navy-dark);color:rgba(255,255,255,0.75);padding:48px 24p
    which left them under the preview banner and clipped their topbars */
 #crm-root #modal-group-bookings-view{z-index:11100}
 #crm-root #modal-trip-detail,#crm-root #modal-portal-preview{z-index:11150}
+#crm-root #modal-manage-travelers{z-index:11250}
 #crm-root #modal-template .modal-lg{max-width:940px}
 #crm-root #pp-itinerary{font-size:13px;color:var(--text)}
 #crm-root #pp-itinerary .gpp-itin-card:last-child{margin-bottom:0}
@@ -2160,29 +2161,6 @@ Ongoing support before, during, and after your trip</textarea></div>
         </div>
         <div id="td-req-traveler-list" style="font-size:13px;color:var(--gray);line-height:1.9">—</div>
       </div>
-      <!-- Requirement Requests -->
-      <div style="background:#fff;border:1px solid var(--gray-light);border-radius:10px;padding:18px;margin-bottom:18px">
-        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px">Traveler Requirement Requests</div>
-        <div style="font-size:11px;color:var(--gray);margin-bottom:14px">Select what information you need from travelers. Each request will appear as a form on the client's portal.</div>
-        <div class="req-checklist" id="portal-req-checklist">
-          <label class="req-check"><input type="checkbox" value="passport-photo"><span>Passport Photo Upload</span></label>
-          <label class="req-check"><input type="checkbox" value="guest"><span>Guest / Traveler Info</span></label>
-          <label class="req-check"><input type="checkbox" value="covid"><span>COVID-19 Vaccine</span></label>
-          <label class="req-check"><input type="checkbox" value="other" onchange="togglePortalReqOther(this)"><span>Other (write in)</span></label>
-        </div>
-        <div class="field-group" id="portal-req-other-wrap" style="margin:10px 0 0;display:none">
-          <label>Describe Request</label>
-          <input type="text" id="portal-req-other-text" placeholder="e.g. Frequent flyer numbers…">
-        </div>
-        <div style="display:flex;gap:10px;align-items:center;margin:12px 0 4px;flex-wrap:wrap">
-          <button class="btn btn-sm btn-teal" onclick="addPortalReq()">+ Add Selected to Portal</button>
-          <button class="btn btn-sm btn-outline" onclick="clearPortalReqChecks()">Clear</button>
-          <span style="font-size:11px;color:var(--gray)" id="portal-req-count">Nothing selected</span>
-        </div>
-        <div id="portal-req-list" style="display:grid;gap:6px"></div>
-      </div>
-      <!-- Submitted portal requirement responses -->
-      <div id="portal-req-responses"></div>
       <!-- Filled-in traveler detail cards (populated from completed requests) -->
       <div id="td-traveler-cards"></div>
       <!-- Submitted traveler details from client portal -->
