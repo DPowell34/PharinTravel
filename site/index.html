@@ -2119,7 +2119,7 @@ Ongoing support before, during, and after your trip</textarea></div>
       <div class="detail-block" style="margin-top:12px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
           <div class="detail-block-title" style="margin-bottom:0">Travelers</div>
-          <button class="btn btn-sm btn-outline" style="font-size:11px" onclick="openManageTravelers()">Manage Travelers</button>
+          <button class="btn btn-sm btn-outline" style="font-size:11px" onclick="openManageTravelers()">+ Add Traveler</button>
         </div>
         <div id="td-traveler-names-overview" style="font-size:13px;color:var(--gray);line-height:1.9">—</div>
         <div id="td-cc-travelers-note" style="display:none;margin-top:8px;font-size:11px;color:var(--teal)">Additional travelers will be CC'd on trip emails</div>
@@ -2151,6 +2151,14 @@ Ongoing support before, during, and after your trip</textarea></div>
     </div>
     <!-- TRAVELERS / REQUIREMENTS TAB -->
     <div id="td-travelers" class="td-panel" style="display:none">
+      <!-- Travelers on this trip -->
+      <div style="background:#fff;border:1px solid var(--gray-light);border-radius:10px;padding:16px 18px;margin-bottom:18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="font-size:13px;font-weight:700;color:var(--navy)">Travelers on this Trip</div>
+          <button class="btn btn-sm btn-outline" style="font-size:11px" onclick="openManageTravelers()">+ Add Traveler</button>
+        </div>
+        <div id="td-req-traveler-list" style="font-size:13px;color:var(--gray);line-height:1.9">—</div>
+      </div>
       <!-- Requirement Requests -->
       <div style="background:#fff;border:1px solid var(--gray-light);border-radius:10px;padding:18px;margin-bottom:18px">
         <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px">Traveler Requirement Requests</div>
@@ -2277,7 +2285,21 @@ Ongoing support before, during, and after your trip</textarea></div>
     </div>
     <!-- FORMS TAB -->
     <div id="td-forms" class="td-panel" style="display:none">
+
+      <!-- FORM PICKER -->
+      <div style="background:var(--teal-bg);border:1px solid rgba(74,184,213,0.3);border-radius:10px;padding:16px;margin-bottom:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px">Send a Client Form</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select id="form-picker" style="flex:1;min-width:220px;border:1px solid var(--gray-light);border-radius:7px;padding:8px 12px;font-size:13px;font-family:inherit;background:#fff">
+            <option value="">— Choose a form —</option>
+          </select>
+          <button class="btn btn-sm btn-teal" onclick="sendFormFromPicker()">Send →</button>
+        </div>
+        <div id="form-picker-hint" style="font-size:11px;color:var(--gray);margin-top:8px">Select a client form — it is marked Sent, filed below, and a request message is loaded into the Message tab's compose box.</div>
+      </div>
+
       <div style="display:grid;gap:14px" id="trip-forms-list"></div>
+      <div id="form-log" style="margin-top:16px"></div>
     </div>
 
     <!-- PROPOSALS TAB -->
@@ -2377,11 +2399,6 @@ Ongoing support before, during, and after your trip</textarea></div>
             <div><span style="color:var(--gray)">Confirmation #</span><div style="font-weight:600;margin-top:2px" id="pp-conf">—</div></div>
             <div><span style="color:var(--gray)">Trip Type</span><div style="font-weight:600;margin-top:2px" id="pp-type">—</div></div>
           </div>
-        </div>
-        <div id="pp-trav-section" style="background:#fff;border-radius:10px;border:1px solid var(--gray-light);padding:16px">
-          <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:3px">Traveler Details</div>
-          <div style="font-size:11px;color:var(--gray);margin-bottom:12px">Travelers on this booking.</div>
-          <div id="pp-traveler-details" style="font-size:12px;color:var(--gray)">No travelers added yet.</div>
         </div>
         <div style="background:#fff;border-radius:10px;border:1px solid var(--gray-light);padding:16px">
           <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px">Your Itinerary</div>
@@ -2488,7 +2505,7 @@ Ongoing support before, during, and after your trip</textarea></div>
 <div class="modal-overlay" id="modal-manage-travelers">
   <div class="modal modal-sm">
     <div class="modal-header">
-      <h3>Manage Travelers</h3>
+      <h3>Add Traveler</h3>
       <button class="modal-close" onclick="closeModal('modal-manage-travelers')">✕</button>
     </div>
 
@@ -2498,6 +2515,20 @@ Ongoing support before, during, and after your trip</textarea></div>
         oninput="renderMtSearch(this.value)"
         style="width:100%;border:2px solid var(--teal);border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;outline:none">
       <div id="mt-search-results" style="margin-top:6px;max-height:180px;overflow-y:auto;border:1px solid var(--gray-light);border-radius:8px;display:none"></div>
+    </div>
+
+    <!-- Add a traveler who isn't an existing client yet -->
+    <div style="margin-bottom:14px;background:var(--offwhite);border:1px solid var(--gray-light);border-radius:8px;padding:12px 14px">
+      <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:8px">New traveler — not an existing client</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <input type="text" id="mt-new-fname" placeholder="First name" style="width:100%;border:1px solid var(--gray-light);border-radius:6px;padding:7px 10px;font-size:12px;font-family:inherit">
+        <input type="text" id="mt-new-lname" placeholder="Last name" style="width:100%;border:1px solid var(--gray-light);border-radius:6px;padding:7px 10px;font-size:12px;font-family:inherit">
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="email" id="mt-new-email" placeholder="Email (optional)" style="flex:1;min-width:150px;border:1px solid var(--gray-light);border-radius:6px;padding:7px 10px;font-size:12px;font-family:inherit">
+        <button class="btn btn-sm btn-teal" onclick="mtCreateTraveler()">+ Add</button>
+      </div>
+      <div style="font-size:10px;color:var(--gray);margin-top:7px">Adds them to this trip and creates a client record so they can be reused later.</div>
     </div>
 
     <!-- Selected travelers -->
@@ -5991,7 +6022,7 @@ function openTripDetail(idx){
   document.getElementById('td-notes').textContent = t.notes||'No notes';
   // traveler names on overview (uses linked travelers from client list)
   renderTravelersOverview(idx);
-  updateFormsTabBadge(idx);
+  renderTripForms(idx);
   // invoice summary header
   document.getElementById('inv-dest-display').textContent = t.dest||'—';
   document.getElementById('inv-client-display').textContent = t.client||'—';
@@ -6063,7 +6094,7 @@ function tdTab(el, panelId){
   document.getElementById(panelId).style.display='';
   if(panelId==='td-portal'){ renderPortalReqs(currentTripDetailIdx); renderPaySchedule(currentTripDetailIdx); }
   if(panelId==='td-travelers'){ renderPortalReqs(currentTripDetailIdx); renderTravelerSubmissions(currentTripDetailIdx); renderPortalReqResponses(currentTripDetailIdx); }
-  if(panelId==='td-forms'){ updateFormsTabBadge(currentTripDetailIdx); }
+  if(panelId==='td-forms'){ renderTripForms(currentTripDetailIdx); }
   if(panelId==='td-invoice'){ renderPaySchedule(currentTripDetailIdx); renderInvoiceItems(currentTripDetailIdx); }
   if(panelId==='td-proposals'){ renderProposals(currentTripDetailIdx); }
 }
@@ -6377,6 +6408,7 @@ function openManageTravelers(){
   document.getElementById('mt-cc-default').checked = entry.ccDefault || false;
   document.getElementById('mt-search').value = '';
   document.getElementById('mt-search-results').style.display = 'none';
+  ['mt-new-fname','mt-new-lname','mt-new-email'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   renderMtSelected();
   openModal('modal-manage-travelers');
 }
@@ -6428,6 +6460,35 @@ function mtAddTraveler(clientIdx){
   document.getElementById('mt-search').value = '';
   document.getElementById('mt-search-results').style.display = 'none';
   renderMtSelected();
+}
+
+// Adds a traveler who isn't an existing client: creates the client record (so the
+// trip can reference it by clientIdx like every other traveler) and attaches them.
+function mtCreateTraveler(){
+  const fnameEl = document.getElementById('mt-new-fname');
+  const lnameEl = document.getElementById('mt-new-lname');
+  const emailEl = document.getElementById('mt-new-email');
+  const fname = fnameEl.value.trim();
+  const lname = lnameEl.value.trim();
+  const email = emailEl.value.trim();
+  if(!fname || !lname){ crmToast('First and last name are required'); return; }
+  const full = (fname + ' ' + lname).trim();
+  let clientIdx = clients.findIndex(c => ((c.fname||'') + ' ' + (c.lname||'')).trim().toLowerCase() === full.toLowerCase());
+  if(clientIdx === -1){
+    clients.push({ fname, lname, email, phone:'', dob:'', passport:'', passportNum:'', address:'', city:'', state:'', zip:'', notes:'' });
+    saveData('clients', clients);
+    clientIdx = clients.length - 1;
+    if(typeof renderClients === 'function') renderClients();
+  }
+  const trip = trips[currentTripDetailIdx] || {};
+  if((trip.client||'').trim().toLowerCase() === full.toLowerCase()){ crmToast(`${full} is already the primary traveler`); return; }
+  if(mtTempSelected.find(t => t.clientIdx === clientIdx)){ crmToast(`${full} is already on this trip`); return; }
+  mtTempSelected.push({ clientIdx, name: full, email });
+  fnameEl.value = ''; lnameEl.value = ''; emailEl.value = '';
+  document.getElementById('mt-search').value = '';
+  document.getElementById('mt-search-results').style.display = 'none';
+  renderMtSelected();
+  crmToast(`${full} added — click Save to apply`);
 }
 
 function mtRemoveTraveler(clientIdx){
@@ -6485,6 +6546,9 @@ function renderTravelersOverview(idx){
 
   const overviewEl = document.getElementById('td-traveler-names-overview');
   if(overviewEl) overviewEl.innerHTML = allNames.length ? allNames.join('') : '<span style="color:var(--gray)">No travelers linked yet.</span>';
+
+  const reqEl = document.getElementById('td-req-traveler-list');
+  if(reqEl) reqEl.innerHTML = allNames.length ? allNames.join('') : '<span style="color:var(--gray)">No travelers linked yet.</span>';
 
   const ccNote = document.getElementById('td-cc-travelers-note');
   if(ccNote) ccNote.style.display = (entry.ccDefault && entry.travelers.length) ? '' : 'none';
@@ -7352,7 +7416,7 @@ function openPortalPreview(){
   if(ppInvBal){ ppInvBal.textContent = balanceDue>0 ? fmt$$(balanceDue) : '—'; ppInvBal.style.color = balanceDue>0?'var(--coral)':'#10b981'; }
 
   const travDetailEl = document.getElementById('pp-traveler-details');
-  if(allTravelers.length){
+  if(travDetailEl && allTravelers.length){
     travDetailEl.innerHTML = allTravelers.map((tr, i) => {
       const dobDisplay = tr.dob ? fmtDate(tr.dob) : null;
       const ppExpDisplay = tr.passportExp ? fmtDate(tr.passportExp) : null;
@@ -7387,9 +7451,10 @@ function openPortalPreview(){
         </div>
       </div>`;
     }).join('');
-  } else {
+  } else if(travDetailEl){
     travDetailEl.innerHTML = '';
-    document.getElementById('pp-trav-section').style.display = 'none';
+    const sect = document.getElementById('pp-trav-section');
+    if(sect) sect.style.display = 'none';
   }
 
   // Agent name from settings
@@ -7908,7 +7973,10 @@ function copyTemplateByIdx(idx){ navigator.clipboard.writeText(TEMPLATES[idx].bo
 // ====================================================
 // TRIP FORMS (Client Portal Forms)
 // ====================================================
-let tripForms = loadData('trip_forms', {}); // {tripIdx: [{type, status, sentDate, completedDate, data}]}
+let tripForms = loadData('trip_forms', {});
+// Log of every form request sent, filed under the Forms tab the way sent
+// messages are filed under Message. {tripIdx: [{formKey, name, date, link}]}
+let tripFormRequests = loadData('form_requests', {}); // {tripIdx: [{type, status, sentDate, completedDate, data}]}
 
 const FORM_DEFS = [
   {
@@ -7929,14 +7997,10 @@ const FORM_DEFS = [
 
 // Returns built-in forms PLUS any Form-type templates the user has created/edited,
 // excluding custom ones whose names duplicate a built-in form (prevents double-listing)
+// Only the two built-ins are sendable client forms. Form-type entries in
+// TEMPLATES are authoring templates for the Pages area and are not listed here.
 function getFormDefs() {
-  const builtInNames = new Set(FORM_DEFS.map(f => f.name.toLowerCase()));
-  const custom = TEMPLATES.map((t, i) => {
-    if(t.type !== 'Form') return null;
-    if(builtInNames.has(t.name.toLowerCase())) return null; // skip duplicates of built-ins
-    return { key: 'custom_' + i, name: t.name, desc: t.desc || '', icon: '', body: t.body, custom: true };
-  }).filter(Boolean);
-  return [...FORM_DEFS, ...custom];
+  return [...FORM_DEFS];
 }
 
 let currentFormTripIdx = -1;
@@ -8009,7 +8073,54 @@ function renderTripForms(idx) {
       </div>`;
   }).join('');
 
+  renderFormPicker(idx);
+  renderFormLog(idx);
   updateFormsTabBadge(idx);
+}
+
+// Every form that hasn't been completed yet.
+function renderFormPicker(idx){
+  const picker = document.getElementById('form-picker');
+  if(!picker) return;
+  const forms = tripForms[idx] || {};
+  const available = getFormDefs().filter(fd => (forms[fd.key]||{}).status !== 'completed');
+  picker.innerHTML = '<option value="">— Choose a form —</option>' + available.map(fd => {
+    const sent = (forms[fd.key]||{}).status === 'sent';
+    return `<option value="${fd.key}">${escHtml(fd.name)}${sent?' (sent — resend)':''}</option>`;
+  }).join('');
+  const hint = document.getElementById('form-picker-hint');
+  if(hint && !available.length) hint.textContent = 'All client forms for this trip have been completed.';
+}
+
+function sendFormFromPicker(){
+  const picker = document.getElementById('form-picker');
+  const key = picker ? picker.value : '';
+  if(!key){ crmToast('Choose a form first'); return; }
+  sendFormToClient(key, currentTripDetailIdx);
+  picker.value = '';
+}
+
+// Mirrors renderMsgLog() — sent form requests are filed under the Forms tab.
+function renderFormLog(idx){
+  const reqs = tripFormRequests[idx] || [];
+  const container = document.getElementById('form-log');
+  if(!container) return;
+  if(reqs.length === 0){ container.innerHTML = ''; return; }
+  const forms = tripForms[idx] || {};
+  container.innerHTML = '<div class="sec-divider">Form Request History</div>' + [...reqs].reverse().map(r => {
+    const done = (forms[r.formKey] || {}).status === 'completed';
+    return `
+    <div style="padding:12px 14px;background:var(--offwhite);border:1px solid var(--gray-light);border-radius:8px;margin-bottom:8px;font-size:12px">
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+        <strong style="color:var(--navy)">FORM SENT</strong>
+        <span style="background:var(--teal-bg);color:var(--teal);font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px">${escHtml(r.name)}</span>
+        ${done?'<span style="background:#10b981;color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px">COMPLETED</span>':'<span style="background:var(--gray-light);color:var(--gray);font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px">AWAITING</span>'}
+        <span style="color:var(--gray);margin-left:auto;font-size:11px">${r.date}</span>
+      </div>
+      <div style="font-weight:700;color:var(--navy);margin-bottom:4px">Action Required: Please Complete Your ${escHtml(r.name)}</div>
+      ${r.link?`<div style="color:var(--gray);word-break:break-all">${escHtml(r.link)}</div>`:''}
+    </div>`;
+  }).join('');
 }
 
 function updateFormsTabBadge(idx){
@@ -8039,9 +8150,13 @@ function sendFormToClient(formKey, tripIdx) {
   if (existing && existing.status === 'completed') { crmToast('Form already completed'); return; }
   tripForms[tripIdx][formKey] = { status: 'sent', sentDate: new Date().toLocaleString(), data: {} };
   saveData('trip_forms', tripForms);
-  renderTripForms(tripIdx);
   const trip = trips[tripIdx] || {};
   const fd = getFormDefs().find(f => f.key === formKey) || {};
+  const portalBase = (document.getElementById('portal-link-input') || {}).value || 'https://d4d.travel/portal/[your-link]';
+  if(!tripFormRequests[tripIdx]) tripFormRequests[tripIdx] = [];
+  tripFormRequests[tripIdx].push({ formKey, name: fd.name || formKey, date: new Date().toLocaleString(), link: `${portalBase}/forms/${formKey}` });
+  saveData('form_requests', tripFormRequests);
+  renderTripForms(tripIdx);
   // Pre-load the message compose with a template
   document.getElementById('msg-subject').value = `Action Required: Please Complete Your ${fd.name}`;
   document.getElementById('msg-text').value =
@@ -8059,12 +8174,8 @@ If you have any questions, don't hesitate to reach out!
 Pharin Walker
 Destined 4 Destinations LLC
 305-206-6598`;
-  // Switch to message tab to let them send it
-  document.querySelectorAll('.td-panel').forEach(p => p.style.display = 'none');
-  document.querySelectorAll('#td-tabs .tab').forEach(t => t.classList.remove('active'));
-  const msgTab = [...document.querySelectorAll('#td-tabs .tab')].find(t => t.textContent.includes('Message'));
-  if (msgTab) { msgTab.classList.add('active'); document.getElementById('td-message').style.display = ''; }
-  crmToast(`${fd.name} marked as sent — message pre-loaded ✓`);
+  // Stay on the Forms tab so the filed request is visible; draft waits in Message.
+  crmToast(`${fd.name} filed under Forms — draft ready in the Message tab ✓`);
 }
 
 function openClientForm(formKey, tripIdx) {
