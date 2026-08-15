@@ -3591,6 +3591,9 @@ const store = {
   set(key, val) {
     try { localStorage.setItem('d4dcrm_'+key, JSON.stringify(val)); } catch(e) {}
     this._mem[key] = val;
+    // Mirror to the server under a crm_ prefix. Guarded because store.set runs
+    // during init, before the sync layer's own bindings are evaluated.
+    try { if(typeof d4dPush === 'function') d4dPush('crm_' + key, val); } catch(e) {}
   },
   _mem: {}
 };
@@ -6019,9 +6022,11 @@ function hydrateFromServer(){
       Object.keys(server).forEach(function(k){
         if(dirty.indexOf(k) >= 0) return;
         try {
+          // crm_* came from store.set and belongs back under d4dcrm_.
+          const target = k.indexOf('crm_') === 0 ? 'd4dcrm_' + k.slice(4) : 'd4d_' + k;
           const next = JSON.stringify(server[k]);
-          if(localStorage.getItem('d4d_' + k) !== next){
-            localStorage.setItem('d4d_' + k, next);
+          if(localStorage.getItem(target) !== next){
+            localStorage.setItem(target, next);
             applied++;
           }
         } catch(e){}
@@ -6039,7 +6044,11 @@ function hydrateFromServer(){
       });
 
       return Promise.all(pushes).then(function(results){
-        if(applied) d4dReseedGlobals();
+        if(applied){
+          d4dReseedGlobals();
+          // Content pulled from the server has to reach the page too.
+          try { if(typeof crmSiteSync === 'function') crmSiteSync(); } catch(e){}
+        }
         return {applied: applied, pushed: results.filter(Boolean).length};
       });
     })
@@ -9521,6 +9530,16 @@ function saveSetting(key){
     case 'branding': ['brand-name','brand-tag'].forEach(f=>{ const el=document.getElementById('s-'+f); if(el) vals[f]=el.value; }); ['color-navy','color-teal','color-coral','color-bg'].forEach(f=>{ const el=document.getElementById('s-'+f); if(el) vals[f]=el.value; }); break;
   }
   saveData('settings_'+key, vals);
+  // Push it onto the live site straight away, so Save is enough on its own and
+  // branding no longer needs the separate "Apply to Website" press.
+  try {
+    if(key === 'branding' && typeof applyBrandColors === 'function') applyBrandColors();
+    if(typeof applyLogo === 'function') applyLogo();
+    if(typeof applySettings === 'function') applySettings();
+    if(typeof applyAboutMeta === 'function') applyAboutMeta();
+    if(typeof applyAboutStats === 'function') applyAboutStats();
+    if(typeof crmSiteSync === 'function') crmSiteSync();
+  } catch(e){ console.warn('[D4D] apply after save:', e && e.message); }
   if(indicator){ indicator.textContent='✓ Saved'; indicator.classList.add('show'); setTimeout(()=>indicator.classList.remove('show'),2000); }
   crmToast('Settings saved ✓');
 }
@@ -12386,7 +12405,10 @@ function saveWE(key){
       if(el) txt[prop]=el.value;
     }
   }
-  localStorage.setItem('d4d_we_text',JSON.stringify(txt));
+  // saveData, not a raw localStorage write: this is what pushes the change to
+  // the server, and the we_* wrapper re-runs crmSiteSync() so the public page
+  // updates in the same step.
+  saveData('we_text', txt);
   if(key==='footer'){
     const f=n=>{const e=document.getElementById(n);return e?e.value:'';};
     settings.name=f('we-ft-name'); settings.tagline=f('we-ft-tag');
