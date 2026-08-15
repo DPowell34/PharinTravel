@@ -7547,42 +7547,6 @@ function syncTravelerSubToRecord(travKey, idx){
 }
 
 // --- Portal Traveler Requirement Requests ---
-function togglePortalReqOther(sel){
-  document.getElementById('portal-req-other-wrap').style.display = sel.value==='other'?'':'none';
-}
-function addPortalReq(){
-  const idx=currentTripDetailIdx; const type=document.getElementById('portal-req-type').value;
-  const otherText=document.getElementById('portal-req-other-text').value.trim();
-  if(type==='other'&&!otherText){ crmToast('Please describe the request'); return; }
-  const labelMap={passport:'Passport Details','passport-photo':'Passport Photo Upload',guest:'Guest / Traveler Info',preferences:'Travel Preferences',dietary:'Dietary & Accessibility',emergency:'Emergency Contact',documents:'Upload Travel Documents',other:''+otherText};
-  const portalReqs = loadData('portal_reqs',{}); if(!portalReqs[idx]) portalReqs[idx]=[];
-  portalReqs[idx].push({type,label:labelMap[type]||otherText,status:'pending',added:new Date().toLocaleDateString()});
-  saveData('portal_reqs',portalReqs); renderPortalReqs(idx);
-  if(type==='other'){document.getElementById('portal-req-other-text').value=''; document.getElementById('portal-req-other-wrap').style.display='none'; document.getElementById('portal-req-type').value='passport';}
-  crmToast('Request added to portal ✓');
-}
-function renderPortalReqs(idx){
-  const container=document.getElementById('portal-req-list'); if(!container) return;
-  const reqs=(loadData('portal_reqs',{})[idx])||[];
-  const responses=loadData('portal_req_responses',{})[idx]||{};
-  if(!reqs.length){ container.innerHTML='<div style="font-size:12px;color:var(--gray);text-align:center;padding:12px">No requests added yet.</div>';
-    renderPortalReqResponses(idx); return; }
-  container.innerHTML=reqs.map((r,i)=>{
-    const hasResponse = !!responses[i];
-    return `<div style="display:flex;align-items:center;justify-content:space-between;background:${hasResponse?'var(--green-bg)':'var(--offwhite)'};border:1px solid ${hasResponse?'rgba(16,185,129,0.3)':'var(--gray-light)'};border-radius:8px;padding:10px 14px;font-size:12px;gap:10px">
-      <div style="flex:1"><strong>${r.label}</strong><span style="margin-left:8px;font-size:10px;color:var(--gray)">Added ${r.added}</span>${hasResponse?'<span style="margin-left:8px;font-size:10px;font-weight:700;color:var(--green)">✓ Response received</span>':''}</div>
-      ${!hasResponse?`<select onchange="updatePortalReqStatus(${idx},${i},this.value)" style="font-size:11px;border:1px solid var(--gray-light);border-radius:6px;padding:3px 6px">
-        <option${r.status==='pending'?' selected':''}>pending</option>
-        <option${r.status==='sent'?' selected':''}>sent</option>
-        <option${r.status==='received'?' selected':''}>received</option>
-      </select>`:''}
-      <button onclick="removePortalReq(${idx},${i})" style="background:none;border:none;color:var(--coral);cursor:pointer;font-size:14px">✕</button>
-    </div>`;
-  }).join('');
-  renderPortalReqResponses(idx);
-}
-function updatePortalReqStatus(idx,i,val){ const d=loadData('portal_reqs',{}); d[idx][i].status=val; saveData('portal_reqs',d); renderPortalReqs(idx); }
-function removePortalReq(idx,i){ const d=loadData('portal_reqs',{}); d[idx].splice(i,1); saveData('portal_reqs',d); renderPortalReqs(idx); }
 
 /*  Requirements Matrix  */
 const RQM_AVATAR_COLORS = ['#4299e1','#38b2ac','#805ad5','#dd6b20','#d53f8c'];
@@ -9687,11 +9651,6 @@ function weTab(el, panelId){
   if(panelId==='we-services') renderServicesEditor();
 }
 
-function saveWE(key){
-  const ind = document.getElementById('save-we-'+key);
-  if(ind){ ind.textContent='✓ Saved'; ind.classList.add('show'); setTimeout(()=>ind.classList.remove('show'),2000); }
-  crmToast('Section saved ✓');
-}
 function saveWeData(key, data){ saveData('we_'+key,data); saveWE(key); }
 
 // SLIDES
