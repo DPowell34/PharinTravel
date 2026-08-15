@@ -373,6 +373,22 @@ footer{background:var(--navy-dark);color:rgba(255,255,255,0.75);padding:48px 24p
 #crm-root .crm-imgzone.compact{flex:1;padding:6px 10px;min-height:0}
 #crm-root .modal-overlay{z-index:11000}
 #crm-root #modal-client{z-index:11200}
+#crm-root #modal-client .cl-layout{display:flex;border:1px solid var(--gray-light);border-radius:10px;overflow:hidden;min-height:360px}
+#crm-root #modal-client .cl-nav{width:172px;flex-shrink:0;background:#fff;border-right:1px solid var(--gray-light)}
+#crm-root #modal-client .cl-nav>div{padding:11px 14px;font-size:12px;font-weight:600;color:var(--navy);cursor:pointer;border-bottom:1px solid var(--gray-light);transition:background .15s}
+#crm-root #modal-client .cl-nav>div:last-child{border-bottom:none}
+#crm-root #modal-client .cl-nav>div:hover{background:var(--teal-bg)}
+#crm-root #modal-client .cl-nav>div.active{background:var(--teal);color:#fff}
+#crm-root #modal-client .cl-body{flex:1;min-width:0;padding:18px 20px;background:#fff}
+#crm-root #modal-client .cl-sec{display:none}
+#crm-root #modal-client .cl-sec.active{display:block}
+#crm-root #modal-client .cl-sec h4{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:14px}
+#crm-root #modal-client .cl-soon{font-size:12px;color:var(--gray);background:var(--offwhite);border:1px dashed var(--gray-light);border-radius:8px;padding:14px;line-height:1.6}
+@media(max-width:640px){#crm-root #modal-client .cl-layout{flex-direction:column}#crm-root #modal-client .cl-nav{width:100%;display:flex;flex-wrap:wrap;border-right:none;border-bottom:1px solid var(--gray-light)}#crm-root #modal-client .cl-nav>div{border-bottom:none;flex:1 0 auto;text-align:center}
+/* The global mobile rule for these is .field-row.cols-2, which loses to
+   #crm-root .field-row.cols-2 on specificity, so CRM forms stayed two-up on
+   phones. Restated at matching specificity. */
+#crm-root .field-row.cols-2,#crm-root .field-row.cols-3{grid-template-columns:1fr}}
 /* CRM full-page overlays carry their own z-index from the source file (600-700),
    which left them under the preview banner and clipped their topbars */
 #crm-root #modal-group-bookings-view{z-index:11100}
@@ -1964,32 +1980,113 @@ Ongoing support before, during, and after your trip</textarea></div>
       </div>
       <button class="modal-close" onclick="closeModal('modal-client')">✕</button>
     </div>
-    <div class="field-row cols-2">
-      <div class="field-group"><label>First Name *</label><input id="c-fname" type="text" placeholder="First name"></div>
-      <div class="field-group"><label>Last Name *</label><input id="c-lname" type="text" placeholder="Last name"></div>
-    </div>
-    <div class="field-row cols-2">
-      <div class="field-group"><label>Email *</label><input id="c-email" type="email" placeholder="client@email.com"></div>
-      <div class="field-group"><label>Phone</label><input id="c-phone" type="tel" placeholder="305-000-0000"></div>
-    </div>
-    <div class="field-row cols-2">
-      <div class="field-group"><label>Date of Birth</label><input id="c-dob" type="date"></div>
-      <div class="field-group"><label>Passport Number</label><input id="c-passportnum" type="text" placeholder="e.g. 512345678"></div>
-    </div>
-    <div class="field-row cols-2">
-      <div class="field-group"><label>Passport Expiration</label><input id="c-passport" type="date"></div>
-      <div class="field-group"></div>
-    </div>
-    <div class="field-row">
-      <div class="field-group"><label>Address</label><input id="c-address" type="text" placeholder="Street address"></div>
-    </div>
-    <div class="field-row cols-3">
-      <div class="field-group"><label>City</label><input id="c-city" type="text"></div>
-      <div class="field-group"><label>State</label><input id="c-state" type="text"></div>
-      <div class="field-group"><label>Zip</label><input id="c-zip" type="text"></div>
-    </div>
-    <div class="field-row">
-      <div class="field-group"><label>Notes</label><textarea id="c-notes" placeholder="Any additional notes..."></textarea></div>
+    <div class="cl-layout">
+      <div class="cl-nav">
+        <div class="active" onclick="clientSection('contact',this)">Contact info</div>
+        <div onclick="clientSection('relationships',this)">Relationships</div>
+        <div onclick="clientSection('loyalty',this)">Loyalty programs</div>
+        <div onclick="clientSection('dates',this)">Important dates</div>
+        <div onclick="clientSection('preferences',this)">Travel preferences</div>
+        <div onclick="clientSection('passport',this)">Passport info</div>
+        <div onclick="clientSection('vaccine',this)">Vaccine info</div>
+        <div onclick="clientSection('payment',this)">Payment info</div>
+        <div onclick="clientSection('files',this)">Files</div>
+        <div onclick="clientSection('notes',this)">Notes</div>
+      </div>
+      <div class="cl-body">
+      <div class="cl-sec active" id="cl-contact">
+        <h4>Contact info</h4>
+      <div class="field-row cols-2">
+        <div class="field-group"><label>First Name *</label><input id="c-fname" type="text" placeholder="First name"></div>
+        <div class="field-group"><label>Last Name *</label><input id="c-lname" type="text" placeholder="Last name"></div>
+      </div>
+      <div class="field-row cols-2">
+        <div class="field-group"><label>Email *</label><input id="c-email" type="email" placeholder="client@email.com"></div>
+        <div class="field-group"><label>Phone</label><input id="c-phone" type="tel" placeholder="305-000-0000"></div>
+      </div>
+      <div class="field-row cols-2">
+        <div class="field-group"><label>TravelJoy Client ID</label><input id="c-tjid" type="text"></div>
+        <div class="field-group"><label>Referral source</label><input id="c-referral" type="text" placeholder="How did they find you?"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Emergency contact</label><input id="c-emergency" type="text" placeholder="Name and phone number"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Address</label><input id="c-address" type="text"></div>
+      </div>
+      <div class="field-row cols-3">
+        <div class="field-group"><label>City</label><input id="c-city" type="text"></div>
+        <div class="field-group"><label>State</label><input id="c-state" type="text"></div>
+        <div class="field-group"><label>Zip</label><input id="c-zip" type="text"></div>
+      </div>
+      </div>
+      <div class="cl-sec" id="cl-relationships">
+        <h4>Relationships</h4>
+      <div class="field-row">
+        <div class="field-group"><label>Spouse, family and travel companions</label><textarea id="c-relationships" placeholder="e.g. Spouse: Marcus Thomas. Travels with sister Dana."></textarea></div>
+      </div>
+      </div>
+      <div class="cl-sec" id="cl-loyalty">
+        <h4>Loyalty programs</h4>
+      <div class="field-row">
+        <div class="field-group"><label>Frequent flyer numbers</label><textarea id="c-ffn" placeholder="e.g. Delta SkyMiles 1234567890"></textarea></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Hotel / cruise loyalty</label><textarea id="c-hotelloyalty" placeholder="e.g. Marriott Bonvoy 998877"></textarea></div>
+      </div>
+      </div>
+      <div class="cl-sec" id="cl-dates">
+        <h4>Important dates</h4>
+      <div class="field-row cols-2">
+        <div class="field-group"><label>Date of Birth</label><input id="c-dob" type="date"></div>
+        <div class="field-group"><label>Anniversary</label><input id="c-anniversary" type="date"></div>
+      </div>
+      </div>
+      <div class="cl-sec" id="cl-preferences">
+        <h4>Travel preferences</h4>
+      <div class="field-row cols-2">
+        <div class="field-group"><label>Seat preference</label><input id="c-seat" type="text" placeholder="e.g. Aisle, front of cabin"></div>
+        <div class="field-group"><label>Dietary restrictions</label><input id="c-dietary" type="text" placeholder="e.g. Vegetarian, nut allergy"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Other preferences</label><textarea id="c-preferences" placeholder="Room type, bed configuration, pace of travel..."></textarea></div>
+      </div>
+      </div>
+      <div class="cl-sec" id="cl-passport">
+        <h4>Passport info</h4>
+      <div class="field-row cols-2">
+        <div class="field-group"><label>Passport Number</label><input id="c-passportnum" type="text" placeholder="e.g. 512345678"></div>
+        <div class="field-group"><label>Passport Expiration</label><input id="c-passport" type="date"></div>
+      </div>
+      <div class="field-row cols-2">
+        <div class="field-group"><label>Passport country</label><input id="c-passportcountry" type="text" placeholder="Country of issue"></div>
+        <div class="field-group"><label>Known Traveler / Redress #</label><input id="c-ktn" type="text"></div>
+      </div>
+      </div>
+      <div class="cl-sec" id="cl-vaccine">
+        <h4>Vaccine info</h4>
+      <div class="field-row">
+        <div class="field-group"><label>Vaccinations and health notes</label><textarea id="c-vaccine" placeholder="e.g. Yellow fever (2024-03), COVID-19 boosted"></textarea></div>
+      </div>
+      </div>
+      <div class="cl-sec" id="cl-payment">
+        <h4>Payment info</h4>
+      <div class="field-row">
+        <div class="field-group"><label>Payment preferences and notes</label><textarea id="c-payment" placeholder="e.g. Prefers Amex, split deposits across two cards"></textarea></div>
+      </div>
+      <div class="cl-soon">Card details are never stored on the client record. Collect them per booking through the client portal.</div>
+      </div>
+      <div class="cl-sec" id="cl-files">
+        <h4>Files</h4>
+      <div class="cl-soon">Documents are stored per trip, not per client. Open the trip and use its Documents tab.</div>
+      </div>
+      <div class="cl-sec" id="cl-notes">
+        <h4>Notes</h4>
+      <div class="field-row">
+        <div class="field-group"><label>Notes</label><textarea id="c-notes" placeholder="Any additional notes..."></textarea></div>
+      </div>
+      </div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-primary" onclick="saveClient()">Save Client</button>
@@ -6114,13 +6211,38 @@ function renderClients(filter=''){
   }).join('');
 }
 function filterClients(v){ renderClients(v); }
-function openAddClient(){ editingClientIdx=-1; document.getElementById('modal-client-title').textContent='Add New Client'; ['fname','lname','email','phone','dob','passport','passportnum','address','city','state','zip','notes'].forEach(f=>{const el=document.getElementById('c-'+f); if(el) el.value='';}); openModal('modal-client'); }
-function editClient(idx){ editingClientIdx=idx; const c=clients[idx]; document.getElementById('modal-client-title').textContent='Edit Client'; ['fname','lname','email','phone','dob','passport','passportnum','address','city','state','zip','notes'].forEach(f=>{const el=document.getElementById('c-'+f); if(el) el.value=c[f]||'';}); openModal('modal-client'); }
+function openAddClient(){ editingClientIdx=-1; document.getElementById('modal-client-title').textContent='Add New Client'; CLIENT_FIELDS.forEach(f=>{const el=document.getElementById('c-'+f); if(el) el.value='';}); openModal('modal-client'); clientSectionReset(); }
+function editClient(idx){ editingClientIdx=idx; const c=clients[idx]||{}; document.getElementById('modal-client-title').textContent='Edit Client'; CLIENT_FIELDS.forEach(f=>{const el=document.getElementById('c-'+f); if(el) el.value=c[f]||'';}); openModal('modal-client'); clientSectionReset(); }
+// Every field on the client record. Add here and in the markup; nothing else
+// needs to change.
+const CLIENT_FIELDS = ['fname','lname','email','phone','tjid','referral','emergency','address','city','state','zip','relationships','ffn','hotelloyalty','dob','anniversary','seat','dietary','preferences','passportnum','passport','passportcountry','ktn','vaccine','payment','notes'];
+
+// Switch category in the client popup.
+function clientSection(key, el){
+  document.querySelectorAll('#modal-client .cl-sec').forEach(function(p){ p.classList.remove('active'); });
+  const panel = document.getElementById('cl-' + key);
+  if(panel) panel.classList.add('active');
+  document.querySelectorAll('#modal-client .cl-nav>div').forEach(function(n){ n.classList.remove('active'); });
+  if(el) el.classList.add('active');
+}
+
+// Always land on Contact info when the popup opens.
+function clientSectionReset(){
+  const first = document.querySelector('#modal-client .cl-nav>div');
+  clientSection('contact', first);
+  const body = document.querySelector('#modal-client .cl-body');
+  if(body) body.scrollTop = 0;
+}
+
 function saveClient(){
-  const c={fname:document.getElementById('c-fname').value.trim(),lname:document.getElementById('c-lname').value.trim(),email:document.getElementById('c-email').value.trim(),phone:document.getElementById('c-phone').value.trim(),dob:document.getElementById('c-dob').value,passport:document.getElementById('c-passport').value,passportnum:(document.getElementById('c-passportnum')||{value:''}).value.trim(),address:document.getElementById('c-address').value.trim(),city:document.getElementById('c-city').value.trim(),state:document.getElementById('c-state').value.trim(),zip:document.getElementById('c-zip').value.trim(),notes:document.getElementById('c-notes').value.trim()};
-  if(!c.fname||!c.lname){ crmToast('First and last name are required'); return; }
-  if(editingClientIdx>=0) clients[editingClientIdx]=c; else clients.push(c);
-  saveData('clients',clients); closeModal('modal-client'); renderClients(); crmToast('Client saved ✓');
+  const c = {};
+  CLIENT_FIELDS.forEach(function(f){
+    const el = document.getElementById('c-' + f);
+    c[f] = el ? (el.type === 'date' ? el.value : el.value.trim()) : '';
+  });
+  if(!c.fname || !c.lname){ crmToast('First and last name are required'); clientSectionReset(); return; }
+  if(editingClientIdx >= 0) clients[editingClientIdx] = c; else clients.push(c);
+  saveData('clients', clients); closeModal('modal-client'); renderClients(); crmToast('Client saved ✓');
 }
 function deleteClient(idx){ if(!confirm('Delete this client?')) return; clients.splice(idx,1); saveData('clients',clients); renderClients(); crmToast('Client deleted'); }
 
