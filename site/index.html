@@ -1339,7 +1339,7 @@ body.admin-open .admin-topbar{top:24px}
       </div>
       <div class="card" style="padding:0;overflow:hidden">
         <div class="tbl-wrap"><table>
-          <thead><tr><th class="th-sort" onclick="sortClients('name')">Name<span class="sort-ind" id="cs-name"></span></th><th class="th-sort" onclick="sortClients('address')">Address<span class="sort-ind" id="cs-address"></span></th><th class="th-sort" onclick="sortClients('phone')">Phone<span class="sort-ind" id="cs-phone"></span></th><th class="th-sort" onclick="sortClients('email')">Email<span class="sort-ind" id="cs-email"></span></th><th class="th-sort" onclick="sortClients('dob')">Date of Birth<span class="sort-ind" id="cs-dob"></span></th><th class="th-sort" onclick="sortClients('passportnum')">Passport Number<span class="sort-ind" id="cs-passportnum"></span></th><th class="th-sort" onclick="sortClients('passport')">Passport Exp<span class="sort-ind" id="cs-passport"></span></th><th>Actions</th></tr></thead>
+          <thead><tr><th class="th-sort" onclick="sortClients('name')">Name (Last, First)<span class="sort-ind" id="cs-name"></span></th><th class="th-sort" onclick="sortClients('address')">Address<span class="sort-ind" id="cs-address"></span></th><th class="th-sort" onclick="sortClients('phone')">Phone<span class="sort-ind" id="cs-phone"></span></th><th class="th-sort" onclick="sortClients('email')">Email<span class="sort-ind" id="cs-email"></span></th><th class="th-sort" onclick="sortClients('dob')">Date of Birth<span class="sort-ind" id="cs-dob"></span></th><th class="th-sort" onclick="sortClients('passportnum')">Passport Number<span class="sort-ind" id="cs-passportnum"></span></th><th class="th-sort" onclick="sortClients('passport')">Passport Exp<span class="sort-ind" id="cs-passport"></span></th><th>Actions</th></tr></thead>
           <tbody id="clients-table-body"></tbody>
         </table></div>
       </div>
@@ -5824,8 +5824,17 @@ function phoneInput(el){
 let clientSort = { key: '', dir: 1 };
 
 // The value a column sorts on, which is not always what the cell renders.
+// "Last, First" for the Clients table. Falls back gracefully so a record with
+// only one name never renders a stray comma.
+function clientDisplayName(c){
+  const fn = (c.fname || '').trim();
+  const ln = (c.lname || '').trim();
+  if(ln && fn) return ln + ', ' + fn;
+  return ln || fn || 'Unnamed';
+}
+
 function clientSortValue(c, key){
-  if(key === 'name')    return ((c.fname || '') + ' ' + (c.lname || '')).trim();
+  if(key === 'name')    return clientDisplayName(c);   // sorts by last name, matching the cell
   if(key === 'address') return [c.address, c.city, c.state].filter(Boolean).join(', ');
   // Sort on the digits behind the displayed format, so the visible order in
   // the (xxx)xxx-xxxx column is actually ascending.
@@ -6524,7 +6533,7 @@ function renderClients(filter=''){
     const idx = clients.indexOf(c);
     const passport = c.passport ? `<span style="color:${daysUntil(c.passport)<90?'var(--coral)':'var(--gray)'}">${fmtDate(c.passport)}</span>` : '—';
     return `<tr>
-      <td><strong>${c.fname} ${c.lname}</strong></td>
+      <td><strong>${clientDisplayName(c)}</strong></td>
       <td>${[c.address,c.city,c.state].filter(Boolean).join(', ')||'—'}</td>
       <td>${fmtPhone(c.phone)||'—'}</td>
       <td>${c.email||'—'}</td>
