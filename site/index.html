@@ -2034,7 +2034,7 @@ Ongoing support before, during, and after your trip</textarea></div>
       </div>
       <div class="field-row cols-2">
         <div class="field-group"><label>Email *</label><input id="c-email" type="email" placeholder="client@email.com"></div>
-        <div class="field-group"><label>Phone</label><input id="c-phone" type="tel" placeholder="305-000-0000"></div>
+        <div class="field-group"><label>Phone</label><input id="c-phone" type="tel" placeholder="(305)000-0000" inputmode="tel" oninput="phoneInput(this)"></div>
       </div>
       <div class="field-row cols-2">
         <div class="field-group"><label>TravelJoy Client ID</label><input id="c-tjid" type="text"></div>
@@ -5784,6 +5784,39 @@ function saveData(key,val){
 }
 
 // ====================================================
+// PHONE FORMATTING -- (xxx)xxx-xxxx
+// ====================================================
+// Display formatter. Returns the input untouched unless it is confidently a
+// US 10-digit number, so international numbers, extensions and partial records
+// are never mangled.
+function fmtPhone(v){
+  if(!v) return '';
+  const raw = String(v).trim();
+  if(raw.charAt(0) === '+') return raw;            // international: leave alone
+  let d = raw.replace(/\D/g, '');
+  if(d.length === 11 && d.charAt(0) === '1') d = d.slice(1);
+  if(d.length !== 10) return raw;                  // not a shape we recognise
+  return '(' + d.slice(0,3) + ')' + d.slice(3,6) + '-' + d.slice(6);
+}
+
+// Live formatter for the client Phone field. Rebuilds from digits on every
+// keystroke so backspacing behaves, and caps at 10 digits so a stray keypress
+// cannot run past the pattern.
+function phoneInput(el){
+  if(!el) return;
+  const raw = el.value;
+  if(raw.trim().charAt(0) === '+') return;         // international: hands off
+  let d = raw.replace(/\D/g, '');
+  if(d.length === 11 && d.charAt(0) === '1') d = d.slice(1);
+  d = d.slice(0, 10);
+  let out = '';
+  if(d.length) out = '(' + d.slice(0,3);
+  if(d.length >= 4) out += ')' + d.slice(3,6);
+  if(d.length >= 7) out += '-' + d.slice(6,10);
+  el.value = out;
+}
+
+// ====================================================
 // CLIENT TABLE SORTING
 // ====================================================
 // Sorts the displayed copy only. `clients` keeps its own order, so nothing
@@ -5794,6 +5827,9 @@ let clientSort = { key: '', dir: 1 };
 function clientSortValue(c, key){
   if(key === 'name')    return ((c.fname || '') + ' ' + (c.lname || '')).trim();
   if(key === 'address') return [c.address, c.city, c.state].filter(Boolean).join(', ');
+  // Sort on the digits behind the displayed format, so the visible order in
+  // the (xxx)xxx-xxxx column is actually ascending.
+  if(key === 'phone')   return fmtPhone(c.phone || '').replace(/\D/g, '');
   return c[key] || '';
 }
 
@@ -5999,7 +6035,7 @@ function loadLiveActivity(){
       dbClients.forEach(function(c){
         feed.push({kind:'client', when:c.created_at || c.updated_at,
                    text:escHtml(c.name || 'Client'),
-                   meta:[c.email, c.phone].filter(Boolean).map(escHtml).join(' · ')});
+                   meta:[c.email, fmtPhone(c.phone)].filter(Boolean).map(escHtml).join(' · ')});
       });
 
       const dated = feed.filter(function(f){ return f.when; })
@@ -6469,7 +6505,15 @@ function refreshOverview(){
 function renderClients(filter=''){
   const tbody = document.getElementById('clients-table-body');
   const f = filter.toLowerCase();
-  const filtered = clients.filter(c=>!f||(c.fname+' '+c.lname+c.email+c.phone).toLowerCase().includes(f));
+  // Match the number as typed OR as displayed -- digits are compared
+  // separately so copying '(678)555-0133' out of the table still finds it.
+  const fDigits = f.replace(/\D/g, '');
+  const filtered = clients.filter(function(c){
+    if(!f) return true;
+    if((c.fname+' '+c.lname+' '+c.email+' '+c.phone).toLowerCase().includes(f)) return true;
+    if(fDigits && String(c.phone||'').replace(/\D/g,'').includes(fDigits)) return true;
+    return false;
+  });
   sortClientRows(filtered);
   paintSortIndicators();
   if(filtered.length===0){
@@ -6482,7 +6526,7 @@ function renderClients(filter=''){
     return `<tr>
       <td><strong>${c.fname} ${c.lname}</strong></td>
       <td>${[c.address,c.city,c.state].filter(Boolean).join(', ')||'—'}</td>
-      <td>${c.phone||'—'}</td>
+      <td>${fmtPhone(c.phone)||'—'}</td>
       <td>${c.email||'—'}</td>
       <td>${fmtDate(c.dob)}</td>
       <td>${c.passportnum||'—'}</td>
@@ -6511,9 +6555,14 @@ function clientSection(key, el){
 }
 
 // Always land on Contact info when the popup opens.
+// Existing records hold phones in mixed shapes; normalise what is shown in
+// the editor without touching what is stored elsewhere.
+function clientPhoneNormalise(){ const el = document.getElementById('c-phone'); if(el) phoneInput(el); }
+
 function clientSectionReset(){
   const first = document.querySelector('#modal-client .cl-nav>div');
   clientSection('contact', first);
+  clientPhoneNormalise();
   const body = document.querySelector('#modal-client .cl-body');
   if(body) body.scrollTop = 0;
 }
