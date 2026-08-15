@@ -372,7 +372,7 @@ footer{background:var(--navy-dark);color:rgba(255,255,255,0.75);padding:48px 24p
 #crm-root .crm-imgzone .crm-up-clear{margin-left:auto;border:none;background:var(--red-bg);color:var(--red);font-size:11px;font-weight:700;padding:5px 10px;border-radius:6px;cursor:pointer}
 #crm-root .crm-imgzone.compact{flex:1;padding:6px 10px;min-height:0}
 #crm-root .modal-overlay{z-index:11000}
-#crm-root #modal-client{z-index:11200}
+#crm-root #modal-client.fullpage{z-index:11200}
 #crm-root th.th-sort{cursor:pointer;user-select:none;white-space:nowrap}
 #crm-root th.th-sort:hover{color:var(--teal)}
 #crm-root .sort-ind{display:inline-block;width:12px;margin-left:4px;font-size:10px;color:var(--teal)}
@@ -1138,6 +1138,7 @@ body.admin-open .admin-topbar{top:24px}
         <a onclick="showAdminWE('we-promotions')" id="asid-we-we-promotions">Travel Promotions</a>
         <a onclick="showAdminWE('we-blog')" id="asid-we-we-blog">Resources</a>
         <a onclick="showAdminWE('we-testimonials')" id="asid-we-we-testimonials">Testimonials</a>
+        <a onclick="showAdminCRM('crm-templates')" id="asid-crm-crm-templates">Templates</a>
         <a onclick="showAdmin('terms-admin')" id="asid-terms-admin">Terms &amp; Waivers</a>
 
         <div class="sidebar-section">Site</div>
@@ -1282,7 +1283,7 @@ body.admin-open .admin-topbar{top:24px}
       </div>
       <div class="card" style="padding:0;overflow:hidden">
         <div class="tbl-wrap"><table>
-          <thead><tr><th class="th-sort" onclick="sortClients('name')">Name (Last, First)<span class="sort-ind" id="cs-name"></span></th><th class="th-sort" onclick="sortClients('address')">Address<span class="sort-ind" id="cs-address"></span></th><th class="th-sort" onclick="sortClients('phone')">Phone<span class="sort-ind" id="cs-phone"></span></th><th class="th-sort" onclick="sortClients('email')">Email<span class="sort-ind" id="cs-email"></span></th><th class="th-sort" onclick="sortClients('dob')">Date of Birth<span class="sort-ind" id="cs-dob"></span></th><th class="th-sort" onclick="sortClients('passportnum')">Passport Number<span class="sort-ind" id="cs-passportnum"></span></th><th class="th-sort" onclick="sortClients('passport')">Passport Exp<span class="sort-ind" id="cs-passport"></span></th><th>Actions</th></tr></thead>
+          <thead><tr><th class="th-sort" onclick="sortClients('name')">Name<span class="sort-ind" id="cs-name"></span></th><th class="th-sort" onclick="sortClients('address')">Address<span class="sort-ind" id="cs-address"></span></th><th class="th-sort" onclick="sortClients('phone')">Phone<span class="sort-ind" id="cs-phone"></span></th><th class="th-sort" onclick="sortClients('email')">Email<span class="sort-ind" id="cs-email"></span></th><th class="th-sort" onclick="sortClients('dob')">Date of Birth<span class="sort-ind" id="cs-dob"></span></th><th class="th-sort" onclick="sortClients('passportnum')">Passport Number<span class="sort-ind" id="cs-passportnum"></span></th><th class="th-sort" onclick="sortClients('passport')">Passport Exp<span class="sort-ind" id="cs-passport"></span></th><th>Actions</th></tr></thead>
           <tbody id="clients-table-body"></tbody>
         </table></div>
       </div>
@@ -1378,8 +1379,7 @@ body.admin-open .admin-topbar{top:24px}
       <div class="page-sub">Manage your business profile, agent info, notifications, and security.</div>
       <div class="tabs" id="settings-tabs">
         <div class="tab active" onclick="settingsTab(this,'settings-business')">Business Profile</div>
-        <div class="tab" onclick="settingsTab(this,'settings-agent')">Agent Profile</div>
-        <div class="tab" onclick="settingsTab(this,'settings-notifications')">Notifications</div>
+                <div class="tab" onclick="settingsTab(this,'settings-notifications')">Notifications</div>
         <div class="tab" onclick="settingsTab(this,'settings-security')">Security</div>
         <div class="tab" onclick="settingsTab(this,'settings-branding')">Branding</div>
       </div>
@@ -1451,67 +1451,8 @@ body.admin-open .admin-topbar{top:24px}
       </div>
 
       <!-- AGENT PROFILE -->
-      <div id="settings-agent" class="settings-panel" style="display:none">
-        <div class="card">
-          <div class="card-title">Agent / Owner Profile</div>
-          <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;margin-bottom:20px">
-            <div style="text-align:center">
-              <div id="agent-avatar-preview" style="width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--teal));display:flex;align-items:center;justify-content:center;font-size:42px;margin:0 auto 10px;overflow:hidden;border:3px solid var(--gray-light)">‍</div>
-              <button class="btn btn-sm btn-outline" onclick="document.getElementById('agent-photo-upload').click()">Upload Photo</button>
-              <input type="file" id="agent-photo-upload" accept="image/*" style="display:none" onchange="previewAgentPhoto(this)">
-              <div style="font-size:10px;color:var(--gray);margin-top:6px">JPG, PNG · Max 2MB</div>
-            </div>
-            <div style="flex:1;min-width:260px">
-              <div class="field-row cols-2">
-                <div class="field-group"><label>First Name</label><input id="s-agent-fname" type="text" value="Pharin"></div>
-                <div class="field-group"><label>Last Name</label><input id="s-agent-lname" type="text" value="Walker"></div>
-              </div>
-              <div class="field-row cols-2">
-                <div class="field-group"><label>Title</label><input id="s-agent-title" type="text" value="Owner & Travel Agent"></div>
-                <div class="field-group"><label>Agency</label><input id="s-agent-agency" type="text" value="Destined 4 Destinations LLC"></div>
-              </div>
-              <div class="field-row cols-2">
-                <div class="field-group"><label>Phone</label><input id="s-agent-phone" type="tel" value="305-206-6598"></div>
-                <div class="field-group"><label>Email</label><input id="s-agent-email" type="email" value="Destined4Destinations@gmail.com"></div>
-              </div>
-            </div>
-          </div>
-          <div class="field-group" style="margin-bottom:14px"><label>Professional Bio</label><textarea id="s-agent-bio" style="min-height:120px">Travel isn't just about visiting new places — it's about creating unforgettable memories that last a lifetime. That's why I founded Destined 4 Destinations: to help individuals, couples, families, and groups experience the world with confidence, ease, and excitement.
-
-Since launching my agency in 2018, I've had the privilege of helping travelers plan everything from dream honeymoons and destination weddings to Disney vacations, luxury all-inclusive resorts, cruises, family reunions, birthday celebrations, and bucket-list adventures around the world.</textarea></div>
-          <div class="field-row cols-2">
-            <div class="field-group"><label>IATA / CLIA Number</label><input id="s-agent-iata" type="text" placeholder="Your accreditation number"></div>
-            <div class="field-group"><label>Host Agency</label><input id="s-agent-host" type="text" placeholder="e.g. Travel Leaders"></div>
-          </div>
-          <div class="field-row cols-2">
-            <div class="field-group"><label>Years in Business</label><input id="s-agent-years" type="text" value="Since 2018"></div>
-            <div class="field-group"><label>Specialties</label><input id="s-agent-specs" type="text" placeholder="e.g. All-Inclusive, Cruises, Disney" value="All-Inclusive, Cruises, Disney, Group Travel"></div>
-          </div>
-          <button class="btn btn-primary" onclick="saveSetting('agent')">Save Agent Profile</button>
-          <span class="save-indicator" id="save-agent"></span>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Stats & Milestones (shown on About page)</div>
-          <div class="field-row" style="grid-template-columns:repeat(4,1fr)">
-            <div class="field-group"><label>Stat 1 Value</label><input id="s-stat1v" type="text" value="2018"></div>
-            <div class="field-group"><label>Stat 1 Label</label><input id="s-stat1l" type="text" value="Founded"></div>
-            <div class="field-group"><label>Stat 2 Value</label><input id="s-stat2v" type="text" value="500+"></div>
-            <div class="field-group"><label>Stat 2 Label</label><input id="s-stat2l" type="text" value="Happy Travelers"></div>
-          </div>
-          <div class="field-row" style="grid-template-columns:repeat(4,1fr)">
-            <div class="field-group"><label>Stat 3 Value</label><input id="s-stat3v" type="text" value="50+"></div>
-            <div class="field-group"><label>Stat 3 Label</label><input id="s-stat3l" type="text" value="Destinations"></div>
-            <div class="field-group"><label>Stat 4 Value</label><input id="s-stat4v" type="text" value="5"></div>
-            <div class="field-group"><label>Stat 4 Label</label><input id="s-stat4l" type="text" value="Avg Rating"></div>
-          </div>
-          <button class="btn btn-primary" onclick="saveSetting('stats')">Save Stats</button>
-          <span class="save-indicator" id="save-stats"></span>
-        </div>
-      </div>
-
-      <!-- NOTIFICATIONS -->
-      <div id="settings-notifications" class="settings-panel" style="display:none">
+            <!-- NOTIFICATIONS -->
+<div id="settings-notifications" class="settings-panel" style="display:none">
         <div class="card">
           <div class="card-title">Email Notifications</div>
           <div style="display:flex;flex-direction:column;gap:14px">
@@ -1840,6 +1781,67 @@ Ongoing support before, during, and after your trip</textarea></div>
           <button class="btn btn-primary" onclick="saveWE('about-content')">Save About Content</button>
           <span class="save-indicator" id="save-we-about-content"></span>
         </div>
+      
+        <div class="card-title" style="margin-top:22px;padding-top:18px;border-top:1px solid var(--gray-light)">Agent Profile</div>
+        <div style="font-size:11px;color:var(--gray);margin-bottom:12px">Moved here from Settings &mdash; these details feed the public About page.</div>
+
+        <div class="card">
+          <div class="card-title">Agent / Owner Profile</div>
+          <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;margin-bottom:20px">
+            <div style="text-align:center">
+              <div id="agent-avatar-preview" style="width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--teal));display:flex;align-items:center;justify-content:center;font-size:42px;margin:0 auto 10px;overflow:hidden;border:3px solid var(--gray-light)">‍</div>
+              <button class="btn btn-sm btn-outline" onclick="document.getElementById('agent-photo-upload').click()">Upload Photo</button>
+              <input type="file" id="agent-photo-upload" accept="image/*" style="display:none" onchange="previewAgentPhoto(this)">
+              <div style="font-size:10px;color:var(--gray);margin-top:6px">JPG, PNG · Max 2MB</div>
+            </div>
+            <div style="flex:1;min-width:260px">
+              <div class="field-row cols-2">
+                <div class="field-group"><label>First Name</label><input id="s-agent-fname" type="text" value="Pharin"></div>
+                <div class="field-group"><label>Last Name</label><input id="s-agent-lname" type="text" value="Walker"></div>
+              </div>
+              <div class="field-row cols-2">
+                <div class="field-group"><label>Title</label><input id="s-agent-title" type="text" value="Owner & Travel Agent"></div>
+                <div class="field-group"><label>Agency</label><input id="s-agent-agency" type="text" value="Destined 4 Destinations LLC"></div>
+              </div>
+              <div class="field-row cols-2">
+                <div class="field-group"><label>Phone</label><input id="s-agent-phone" type="tel" value="305-206-6598"></div>
+                <div class="field-group"><label>Email</label><input id="s-agent-email" type="email" value="Destined4Destinations@gmail.com"></div>
+              </div>
+            </div>
+          </div>
+          <div class="field-group" style="margin-bottom:14px"><label>Professional Bio</label><textarea id="s-agent-bio" style="min-height:120px">Travel isn't just about visiting new places — it's about creating unforgettable memories that last a lifetime. That's why I founded Destined 4 Destinations: to help individuals, couples, families, and groups experience the world with confidence, ease, and excitement.
+
+Since launching my agency in 2018, I've had the privilege of helping travelers plan everything from dream honeymoons and destination weddings to Disney vacations, luxury all-inclusive resorts, cruises, family reunions, birthday celebrations, and bucket-list adventures around the world.</textarea></div>
+          <div class="field-row cols-2">
+            <div class="field-group"><label>IATA / CLIA Number</label><input id="s-agent-iata" type="text" placeholder="Your accreditation number"></div>
+            <div class="field-group"><label>Host Agency</label><input id="s-agent-host" type="text" placeholder="e.g. Travel Leaders"></div>
+          </div>
+          <div class="field-row cols-2">
+            <div class="field-group"><label>Years in Business</label><input id="s-agent-years" type="text" value="Since 2018"></div>
+            <div class="field-group"><label>Specialties</label><input id="s-agent-specs" type="text" placeholder="e.g. All-Inclusive, Cruises, Disney" value="All-Inclusive, Cruises, Disney, Group Travel"></div>
+          </div>
+          <button class="btn btn-primary" onclick="saveSetting('agent')">Save Agent Profile</button>
+          <span class="save-indicator" id="save-agent"></span>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Stats & Milestones (shown on About page)</div>
+          <div class="field-row" style="grid-template-columns:repeat(4,1fr)">
+            <div class="field-group"><label>Stat 1 Value</label><input id="s-stat1v" type="text" value="2018"></div>
+            <div class="field-group"><label>Stat 1 Label</label><input id="s-stat1l" type="text" value="Founded"></div>
+            <div class="field-group"><label>Stat 2 Value</label><input id="s-stat2v" type="text" value="500+"></div>
+            <div class="field-group"><label>Stat 2 Label</label><input id="s-stat2l" type="text" value="Happy Travelers"></div>
+          </div>
+          <div class="field-row" style="grid-template-columns:repeat(4,1fr)">
+            <div class="field-group"><label>Stat 3 Value</label><input id="s-stat3v" type="text" value="50+"></div>
+            <div class="field-group"><label>Stat 3 Label</label><input id="s-stat3l" type="text" value="Destinations"></div>
+            <div class="field-group"><label>Stat 4 Value</label><input id="s-stat4v" type="text" value="5"></div>
+            <div class="field-group"><label>Stat 4 Label</label><input id="s-stat4l" type="text" value="Avg Rating"></div>
+          </div>
+          <button class="btn btn-primary" onclick="saveSetting('stats')">Save Stats</button>
+          <span class="save-indicator" id="save-stats"></span>
+        </div>
+      
       </div>
 
       <!-- FOOTER & NAV -->
@@ -1946,15 +1948,19 @@ Ongoing support before, during, and after your trip</textarea></div>
 
 <!-- MODALS -->
 <!-- Add/Edit Client Modal -->
-<div class="modal-overlay" id="modal-client">
-  <div class="modal modal-lg">
-    <div class="modal-header">
-      <div>
-        <h3 id="modal-client-title">Add New Client</h3>
-        <div id="modal-client-sub" style="font-size:12px;color:var(--gray);margin-top:3px">Client record</div>
+<div class="modal-overlay fullpage" id="modal-client">
+  <div class="modal-fullpage">
+    <div class="fp-topbar">
+      <div class="fp-topbar-left">
+        <button class="fp-back" onclick="closeModal('modal-client')">← Back to Clients</button>
+        <div>
+          <div class="fp-title" id="modal-client-title">Add New Client</div>
+          <div class="fp-sub" id="modal-client-sub">Client record</div>
+        </div>
       </div>
-      <button class="modal-close" onclick="closeModal('modal-client')">✕</button>
+      <button class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:#fff;border:none;font-size:12px;font-weight:700;padding:6px 14px;border-radius:8px;cursor:pointer" onclick="saveClient()">Save Client</button>
     </div>
+    <div class="fp-body">
     <div class="cl-layout">
       <div class="cl-nav">
         <div class="active" onclick="clientSection('contact',this)">Contact info</div>
@@ -1980,7 +1986,6 @@ Ongoing support before, during, and after your trip</textarea></div>
         <div class="field-group"><label>Phone</label><input id="c-phone" type="tel" placeholder="(305) 000-0000" inputmode="tel" oninput="phoneInput(this)"></div>
       </div>
       <div class="field-row cols-2">
-        <div class="field-group"><label>TravelJoy Client ID</label><input id="c-tjid" type="text"></div>
         <div class="field-group"><label>Referral source</label><input id="c-referral" type="text" placeholder="How did they find you?"></div>
       </div>
       <div class="field-row">
@@ -1997,18 +2002,13 @@ Ongoing support before, during, and after your trip</textarea></div>
       </div>
       <div class="cl-sec" id="cl-relationships">
         <h4>Relationships</h4>
-      <div class="field-row">
-        <div class="field-group"><label>Spouse, family and travel companions</label><textarea id="c-relationships" placeholder="e.g. Spouse: Marcus Thomas. Travels with sister Dana."></textarea></div>
-      </div>
+      <div id="c-rel-table"></div>
+      <button class="btn btn-sm btn-outline" style="margin-top:8px" onclick="clientAddRel()">+ Add relationship</button>
       </div>
       <div class="cl-sec" id="cl-loyalty">
         <h4>Loyalty programs</h4>
-      <div class="field-row">
-        <div class="field-group"><label>Frequent flyer numbers</label><textarea id="c-ffn" placeholder="e.g. Delta SkyMiles 1234567890"></textarea></div>
-      </div>
-      <div class="field-row">
-        <div class="field-group"><label>Hotel / cruise loyalty</label><textarea id="c-hotelloyalty" placeholder="e.g. Marriott Bonvoy 998877"></textarea></div>
-      </div>
+      <div id="c-loy-table"></div>
+      <button class="btn btn-sm btn-outline" style="margin-top:8px" onclick="clientAddLoy()">+ Add loyalty number</button>
       </div>
       <div class="cl-sec" id="cl-dates">
         <h4>Important dates</h4>
@@ -2066,6 +2066,7 @@ Ongoing support before, during, and after your trip</textarea></div>
     <div class="modal-footer">
       <button class="btn btn-primary" onclick="saveClient()">Save Client</button>
       <button class="btn btn-outline" onclick="closeModal('modal-client')">Cancel</button>
+    </div>
     </div>
   </div>
 </div>
@@ -3494,7 +3495,7 @@ Ongoing support before, during, and after your trip</textarea></div>
 
           <div class="admin-card">
             <h3>Terms &amp; Conditions Content</h3>
-            <p style="font-size:12px;color:var(--gray);margin-bottom:14px">You can use plain text or HTML tags (e.g. &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;&lt;li&gt;). The content will render directly on the page.</p>
+            <p style="font-size:12px;color:var(--gray);margin-bottom:14px">Plain text only. Line breaks are preserved; HTML tags are not interpreted and will show as typed.</p>
             <div class="field-group" style="margin-bottom:14px">
               <label>Main Terms &amp; Conditions Body</label>
               <textarea id="tc-main-content" style="min-height:320px;font-family:monospace;font-size:12px"></textarea>
@@ -3505,7 +3506,7 @@ Ongoing support before, during, and after your trip</textarea></div>
 
           <div class="admin-card">
             <h3>Waiver &amp; Release of Liability Content</h3>
-            <p style="font-size:12px;color:var(--gray);margin-bottom:14px">Edit the waiver section separately. Supports HTML.</p>
+            <p style="font-size:12px;color:var(--gray);margin-bottom:14px">Edit the waiver section separately. Plain text only; line breaks are preserved.</p>
             <div class="field-group" style="margin-bottom:14px">
               <label>Waiver Body</label>
               <textarea id="tc-waiver-content" style="min-height:280px;font-family:monospace;font-size:12px"></textarea>
@@ -5559,23 +5560,23 @@ function saveInquiryAgreement() {
 }
 
 // ===================== TERMS & CONDITIONS ADMIN =====================
-const defaultTermsMain = `<h2 style="font-size:22px;font-weight:800;color:var(--navy);margin-bottom:6px">Terms &amp; Conditions</h2>
-<p style="font-size:13px;color:var(--gray);margin-bottom:28px">Last updated: <span id="tc-date-display">January 1, 2024</span> &nbsp;·&nbsp; Destined4Destinations LLC</p>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">1. Booking &amp; Payment</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">All bookings are subject to availability and confirmation. A deposit is required at the time of booking to hold your reservation. Final payment is due by the date specified on your invoice. Destined 4 Destinations LLC reserves the right to cancel any reservation for which final payment has not been received by the due date.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">2. Research &amp; Design (D&amp;B) Fee</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">A non-refundable Research &amp; Design fee may apply to custom itinerary planning. This fee covers time and expertise invested in designing a personalized travel experience and is separate from travel supplier costs.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">3. Cancellations &amp; Refunds</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">Cancellation policies vary by travel supplier. All cancellations must be submitted in writing to Destined4Destinations@gmail.com. Deposits are generally non-refundable unless otherwise stated. We strongly recommend purchasing travel protection.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">4. Travel Insurance</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">Destined 4 Destinations LLC strongly recommends all travelers purchase comprehensive travel insurance. Declining travel insurance is done at the traveler's own risk.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">5. Passports, Visas &amp; Travel Documents</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">Each traveler is responsible for holding valid travel documents for their destination. Passports must generally be valid for at least six months beyond the return date. Destined 4 Destinations LLC is not responsible for travelers denied boarding due to improper documentation.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">6. Limitation of Liability</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">Destined 4 Destinations LLC acts as an agent for travel suppliers. We are not responsible for any injury, damage, loss, or delay caused by defects of any vehicle or the acts of any company providing travel services.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">7. Force Majeure</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">Destined 4 Destinations LLC shall not be held liable for failures resulting from causes beyond our control, including acts of God, pandemics, government restrictions, war, or other extraordinary events.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">8. Privacy Policy</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">Personal information collected is used solely to process travel reservations and communicate relevant travel information. We do not sell or share your information with third parties except as necessary to fulfill bookings.</p></div>`;
+const defaultTermsMain = `Terms &amp; Conditions\n
+Last updated: January 1, 2024 &nbsp;·&nbsp; Destined4Destinations LLC\n
+1. Booking &amp; Payment\nAll bookings are subject to availability and confirmation. A deposit is required at the time of booking to hold your reservation. Final payment is due by the date specified on your invoice. Destined 4 Destinations LLC reserves the right to cancel any reservation for which final payment has not been received by the due date.\n\n
+2. Research &amp; Design (D&amp;B) Fee\nA non-refundable Research &amp; Design fee may apply to custom itinerary planning. This fee covers time and expertise invested in designing a personalized travel experience and is separate from travel supplier costs.\n\n
+3. Cancellations &amp; Refunds\nCancellation policies vary by travel supplier. All cancellations must be submitted in writing to Destined4Destinations@gmail.com. Deposits are generally non-refundable unless otherwise stated. We strongly recommend purchasing travel protection.\n\n
+4. Travel Insurance\nDestined 4 Destinations LLC strongly recommends all travelers purchase comprehensive travel insurance. Declining travel insurance is done at the traveler's own risk.\n\n
+5. Passports, Visas &amp; Travel Documents\nEach traveler is responsible for holding valid travel documents for their destination. Passports must generally be valid for at least six months beyond the return date. Destined 4 Destinations LLC is not responsible for travelers denied boarding due to improper documentation.\n\n
+6. Limitation of Liability\nDestined 4 Destinations LLC acts as an agent for travel suppliers. We are not responsible for any injury, damage, loss, or delay caused by defects of any vehicle or the acts of any company providing travel services.\n\n
+7. Force Majeure\nDestined 4 Destinations LLC shall not be held liable for failures resulting from causes beyond our control, including acts of God, pandemics, government restrictions, war, or other extraordinary events.\n\n
+8. Privacy Policy\nPersonal information collected is used solely to process travel reservations and communicate relevant travel information. We do not sell or share your information with third parties except as necessary to fulfill bookings.\n\n`;
 
-const defaultTermsWaiver = `<h2 style="font-size:22px;font-weight:800;color:var(--navy);margin-bottom:20px">Travel Waiver &amp; Release of Liability</h2>
-<div style="background:var(--teal-bg);border:1px solid rgba(74,184,213,0.3);border-radius:10px;padding:20px 24px;margin-bottom:28px"><p style="font-size:14px;color:var(--navy);font-weight:600;line-height:1.7">By booking travel services through Destined 4 Destinations LLC, you acknowledge that you have read, understood, and agree to the following waiver and release of liability.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">Assumption of Risk</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">I/We understand that travel involves inherent risks including transportation delays, cancellations, health risks, and personal injury. I/We voluntarily assume all risks associated with travel services arranged through Destined 4 Destinations LLC.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">Release of Liability</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">I/We hereby release, waive, and discharge Destined 4 Destinations LLC, its owner Pharin A. Walker, agents, and employees from any and all liability, claims, or causes of action arising out of travel services arranged by Destined 4 Destinations LLC.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">Health &amp; Medical Acknowledgment</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">I/We confirm all travelers in our party are in satisfactory health to participate in planned travel activities and have disclosed any known medical conditions or special needs.</p></div>
-<div style="margin-bottom:28px"><h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px">Agreement to Terms</h3><p style="font-size:14px;color:var(--gray);line-height:1.8">By submitting a travel inquiry, paying a deposit, or completing a booking, I/We confirm that I/We agree to be bound by these Terms &amp; Conditions and this Waiver in their entirety.</p></div>`;
+const defaultTermsWaiver = `Travel Waiver &amp; Release of Liability\n
+By booking travel services through Destined 4 Destinations LLC, you acknowledge that you have read, understood, and agree to the following waiver and release of liability.\n\n
+Assumption of Risk\nI/We understand that travel involves inherent risks including transportation delays, cancellations, health risks, and personal injury. I/We voluntarily assume all risks associated with travel services arranged through Destined 4 Destinations LLC.\n\n
+Release of Liability\nI/We hereby release, waive, and discharge Destined 4 Destinations LLC, its owner Pharin A. Walker, agents, and employees from any and all liability, claims, or causes of action arising out of travel services arranged by Destined 4 Destinations LLC.\n\n
+Health &amp; Medical Acknowledgment\nI/We confirm all travelers in our party are in satisfactory health to participate in planned travel activities and have disclosed any known medical conditions or special needs.\n\n
+Agreement to Terms\nBy submitting a travel inquiry, paying a deposit, or completing a booking, I/We confirm that I/We agree to be bound by these Terms &amp; Conditions and this Waiver in their entirety.\n\n`;
 
 function loadTermsAdmin() {
   const saved = store.get('termsContent', {});
@@ -5631,8 +5632,10 @@ function applyTermsToPage(saved) {
   const waiver = document.getElementById('terms-waiver-content');
   if (hl && saved.headline) hl.textContent = saved.headline;
   if (sub && saved.sub) sub.textContent = saved.sub;
-  if (main && saved.main !== undefined) main.innerHTML = saved.main;
-  if (waiver && saved.waiver !== undefined) waiver.innerHTML = saved.waiver;
+  // Plain text, not HTML: tags are shown literally rather than executed, and
+  // pre-wrap keeps the line breaks the agent typed.
+  if (main && saved.main !== undefined) { main.style.whiteSpace = 'pre-wrap'; main.textContent = saved.main; }
+  if (waiver && saved.waiver !== undefined) { waiver.style.whiteSpace = 'pre-wrap'; waiver.textContent = saved.waiver; }
   // update date display if it exists inside the main content
   const dd = document.getElementById('tc-date-display');
   if (dd && saved.date) dd.textContent = saved.date;
@@ -5732,13 +5735,14 @@ function clientToApiPayload(c){
   return {
     name: ((c.fname || '') + ' ' + (c.lname || '')).trim(),
     email: c.email || '', phone: c.phone || '',
-    travelJoyClientId: c.tjid || '',
     dateOfBirth: c.dob || null,
     anniversary: c.anniversary || null,
     passportNumber: c.passportnum || '',
     passportExpiry: c.passport || null,
     passportCountry: c.passportcountry || '',
-    frequentFlyerNumbers: c.ffn || '',
+    frequentFlyerNumbers: Array.isArray(c.loyalty)
+      ? c.loyalty.map(function(r){ return [r.type, r.program, r.number].filter(Boolean).join(' '); }).join('; ')
+      : (c.ffn || ''),
     dietaryRestrictions: c.dietary || '',
     seatPreference: c.seat || '',
     emergencyContact: c.emergency || '',
@@ -5833,17 +5837,17 @@ function phoneInput(el){
 let clientSort = { key: '', dir: 1 };
 
 // The value a column sorts on, which is not always what the cell renders.
-// "Last, First" for the Clients table. Falls back gracefully so a record with
-// only one name never renders a stray comma.
+// "First Last" for the Clients table. Falls back gracefully so a record with
+// only one name still renders sensibly.
 function clientDisplayName(c){
   const fn = (c.fname || '').trim();
   const ln = (c.lname || '').trim();
-  if(ln && fn) return ln + ', ' + fn;
-  return ln || fn || 'Unnamed';
+  if(fn && ln) return fn + ' ' + ln;
+  return fn || ln || 'Unnamed';
 }
 
 function clientSortValue(c, key){
-  if(key === 'name')    return clientDisplayName(c);   // sorts by last name, matching the cell
+  if(key === 'name')    return clientDisplayName(c);   // sorts on what the cell shows
   if(key === 'address') return [c.address, c.city, c.state].filter(Boolean).join(', ');
   // Sort on the digits behind the displayed format, so the visible order in
   // the (xxx) xxx-xxxx column is actually ascending.
@@ -6451,11 +6455,84 @@ function renderClients(filter=''){
   }).join('');
 }
 function filterClients(v){ renderClients(v); }
-function openAddClient(){ editingClientIdx=-1; document.getElementById('modal-client-title').textContent='Add New Client'; CLIENT_FIELDS.forEach(f=>{const el=document.getElementById('c-'+f); if(el) el.value='';}); openModal('modal-client'); clientSectionReset(); }
-function editClient(idx){ editingClientIdx=idx; const c=clients[idx]||{}; document.getElementById('modal-client-title').textContent='Edit Client'; CLIENT_FIELDS.forEach(f=>{const el=document.getElementById('c-'+f); if(el) el.value=c[f]||'';}); openModal('modal-client'); clientSectionReset(); }
+function openAddClient(){ editingClientIdx=-1; document.getElementById('modal-client-title').textContent='Add New Client'; CLIENT_FIELDS.forEach(f=>{const el=document.getElementById('c-'+f); if(el) el.value='';}); openModal('modal-client'); clientSectionReset(); clientLoadTables(editingClientIdx>=0?clients[editingClientIdx]:null); }
+function editClient(idx){ editingClientIdx=idx; const c=clients[idx]||{}; document.getElementById('modal-client-title').textContent='Edit Client'; CLIENT_FIELDS.forEach(f=>{const el=document.getElementById('c-'+f); if(el) el.value=c[f]||'';}); openModal('modal-client'); clientSectionReset(); clientLoadTables(editingClientIdx>=0?clients[editingClientIdx]:null); }
+// ---- Relationships & Loyalty tables --------------------------------------
+// Both are stored as arrays. Records written before this change hold a plain
+// string, so the loaders migrate a non-empty string into one row instead of
+// discarding what someone already typed.
+const REL_TYPES = ['Spouse','Partner','Child','Parent','Sibling','Travel companion','Other'];
+const LOY_TYPES = ['Frequent Flyer','Hotel','Cruise'];
+
+let clientRels = [];
+let clientLoys = [];
+
+function clientNormaliseRows(val, keys){
+  if(Array.isArray(val)) return val.slice();
+  const txt = String(val || '').trim();
+  if(!txt) return [];
+  const row = {}; keys.forEach(function(k){ row[k] = ''; });
+  row[keys[keys.length - 1]] = txt;      // keep the old free text in the last column
+  row[keys[0]] = 'Other';
+  return [row];
+}
+
+function renderClientRels(){
+  const host = document.getElementById('c-rel-table');
+  if(!host) return;
+  host.innerHTML = clientRels.length
+    ? '<table style="width:100%;font-size:12px"><thead><tr>'
+      + '<th style="text-align:left;padding:6px 8px;width:170px">Relationship</th>'
+      + '<th style="text-align:left;padding:6px 8px">Name</th><th style="width:36px"></th></tr></thead><tbody>'
+      + clientRels.map(function(r, i){
+          return '<tr>'
+            + '<td style="padding:4px 8px"><select onchange="clientRels[' + i + '].type=this.value">'
+            + REL_TYPES.map(function(t){ return '<option' + (r.type === t ? ' selected' : '') + '>' + t + '</option>'; }).join('')
+            + '</select></td>'
+            + '<td style="padding:4px 8px"><input type="text" value="' + escHtml(r.name || '') + '" oninput="clientRels[' + i + '].name=this.value" style="width:100%"></td>'
+            + '<td style="padding:4px 8px"><button class="tbl-action" style="color:var(--coral)" onclick="clientRemoveRel(' + i + ')">🗑</button></td>'
+            + '</tr>';
+        }).join('')
+      + '</tbody></table>'
+    : '<div style="font-size:12px;color:var(--gray)">No relationships recorded.</div>';
+}
+function clientAddRel(){ clientRels.push({type:'Spouse', name:''}); renderClientRels(); }
+function clientRemoveRel(i){ clientRels.splice(i,1); renderClientRels(); }
+
+function renderClientLoys(){
+  const host = document.getElementById('c-loy-table');
+  if(!host) return;
+  host.innerHTML = clientLoys.length
+    ? '<table style="width:100%;font-size:12px"><thead><tr>'
+      + '<th style="text-align:left;padding:6px 8px;width:150px">Type</th>'
+      + '<th style="text-align:left;padding:6px 8px">Program</th>'
+      + '<th style="text-align:left;padding:6px 8px">Number</th><th style="width:36px"></th></tr></thead><tbody>'
+      + clientLoys.map(function(r, i){
+          return '<tr>'
+            + '<td style="padding:4px 8px"><select onchange="clientLoys[' + i + '].type=this.value">'
+            + LOY_TYPES.map(function(t){ return '<option' + (r.type === t ? ' selected' : '') + '>' + t + '</option>'; }).join('')
+            + '</select></td>'
+            + '<td style="padding:4px 8px"><input type="text" value="' + escHtml(r.program || '') + '" oninput="clientLoys[' + i + '].program=this.value" placeholder="e.g. Delta SkyMiles" style="width:100%"></td>'
+            + '<td style="padding:4px 8px"><input type="text" value="' + escHtml(r.number || '') + '" oninput="clientLoys[' + i + '].number=this.value" style="width:100%"></td>'
+            + '<td style="padding:4px 8px"><button class="tbl-action" style="color:var(--coral)" onclick="clientRemoveLoy(' + i + ')">🗑</button></td>'
+            + '</tr>';
+        }).join('')
+      + '</tbody></table>'
+    : '<div style="font-size:12px;color:var(--gray)">No loyalty numbers recorded.</div>';
+}
+function clientAddLoy(){ clientLoys.push({type:'Frequent Flyer', program:'', number:''}); renderClientLoys(); }
+function clientRemoveLoy(i){ clientLoys.splice(i,1); renderClientLoys(); }
+
+function clientLoadTables(c){
+  clientRels = clientNormaliseRows(c ? c.relationships : null, ['type','name']);
+  clientLoys = Array.isArray(c && c.loyalty) ? c.loyalty.slice()
+             : clientNormaliseRows(c ? (c.ffn || c.hotelloyalty) : null, ['type','program','number']);
+  renderClientRels(); renderClientLoys();
+}
+
 // Every field on the client record. Add here and in the markup; nothing else
 // needs to change.
-const CLIENT_FIELDS = ['fname','lname','email','phone','tjid','referral','emergency','address','city','state','zip','relationships','ffn','hotelloyalty','dob','anniversary','seat','dietary','preferences','passportnum','passport','passportcountry','ktn','vaccine','payment','notes'];
+const CLIENT_FIELDS = ['fname','lname','email','phone','referral','emergency','address','city','state','zip','relationships','ffn','hotelloyalty','dob','anniversary','seat','dietary','preferences','passportnum','passport','passportcountry','ktn','vaccine','payment','notes'];
 
 // Switch category in the client popup.
 function clientSection(key, el){
@@ -6489,6 +6566,8 @@ function saveClient(){
   // Carry the database id across an edit. saveClient rebuilds the record from
   // CLIENT_FIELDS, which does not include _apiId, so without this every edit
   // would look like a new client and be POSTed again as a duplicate.
+  c.relationships = clientRels.filter(function(r){ return (r.name||'').trim(); });
+  c.loyalty = clientLoys.filter(function(r){ return (r.number||'').trim() || (r.program||'').trim(); });
   const prior = editingClientIdx >= 0 ? clients[editingClientIdx] : null;
   if(prior && prior._apiId) c._apiId = prior._apiId;
   if(editingClientIdx >= 0) clients[editingClientIdx] = c; else clients.push(c);
