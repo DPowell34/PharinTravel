@@ -430,8 +430,6 @@ footer{background:var(--navy-dark);color:rgba(255,255,255,0.75);padding:48px 24p
 #crm-root .pp2-msgs{max-height:230px;overflow-y:auto;font-size:12px}
 #crm-root .pp2-bubble{background:var(--navy);color:#fff;border-radius:12px;padding:10px 13px;margin-bottom:8px;line-height:1.55}
 #crm-root .pp2-bubble .who{font-size:10px;opacity:.7;margin-bottom:3px}
-#crm-root .pp2-chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
-#crm-root .pp2-chip{background:var(--teal-bg);border:1px solid rgba(74,184,213,.35);color:var(--teal);font-size:11px;font-weight:600;padding:5px 10px;border-radius:20px;cursor:pointer;font-family:inherit}
 #crm-root .pp2-form2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
 #crm-root .pp2-form3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
 #crm-root .pp2-form2 label,#crm-root .pp2-form3 label{font-size:10px;color:var(--gray);display:block;margin-bottom:3px}
@@ -2723,23 +2721,6 @@ Ongoing support before, during, and after your trip</textarea></div>
               <input id="pp-msg-new" type="text" placeholder="Type a message&hellip;">
               <button class="pp2-send" onclick="portalSendMessage()" title="Send">&#10148;</button>
             </div>
-          </div>
-
-          <!-- AI concierge (interface only) -->
-          <div class="pp2-card">
-            <div class="pp2-card-head"><span class="pp2-card-title">&#10024; AI Concierge</span></div>
-            <div class="pp2-body pp2-hint">Ask about this trip</div>
-            <div class="pp2-chips">
-              <button class="pp2-chip" onclick="portalAskConcierge(this.textContent)">What should I pack?</button>
-              <button class="pp2-chip" onclick="portalAskConcierge(this.textContent)">Any recommendations?</button>
-              <button class="pp2-chip" onclick="portalAskConcierge(this.textContent)">Rainy season info?</button>
-            </div>
-            <div id="pp-ai-answer" class="pp2-body" style="display:none"></div>
-            <div class="pp2-addrow">
-              <input id="pp-ai-q" type="text" placeholder="Type your question&hellip;">
-              <button class="pp2-send" onclick="portalAskConcierge()" title="Ask">&#10148;</button>
-            </div>
-            <div class="pp2-hint" style="margin-top:8px">AI Concierge is not connected to a model yet &mdash; questions are recorded for your agent.</div>
           </div>
 
           <!-- payment form, reached from Make a payment -->
@@ -6099,27 +6080,6 @@ function portalSendMessage(){
   renderPortalExtras(idx);
   if(typeof renderMsgLog === 'function') renderMsgLog(idx);
   crmToast('Message added to the thread');
-}
-
-// Interface only -- no model is wired up. The question is filed for the agent
-// rather than answered, and the panel says so on screen.
-function portalAskConcierge(preset){
-  const box = document.getElementById('pp-ai-q');
-  const q = String(preset || (box ? box.value : '') || '').trim();
-  if(!q){ crmToast('Type a question first'); return; }
-  const out = document.getElementById('pp-ai-answer');
-  if(out){
-    out.style.display = '';
-    out.innerHTML = '<div class="pp2-hint">Question recorded for your agent:</div>'
-                  + '<div style="margin-top:4px">' + escHtml(q) + '</div>';
-  }
-  const idx = currentTripDetailIdx;
-  const asked = loadData('concierge_questions', {});
-  if(!asked[idx]) asked[idx] = [];
-  asked[idx].push({q: q, date: new Date().toLocaleString()});
-  saveData('concierge_questions', asked);
-  if(box) box.value = '';
-  crmToast('Question sent to your agent');
 }
 
 // ====================================================
