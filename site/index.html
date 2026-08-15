@@ -1165,6 +1165,7 @@ body.admin-open .admin-topbar{top:24px}
         <a onclick="showAdminCRM('crm-inquiries')" id="asid-crm-crm-inquiries">Inquiries <span id="crm-inq-count" class="nav-page-badge" style="display:none"></span></a>
         <a onclick="showAdminCRM('crm-commissions')" id="asid-crm-crm-commissions">Commissions</a>
         <a onclick="showAdminCRM('groups')" id="asid-crm-groups">Groups</a>
+        <a onclick="showAdminCRM('crm-activity')" id="asid-crm-crm-activity">CRM Overview</a>
 
         <div class="sidebar-section">Content</div>
         <a onclick="showAdminWE('we-hero')" id="asid-we-we-hero">Hero</a>
@@ -1253,15 +1254,6 @@ body.admin-open .admin-topbar{top:24px}
     <div class="section" id="section-crm-overview">
       <div class="page-sub">Trip pipeline, reports, and upcoming action items.</div>
 
-      <!-- Live data from the AWS Postgres database (read-only) -->
-      <div class="card" id="live-activity-card">
-        <div class="card-title">
-          <span>Live Activity <span id="la-status" style="font-weight:600;font-size:11px;color:var(--gray);margin-left:8px">checking…</span></span>
-          <button class="btn btn-sm btn-outline" onclick="loadLiveActivity()" style="font-size:11px">Refresh</button>
-        </div>
-        <div id="la-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px"></div>
-        <div id="la-feed"></div>
-      </div>
 
       <div class="sec-divider">Trip Pipeline</div>
       <div class="pipeline" id="pipeline-board">
@@ -1319,7 +1311,22 @@ body.admin-open .admin-topbar{top:24px}
     </div>
 
     <!-- ====== CLIENTS ====== -->
-    <div class="section" id="section-crm-clients">
+        <!-- ====== CRM OVERVIEW (live database activity) ====== -->
+    <div class="section" id="section-crm-activity">
+      <div class="page-title">CRM Overview</div>
+      <div class="page-sub">Live activity from the database.</div>
+      <!-- Live data from the AWS Postgres database (read-only) -->
+      <div class="card" id="live-activity-card">
+        <div class="card-title">
+          <span>Live Activity <span id="la-status" style="font-weight:600;font-size:11px;color:var(--gray);margin-left:8px">checking…</span></span>
+          <button class="btn btn-sm btn-outline" onclick="loadLiveActivity()" style="font-size:11px">Refresh</button>
+        </div>
+        <div id="la-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px"></div>
+        <div id="la-feed"></div>
+      </div>
+    </div>
+
+<div class="section" id="section-crm-clients">
       <div class="page-title">Clients</div>
       <div class="page-sub">Manage all your client contact information.</div>
       <div class="toolbar">
@@ -6265,7 +6272,7 @@ function showSection(id){
   if(nav) nav.classList.add('active');
   if(id==='dashboard') refreshDashboard();
   if(id==='crm-overview') refreshOverview();
-  if(id==='crm-overview') loadLiveActivity();
+  if(id==='crm-activity') loadLiveActivity();
   if(id==='crm-clients') renderClients();
   if(id==='crm-trips') renderTrips();
   if(id==='crm-commissions') renderCommissions();
