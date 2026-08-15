@@ -373,6 +373,18 @@ footer{background:var(--navy-dark);color:rgba(255,255,255,0.75);padding:48px 24p
 #crm-root .crm-imgzone.compact{flex:1;padding:6px 10px;min-height:0}
 #crm-root .modal-overlay{z-index:11000}
 #crm-root #modal-client{z-index:11200}
+#crm-root .la-stat{background:var(--offwhite);border:1px solid var(--gray-light);border-radius:10px;padding:14px 16px}
+#crm-root .la-stat .n{font-size:24px;font-weight:800;color:var(--navy);line-height:1.1}
+#crm-root .la-stat .l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray);margin-top:4px}
+#crm-root .la-row{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--gray-light);font-size:12px}
+#crm-root .la-row:last-child{border-bottom:none}
+#crm-root .la-tag{flex-shrink:0;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:2px 7px;border-radius:10px;margin-top:1px}
+#crm-root .la-tag.task{background:var(--yellow-bg);color:var(--yellow)}
+#crm-root .la-tag.trip{background:var(--purple-bg);color:var(--purple)}
+#crm-root .la-tag.client{background:var(--teal-bg);color:var(--teal)}
+#crm-root .la-when{margin-left:auto;flex-shrink:0;color:var(--gray);font-size:11px;white-space:nowrap}
+#crm-root .la-note{font-size:11px;color:var(--gray);background:var(--offwhite);border:1px dashed var(--gray-light);border-radius:8px;padding:12px;line-height:1.6}
+@media(max-width:640px){#crm-root #la-stats{grid-template-columns:1fr}}
 #crm-root #modal-client .cl-layout{display:flex;border:1px solid var(--gray-light);border-radius:10px;overflow:hidden;min-height:360px}
 #crm-root #modal-client .cl-nav{width:172px;flex-shrink:0;background:#fff;border-right:1px solid var(--gray-light)}
 #crm-root #modal-client .cl-nav>div{padding:11px 14px;font-size:12px;font-weight:600;color:var(--navy);cursor:pointer;border-bottom:1px solid var(--gray-light);transition:background .15s}
@@ -1241,6 +1253,16 @@ body.admin-open .admin-topbar{top:24px}
     <div class="section" id="section-crm-overview">
       <div class="page-title">CRM Overview</div>
       <div class="page-sub">Trip pipeline, reports, and upcoming action items.</div>
+
+      <!-- Live data from the AWS Postgres database (read-only) -->
+      <div class="card" id="live-activity-card">
+        <div class="card-title">
+          <span>Live Activity <span id="la-status" style="font-weight:600;font-size:11px;color:var(--gray);margin-left:8px">checking…</span></span>
+          <button class="btn btn-sm btn-outline" onclick="loadLiveActivity()" style="font-size:11px">Refresh</button>
+        </div>
+        <div id="la-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px"></div>
+        <div id="la-feed"></div>
+      </div>
 
       <div class="sec-divider">Trip Pipeline</div>
       <div class="pipeline" id="pipeline-board">
@@ -5749,6 +5771,111 @@ function saveData(key,val){
   d4dPush(key, val);
 }
 
+// ====================================================
+// LIVE ACTIVITY -- read-only view of the AWS Postgres database
+// ====================================================
+// The CRM's own clients/trips arrays are localStorage-backed and mirrored to
+// admin_data_blobs. The clients/trips TABLES are populated from Notion by
+// sync_daily.sh. Two different stores, so this NEVER assigns to those globals --
+// it reads the API and renders alongside. Any failure leaves the CRM untouched.
+let laLoading = false;
+
+function laFetch(path){
+  return fetch(path, {credentials:'same-origin', headers:{'Accept':'application/json'}})
+    .then(function(r){
+      if(r.status === 401 || r.status === 403) return {__err:'auth'};
+      if(!r.ok) return {__err:'http ' + r.status};
+      return r.json();
+    })
+    .catch(function(){ return {__err:'offline'}; });
+}
+
+function laDate(v){
+  if(!v) return '';
+  try { return fmtDate(String(v).slice(0,10)); } catch(e){ return String(v).slice(0,10); }
+}
+
+function loadLiveActivity(){
+  const statusEl = document.getElementById('la-status');
+  const statsEl  = document.getElementById('la-stats');
+  const feedEl   = document.getElementById('la-feed');
+  if(!statusEl || !statsEl || !feedEl || laLoading) return;
+  laLoading = true;
+  statusEl.textContent = 'loading…';
+
+  Promise.all([laFetch('/api/clients'), laFetch('/api/trips'), laFetch('/api/tasks')])
+    .then(function(res){
+      laLoading = false;
+      const cRes = res[0], tRes = res[1], kRes = res[2];
+      const errs = res.filter(function(x){ return x && x.__err; });
+
+      if(errs.length === res.length){
+        const why = errs[0].__err;
+        statusEl.textContent = why === 'auth' ? 'not authorised' : 'database unreachable';
+        statsEl.innerHTML = '';
+        feedEl.innerHTML = '<div class="la-note">' + (why === 'auth'
+          ? 'The database rejected the request. Sign in again and hit Refresh.'
+          : 'Could not reach the database. The CRM is still working from its own saved data — nothing has been lost.')
+          + '</div>';
+        return;
+      }
+
+      const dbClients = (cRes && cRes.clients) || [];
+      const dbTrips   = (tRes && tRes.trips)   || [];
+      const dbTasks   = (kRes && kRes.tasks)   || [];
+      const openTasks = dbTasks.filter(function(t){ return !t.done; });
+
+      statsEl.innerHTML =
+        '<div class="la-stat"><div class="n">' + dbClients.length + '</div><div class="l">Clients in database</div></div>' +
+        '<div class="la-stat"><div class="n">' + dbTrips.length + '</div><div class="l">Trips in database</div></div>' +
+        '<div class="la-stat"><div class="n">' + openTasks.length + '</div><div class="l">Open tasks</div></div>';
+
+      // one combined, date-sorted feed
+      const feed = [];
+      openTasks.forEach(function(t){
+        feed.push({kind:'task', when:t.due_date || t.created_time,
+                   text:escHtml(t.title || 'Untitled task'),
+                   meta:t.related_to ? escHtml(t.related_to) : ''});
+      });
+      dbTrips.forEach(function(t){
+        feed.push({kind:'trip', when:t.departure_date || t.updated_at || t.created_at,
+                   text:escHtml(t.name || t.destination || 'Trip'),
+                   meta:[t.destination, t.booking_status].filter(Boolean).map(escHtml).join(' · ')});
+      });
+      dbClients.forEach(function(c){
+        feed.push({kind:'client', when:c.created_at || c.updated_at,
+                   text:escHtml(c.name || 'Client'),
+                   meta:[c.email, c.phone].filter(Boolean).map(escHtml).join(' · ')});
+      });
+
+      const dated = feed.filter(function(f){ return f.when; })
+                        .sort(function(a,b){ return String(b.when).localeCompare(String(a.when)); });
+      const shown = dated.slice(0, 12);
+
+      feedEl.innerHTML = shown.length
+        ? '<div class="sec-divider">Recent Activity</div>' + shown.map(function(f){
+            return '<div class="la-row">'
+              + '<span class="la-tag ' + f.kind + '">' + f.kind + '</span>'
+              + '<div><div style="font-weight:600;color:var(--navy)">' + f.text + '</div>'
+              + (f.meta ? '<div style="color:var(--gray);font-size:11px;margin-top:1px">' + f.meta + '</div>' : '')
+              + '</div><span class="la-when">' + laDate(f.when) + '</span></div>';
+          }).join('')
+          + (dated.length > shown.length
+             ? '<div style="font-size:11px;color:var(--gray);margin-top:10px">Showing ' + shown.length + ' of ' + dated.length + ' dated records.</div>'
+             : '')
+        : '<div class="la-note">Connected, but the database has no dated records yet.</div>';
+
+      const partial = errs.length ? ' (' + errs.length + ' of 3 endpoints failed)' : '';
+      const t = new Date();
+      statusEl.textContent = 'connected' + partial + ' · '
+        + String(t.getHours()).padStart(2,'0') + ':' + String(t.getMinutes()).padStart(2,'0');
+    })
+    .catch(function(){
+      laLoading = false;
+      if(statusEl) statusEl.textContent = 'database unreachable';
+    });
+}
+
 // ============================================================
 // SERVER-BACKED PERSISTENCE
 // Mirrors every localStorage write to the blob API so a cleared browser or a
@@ -6039,6 +6166,7 @@ function showSection(id){
   if(nav) nav.classList.add('active');
   if(id==='dashboard') refreshDashboard();
   if(id==='crm-overview') refreshOverview();
+  if(id==='crm-overview') loadLiveActivity();
   if(id==='crm-clients') renderClients();
   if(id==='crm-trips') renderTrips();
   if(id==='crm-commissions') renderCommissions();
