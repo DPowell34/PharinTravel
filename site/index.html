@@ -264,7 +264,8 @@ footer{background:var(--navy-dark);color:rgba(255,255,255,0.75);padding:48px 24p
 .admin-sidebar{width:220px;background:#fff;border-right:1px solid var(--gray-light);padding:16px 0;flex-shrink:0}
 .admin-sidebar a{display:flex;align-items:center;gap:10px;padding:11px 20px;font-size:13px;font-weight:500;color:var(--gray);cursor:pointer;text-decoration:none;transition:all .2s}
 .admin-sidebar a:hover,.admin-sidebar a.active{color:var(--navy);background:var(--teal-bg);border-right:3px solid var(--teal)}
-.admin-sidebar .sidebar-section{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#bbb;padding:16px 20px 6px}
+.admin-sidebar .sidebar-section{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--navy);background:var(--offwhite);border-top:1px solid var(--gray-light);border-bottom:1px solid var(--gray-light);padding:8px 20px;margin-top:10px}
+.admin-sidebar .sidebar-section:first-child{margin-top:0;border-top:none}
 .admin-main{flex:1;padding:28px;overflow-y:auto}
 .admin-section{display:none}
 .admin-section.active{display:block}
@@ -748,7 +749,7 @@ body.admin-open .admin-topbar{top:24px}
       </div>
       <div class="footer-bottom">
         <div>© 2024 Destined4Destinations LLC · Pharin A. Walker · All rights reserved</div>
-        <div><a onclick="showPage('admin')">Admin</a></div>
+        <div><a onclick="openAdminWindow()">Admin</a></div>
       </div>
     </div>
   </footer>
@@ -3857,6 +3858,21 @@ function adminLogin() {
     document.getElementById('admin-pw').value='';
   });
 }
+
+// The footer Admin link opens the panel in its own window. The admin is an
+// in-page view with no URL of its own, so it is deep-linked via #admin and
+// picked up on load below.
+function openAdminWindow(){
+  const url = location.pathname + location.search + '#admin';
+  const w = window.open(url, '_blank');
+  if(!w) showPage('admin');   // popup blocked: fall back to the old in-page behaviour
+}
+
+(function(){
+  function openIfRequested(){ if(location.hash === '#admin') showAdminPage(); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', openIfRequested);
+  else openIfRequested();
+})();
 
 function adminLogout() {
   fetch('/auth/logout', {method:'POST', credentials:'same-origin'}).catch(function(){}).then(function(){
