@@ -558,30 +558,6 @@ body.admin-open .admin-topbar{top:24px}
     </div>
   </section>
 
-  <!-- HOW IT WORKS (live-site 3-step model) -->
-  <section style="background:#fff;padding-bottom:0" id="section-process">
-    <div class="section-inner">
-      <div class="services-header" style="margin-bottom:36px">
-        <div class="section-label">HOW IT WORKS</div>
-        <h2 class="section-title" style="font-size:clamp(1.4rem,2.6vw,2rem)">Three simple steps to your next getaway</h2>
-        <p class="section-sub" style="margin:0 auto">No stress, no endless searching — just share your vision and we handle the rest.</p>
-      </div>
-      <div class="why-grid" style="margin-top:0">
-        <div class="why-item" style="flex-direction:column;align-items:flex-start;gap:8px;padding:24px">
-          <div class="wi-icon" style="font-size:22px">1️⃣</div>
-          <p style="font-size:15px">Share your trip details — destination, dates, travelers, and budget.</p>
-        </div>
-        <div class="why-item" style="flex-direction:column;align-items:flex-start;gap:8px;padding:24px">
-          <div class="wi-icon" style="font-size:22px">2️⃣</div>
-          <p style="font-size:15px">Receive curated options with resort, cruise, and destination comparisons.</p>
-        </div>
-        <div class="why-item" style="flex-direction:column;align-items:flex-start;gap:8px;padding:24px">
-          <div class="wi-icon" style="font-size:22px">3️⃣</div>
-          <p style="font-size:15px">Approve your favorite, book with a low deposit, and travel with confidence.</p>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- SERVICES -->
   <section class="services" id="section-services">
@@ -932,7 +908,7 @@ body.admin-open .admin-topbar{top:24px}
     <h1>Contact Us</h1>
     <p>Ready to start planning? Let's connect!</p>
   </div>
-  <div class="contact-grid">
+  <div class="contact-grid" style="grid-template-columns:1fr;max-width:640px">
     <div class="contact-info">
       <h2>Let's Plan Your Dream Vacation</h2>
       <p>Whether you have questions, want to start planning, or are ready to book — reach out and Pharin will respond within 24–48 hours.</p>
@@ -961,18 +937,7 @@ body.admin-open .admin-topbar{top:24px}
         <button class="btn-coral" onclick="scrollToForm()">Fill Out Travel Inquiry →</button>
       </div>
     </div>
-    <div>
-      <div class="admin-card" style="border-radius:12px">
-        <h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:16px">Send a Quick Message</h3>
-        <form onsubmit="submitContact(event)">
-          <div class="form-group" style="margin-bottom:12px"><label>Your Name</label><input type="text" required placeholder="Full name"></div>
-          <div class="form-group" style="margin-bottom:12px"><label>Email</label><input type="email" required placeholder="your@email.com"></div>
-          <div class="form-group" style="margin-bottom:12px"><label>Message</label><textarea required placeholder="Tell us about your dream vacation..." style="min-height:120px"></textarea></div>
-          <button type="submit" class="btn-submit" style="max-width:none">Send Message</button>
-        </form>
       </div>
-    </div>
-  </div>
   <footer>
     <div class="footer-inner">
       <div class="footer-bottom" style="border-top:none;padding-top:0">
@@ -3894,11 +3859,6 @@ function submitForm(e) {
   updateDashStats();
 }
 
-function submitContact(e) {
-  e.preventDefault();
-  e.target.reset();
-  showToast('✉️ Message sent! We\'ll get back to you soon.');
-}
 
 // ===================== ADMIN AUTH =====================
 function showAdminPage() {
