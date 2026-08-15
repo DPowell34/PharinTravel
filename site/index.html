@@ -373,6 +373,9 @@ footer{background:var(--navy-dark);color:rgba(255,255,255,0.75);padding:48px 24p
 #crm-root .crm-imgzone.compact{flex:1;padding:6px 10px;min-height:0}
 #crm-root .modal-overlay{z-index:11000}
 #crm-root #modal-client{z-index:11200}
+#crm-root th.th-sort{cursor:pointer;user-select:none;white-space:nowrap}
+#crm-root th.th-sort:hover{color:var(--teal)}
+#crm-root .sort-ind{display:inline-block;width:12px;margin-left:4px;font-size:10px;color:var(--teal)}
 #crm-root .la-stat{background:var(--offwhite);border:1px solid var(--gray-light);border-radius:10px;padding:14px 16px}
 #crm-root .la-stat .n{font-size:24px;font-weight:800;color:var(--navy);line-height:1.1}
 #crm-root .la-stat .l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray);margin-top:4px}
@@ -1336,7 +1339,7 @@ body.admin-open .admin-topbar{top:24px}
       </div>
       <div class="card" style="padding:0;overflow:hidden">
         <div class="tbl-wrap"><table>
-          <thead><tr><th>Name</th><th>Address</th><th>Phone</th><th>Email</th><th>Date of Birth</th><th>Passport Number</th><th>Passport Exp</th><th>Actions</th></tr></thead>
+          <thead><tr><th class="th-sort" onclick="sortClients('name')">Name<span class="sort-ind" id="cs-name"></span></th><th class="th-sort" onclick="sortClients('address')">Address<span class="sort-ind" id="cs-address"></span></th><th class="th-sort" onclick="sortClients('phone')">Phone<span class="sort-ind" id="cs-phone"></span></th><th class="th-sort" onclick="sortClients('email')">Email<span class="sort-ind" id="cs-email"></span></th><th class="th-sort" onclick="sortClients('dob')">Date of Birth<span class="sort-ind" id="cs-dob"></span></th><th class="th-sort" onclick="sortClients('passportnum')">Passport Number<span class="sort-ind" id="cs-passportnum"></span></th><th class="th-sort" onclick="sortClients('passport')">Passport Exp<span class="sort-ind" id="cs-passport"></span></th><th>Actions</th></tr></thead>
           <tbody id="clients-table-body"></tbody>
         </table></div>
       </div>
@@ -5781,6 +5784,51 @@ function saveData(key,val){
 }
 
 // ====================================================
+// CLIENT TABLE SORTING
+// ====================================================
+// Sorts the displayed copy only. `clients` keeps its own order, so nothing
+// extra gets written to localStorage or pushed to the blob mirror.
+let clientSort = { key: '', dir: 1 };
+
+// The value a column sorts on, which is not always what the cell renders.
+function clientSortValue(c, key){
+  if(key === 'name')    return ((c.fname || '') + ' ' + (c.lname || '')).trim();
+  if(key === 'address') return [c.address, c.city, c.state].filter(Boolean).join(', ');
+  return c[key] || '';
+}
+
+function sortClientRows(rows){
+  if(!clientSort.key) return rows;
+  const key = clientSort.key, dir = clientSort.dir;
+  rows.sort(function(a, b){
+    const av = String(clientSortValue(a, key)).trim();
+    const bv = String(clientSortValue(b, key)).trim();
+    // blanks always last, whichever way the column is pointing
+    if(!av && !bv) return 0;
+    if(!av) return 1;
+    if(!bv) return -1;
+    // dob / passport expiry are YYYY-MM-DD, so a plain compare is correct
+    if(key === 'dob' || key === 'passport') return av < bv ? -dir : (av > bv ? dir : 0);
+    return av.localeCompare(bv, undefined, {sensitivity:'base', numeric:true}) * dir;
+  });
+  return rows;
+}
+
+function sortClients(key){
+  if(clientSort.key === key) clientSort.dir = -clientSort.dir;
+  else { clientSort.key = key; clientSort.dir = 1; }
+  const box = document.getElementById('client-search');
+  renderClients(box ? box.value : '');
+}
+
+function paintSortIndicators(){
+  ['name','address','phone','email','dob','passportnum','passport'].forEach(function(k){
+    const el = document.getElementById('cs-' + k);
+    if(el) el.textContent = clientSort.key === k ? (clientSort.dir === 1 ? '\u25B2' : '\u25BC') : '';
+  });
+}
+
+// ====================================================
 // CLIENTS FROM THE DATABASE
 // ====================================================
 // Merges the AWS clients table into the CRM client list. See the note in
@@ -6422,6 +6470,8 @@ function renderClients(filter=''){
   const tbody = document.getElementById('clients-table-body');
   const f = filter.toLowerCase();
   const filtered = clients.filter(c=>!f||(c.fname+' '+c.lname+c.email+c.phone).toLowerCase().includes(f));
+  sortClientRows(filtered);
+  paintSortIndicators();
   if(filtered.length===0){
     tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:32px">No clients found. <button class="btn btn-sm btn-teal" onclick="openAddClient()" style="margin-left:8px">+ Add Client</button></td></tr>';
     return;
