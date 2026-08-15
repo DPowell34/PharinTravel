@@ -2084,6 +2084,7 @@ Ongoing support before, during, and after your trip</textarea></div>
     <div class="tabs" id="td-tabs" style="margin:0;border:none;gap:0;flex-wrap:nowrap;padding:0 20px;display:flex">
       <div class="tab active" onclick="tdTab(this,'td-overview')" style="white-space:nowrap;flex-shrink:0">Overview</div>
       <div class="tab" onclick="tdTab(this,'td-travelers')" style="white-space:nowrap;flex-shrink:0">Travelers</div>
+      <div class="tab" onclick="tdTab(this,'td-requirements')" style="white-space:nowrap;flex-shrink:0">Requirements</div>
       <div class="tab" onclick="tdTab(this,'td-docs')" style="white-space:nowrap;flex-shrink:0">Documents</div>
       <div class="tab" onclick="tdTab(this,'td-invoice')" style="white-space:nowrap;flex-shrink:0">Invoice</div>
       <div class="tab" onclick="tdTab(this,'td-message')" style="white-space:nowrap;flex-shrink:0">Message</div>
@@ -2188,6 +2189,78 @@ Ongoing support before, during, and after your trip</textarea></div>
       <div id="td-submitted-traveler-details" style="margin-top:6px"></div>
     </div>
     <!-- DOCUMENTS TAB -->
+    <div id="td-requirements" class="td-panel" style="display:none">
+<style>
+#td-requirements .rqm-card{background:#fff;border:1px solid var(--gray-light);border-radius:10px;margin-bottom:18px;overflow:visible}
+#td-requirements .rqm-card-header{padding:14px 18px;border-bottom:1px solid var(--gray-light);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+#td-requirements .rqm-title{font-size:14px;font-weight:700;color:var(--navy)}
+#td-requirements .rqm-subtitle{font-size:11px;color:var(--gray);margin-top:2px}
+#td-requirements .rqm-summary{display:flex;align-items:center;gap:18px;padding:12px 18px;background:#f7fafc;border-radius:8px;margin-bottom:18px;flex-wrap:wrap}
+#td-requirements .rqm-num{font-size:20px;font-weight:700;color:var(--navy)}
+#td-requirements .rqm-label{font-size:10px;color:var(--gray);line-height:1.3}
+#td-requirements .rqm-div{width:1px;height:32px;background:var(--gray-light)}
+#td-requirements .rqm-matrix{padding:0 18px 4px}
+#td-requirements .rqm-section-head{display:flex;align-items:center;gap:10px;padding:12px 0 6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gray);border-top:1px solid var(--gray-light)}
+#td-requirements .rqm-section-head:first-child{border-top:none}
+#td-requirements .rqm-section-line{flex:1;height:1px;background:var(--gray-light)}
+#td-requirements .rqm-header-row{display:grid;grid-template-columns:220px repeat(var(--rqmtc,1),1fr) 84px;gap:0;padding:6px 0;border-bottom:2px solid var(--gray-light)}
+#td-requirements .rqm-header-cell{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--gray);padding:0 6px;text-align:center}
+#td-requirements .rqm-header-cell:first-child{text-align:left;padding-left:0}
+#td-requirements .rqm-th-avatar{width:24px;height:24px;border-radius:50%;color:#fff;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-bottom:2px}
+#td-requirements .rqm-row{display:grid;grid-template-columns:220px repeat(var(--rqmtc,1),1fr) 84px;gap:0;padding:10px 0;border-bottom:1px solid #f0f4f8;align-items:center}
+#td-requirements .rqm-row:last-child{border-bottom:none}
+#td-requirements .rqm-req-label{display:flex;align-items:center;gap:7px;font-weight:600;color:#2d3748;font-size:12px;padding-right:8px}
+#td-requirements .rqm-req-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;background:#f0f4f8}
+#td-requirements .rqm-cell{display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 4px}
+#td-requirements .rqm-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
+#td-requirements .rqm-dot{width:6px;height:6px;border-radius:50%}
+#td-requirements .rqm-pill-pending{background:#fffbeb;color:#b7791f}
+#td-requirements .rqm-pill-pending .rqm-dot{background:#f6ad55}
+#td-requirements .rqm-pill-submitted{background:#f0fff4;color:#276749}
+#td-requirements .rqm-pill-submitted .rqm-dot{background:#48bb78}
+#td-requirements .rqm-pill-unassigned{background:#f7fafc;color:#a0aec0}
+#td-requirements .rqm-pill-unassigned .rqm-dot{background:#cbd5e0}
+#td-requirements .rqm-toggle{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--teal);cursor:pointer;background:none;border:none;padding:0}
+#td-requirements .rqm-toggle.rqm-unassign{color:#a0aec0}
+#td-requirements .rqm-send{display:inline-flex;align-items:center;gap:3px;background:#ebf8ff;color:#2b6cb0;border:1px solid #bee3f8;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer}
+#td-requirements .rqm-send.rqm-sent{background:#f0fff4;color:#276749;border-color:#9ae6b4;pointer-events:none}
+#td-requirements .rqm-actions{display:flex;justify-content:flex-end}
+#td-requirements .rqm-remove{background:none;border:none;color:var(--coral);cursor:pointer;font-size:11px;margin-left:6px}
+#td-requirements .rqm-add-row{padding:8px 0 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#td-requirements .rqm-add-row input{padding:6px 10px;border:1px solid var(--gray-light);border-radius:6px;font-size:12px;min-width:240px}
+#td-requirements .rqm-portal-footer{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-top:1px solid var(--gray-light);background:#f7fafc;border-radius:0 0 10px 10px;flex-wrap:wrap;gap:10px}
+#td-requirements .rqm-footer-note{font-size:11px;color:var(--gray)}
+#td-requirements .rqm-trav-row{display:flex;align-items:center;gap:10px;padding:10px 18px;border-bottom:1px solid #f0f4f8}
+#td-requirements .rqm-trav-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;flex-shrink:0}
+#td-requirements .rqm-trav-name{font-weight:600;color:var(--navy);font-size:13px}
+#td-requirements .rqm-trav-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;background:#ebf8ff;color:#2b6cb0}
+</style>
+
+<div class="rqm-summary" id="rqm-summary"></div>
+
+<div class="rqm-card">
+  <div class="rqm-card-header">
+    <div><div class="rqm-title">Travelers on this Trip</div><div class="rqm-subtitle">Manage who's linked to this booking</div></div>
+    <button class="btn btn-sm btn-outline" onclick="openManageTravelers()">+ Add Traveler</button>
+  </div>
+  <div id="rqm-traveler-list"></div>
+</div>
+
+<div class="rqm-card">
+  <div class="rqm-card-header">
+    <div><div class="rqm-title">Requirement Requests</div><div class="rqm-subtitle">Assign items to specific travelers  use  to send a reminder</div></div>
+  </div>
+  <div class="rqm-matrix" id="rqm-matrix"></div>
+  <div class="rqm-portal-footer">
+    <div class="rqm-footer-note"> Share the trip's portal link so travelers can complete their assigned items.</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-sm btn-outline" onclick="openPortalPreview()">Preview Portal</button>
+      <button class="btn btn-sm btn-teal" onclick="sendPortalLink('email')"> Send / Resend Portal Link</button>
+    </div>
+  </div>
+</div>
+
+    </div>
     <div id="td-docs" class="td-panel" style="display:none">
       <div class="upload-zone" id="drop-zone">
         <input type="file" multiple onchange="handleFiles(this.files)">
@@ -6094,6 +6167,7 @@ function tdTab(el, panelId){
   document.getElementById(panelId).style.display='';
   if(panelId==='td-portal'){ renderPortalReqs(currentTripDetailIdx); renderPaySchedule(currentTripDetailIdx); }
   if(panelId==='td-travelers'){ renderPortalReqs(currentTripDetailIdx); renderTravelerSubmissions(currentTripDetailIdx); renderPortalReqResponses(currentTripDetailIdx); }
+  if(panelId==='td-requirements'){ renderRequirementsMatrix(currentTripDetailIdx); }
   if(panelId==='td-forms'){ renderTripForms(currentTripDetailIdx); }
   if(panelId==='td-invoice'){ renderPaySchedule(currentTripDetailIdx); renderInvoiceItems(currentTripDetailIdx); }
   if(panelId==='td-proposals'){ renderProposals(currentTripDetailIdx); }
@@ -6517,6 +6591,7 @@ function saveMtTravelers(){
   saveData('linked_travelers', saved);
   closeModal('modal-manage-travelers');
   renderTravelersOverview(idx);
+  if(document.getElementById('td-requirements') && document.getElementById('td-requirements').style.display!=='none'){ renderRequirementsMatrix(idx); }
   crmToast('Travelers updated ✓');
 }
 
@@ -6966,6 +7041,225 @@ function addPortalReq(){
   if(type==='other'){document.getElementById('portal-req-other-text').value=''; document.getElementById('portal-req-other-wrap').style.display='none'; document.getElementById('portal-req-type').value='passport';}
   crmToast('Request added to portal ✓');
 }
+function renderPortalReqs(idx){
+  const container=document.getElementById('portal-req-list'); if(!container) return;
+  const reqs=(loadData('portal_reqs',{})[idx])||[];
+  const responses=loadData('portal_req_responses',{})[idx]||{};
+  if(!reqs.length){ container.innerHTML='<div style="font-size:12px;color:var(--gray);text-align:center;padding:12px">No requests added yet.</div>';
+    renderPortalReqResponses(idx); return; }
+  container.innerHTML=reqs.map((r,i)=>{
+    const hasResponse = !!responses[i];
+    return `<div style="display:flex;align-items:center;justify-content:space-between;background:${hasResponse?'var(--green-bg)':'var(--offwhite)'};border:1px solid ${hasResponse?'rgba(16,185,129,0.3)':'var(--gray-light)'};border-radius:8px;padding:10px 14px;font-size:12px;gap:10px">
+      <div style="flex:1"><strong>${r.label}</strong><span style="margin-left:8px;font-size:10px;color:var(--gray)">Added ${r.added}</span>${hasResponse?'<span style="margin-left:8px;font-size:10px;font-weight:700;color:var(--green)">✓ Response received</span>':''}</div>
+      ${!hasResponse?`<select onchange="updatePortalReqStatus(${idx},${i},this.value)" style="font-size:11px;border:1px solid var(--gray-light);border-radius:6px;padding:3px 6px">
+        <option${r.status==='pending'?' selected':''}>pending</option>
+        <option${r.status==='sent'?' selected':''}>sent</option>
+        <option${r.status==='received'?' selected':''}>received</option>
+      </select>`:''}
+      <button onclick="removePortalReq(${idx},${i})" style="background:none;border:none;color:var(--coral);cursor:pointer;font-size:14px">✕</button>
+    </div>`;
+  }).join('');
+  renderPortalReqResponses(idx);
+}
+function updatePortalReqStatus(idx,i,val){ const d=loadData('portal_reqs',{}); d[idx][i].status=val; saveData('portal_reqs',d); renderPortalReqs(idx); }
+function removePortalReq(idx,i){ const d=loadData('portal_reqs',{}); d[idx].splice(i,1); saveData('portal_reqs',d); renderPortalReqs(idx); }
+
+/*  Requirements Matrix  */
+const RQM_AVATAR_COLORS = ['#4299e1','#38b2ac','#805ad5','#dd6b20','#d53f8c'];
+
+function rqmRoster(idx){
+  const t = trips[idx] || {};
+  const roster = [{ travKey:'primary', name: t.client || 'Primary Traveler', badge:'Client' }];
+  const linked = (loadData('linked_travelers',{})[idx] || { travelers: [] }).travelers || [];
+  linked.forEach((lt,i) => {
+    const c = clients[lt.clientIdx] || {};
+    const name = ((c.fname||'')+' '+(c.lname||'')).trim() || c.name || 'Traveler';
+    roster.push({ travKey:'linked_'+i, name, badge:'Client' });
+  });
+  return roster;
+}
+function rqmInitials(name){
+  return (name||'?').split(' ').filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2) || '?';
+}
+function rqmAssignments(idx){
+  const all = loadData('requirement_assignments', {});
+  if(!all[idx]) all[idx] = {};
+  return all;
+}
+function rqmSaveAssignments(all){ saveData('requirement_assignments', all); }
+
+function rqmUploadRows(idx){
+  const fixed = [
+    {reqKey:'passport-photo', type:'passport-photo', label: REQ_LABELS['passport-photo'], icon:''},
+    {reqKey:'guest', type:'guest', label: REQ_LABELS['guest'], icon:''},
+    {reqKey:'covid', type:'covid', label: REQ_LABELS['covid'], icon:''}
+  ];
+  const reqs = (loadData('portal_reqs',{})[idx]) || [];
+  const others = reqs.map((r,i)=>({r,i})).filter(x=>x.r.type==='other')
+    .map(x=>({reqKey:'other_'+x.i, type:'other', label:x.r.label, icon:'', entryIndex:x.i}));
+  return fixed.concat(others);
+}
+function rqmFormRows(){
+  return getFormDefs().map(fd => ({ reqKey:'form_'+fd.key, type:'form', formKey:fd.key, label: fd.name, icon: fd.icon || '' }));
+}
+function rqmFindPortalReqIndex(idx, type){
+  const reqs = (loadData('portal_reqs',{})[idx]) || [];
+  return reqs.findIndex(r => r.type === type);
+}
+function rqmEnsurePortalReq(idx, type){
+  let i = rqmFindPortalReqIndex(idx, type);
+  if(i>=0) return i;
+  const portalReqs = loadData('portal_reqs',{});
+  if(!portalReqs[idx]) portalReqs[idx] = [];
+  portalReqs[idx].push({ type, label: REQ_LABELS[type] || type, status:'pending', added: new Date().toLocaleDateString() });
+  saveData('portal_reqs', portalReqs);
+  return portalReqs[idx].length - 1;
+}
+function rqmCellStatus(idx, row, travKey){
+  const all = rqmAssignments(idx);
+  const assigned = (all[idx][row.reqKey] || []).includes(travKey);
+  if(!assigned) return 'unassigned';
+  if(row.type === 'form'){
+    const forms = loadData('trip_forms',{})[idx] || {};
+    const st = forms[row.formKey] && forms[row.formKey].status;
+    return st === 'completed' ? 'submitted' : 'pending';
+  }
+  const i = row.entryIndex != null ? row.entryIndex : rqmFindPortalReqIndex(idx, row.type);
+  const responses = loadData('portal_req_responses',{})[idx] || {};
+  return (i>=0 && responses[i]) ? 'submitted' : 'pending';
+}
+function rqmToggleAssign(reqKey, travKey, rowType){
+  const idx = currentTripDetailIdx;
+  const all = rqmAssignments(idx);
+  const list = all[idx][reqKey] || [];
+  const has = list.includes(travKey);
+  if(has){
+    all[idx][reqKey] = list.filter(k=>k!==travKey);
+    if(all[idx][reqKey].length===0 && rowType !== 'form' && rowType !== 'other'){
+      const ei = rqmFindPortalReqIndex(idx, rowType);
+      if(ei>=0){ removePortalReq(idx, ei); }
+    }
+  } else {
+    if(rowType !== 'form' && rowType !== 'other'){ rqmEnsurePortalReq(idx, rowType); }
+    all[idx][reqKey] = list.concat([travKey]);
+  }
+  rqmSaveAssignments(all);
+  renderRequirementsMatrix(idx);
+}
+function rqmAssignAll(reqKey, rowType){
+  const idx = currentTripDetailIdx;
+  const roster = rqmRoster(idx);
+  const all = rqmAssignments(idx);
+  if(rowType !== 'form' && rowType !== 'other'){ rqmEnsurePortalReq(idx, rowType); }
+  all[idx][reqKey] = roster.map(t=>t.travKey);
+  rqmSaveAssignments(all);
+  renderRequirementsMatrix(idx);
+}
+function rqmSendReminder(name, label, btn){
+  if(btn){ btn.classList.add('rqm-sent'); btn.textContent='Sent'; }
+  crmToast('Reminder noted for ' + name + ': ' + label);
+}
+function rqmRemoveUploadRow(reqKey, entryIndex){
+  if(entryIndex==null) return;
+  if(!confirm('Remove this request entirely? This removes it from the client portal too.')) return;
+  const idx = currentTripDetailIdx;
+  removePortalReq(idx, entryIndex);
+  const all = rqmAssignments(idx);
+  delete all[idx][reqKey];
+  rqmSaveAssignments(all);
+  renderRequirementsMatrix(idx);
+}
+function rqmAddCustomUpload(){
+  const input = document.getElementById('rqm-new-upload');
+  const text = (input.value||'').trim();
+  if(!text) return;
+  const idx = currentTripDetailIdx;
+  const portalReqs = loadData('portal_reqs',{});
+  if(!portalReqs[idx]) portalReqs[idx] = [];
+  portalReqs[idx].push({ type:'other', label:' '+text, status:'pending', added: new Date().toLocaleDateString() });
+  saveData('portal_reqs', portalReqs);
+  input.value='';
+  crmToast('Custom request added');
+  renderRequirementsMatrix(idx);
+}
+function renderRequirementsMatrix(idx){
+  const container = document.getElementById('rqm-matrix');
+  const travelerListEl = document.getElementById('rqm-traveler-list');
+  const summaryEl = document.getElementById('rqm-summary');
+  if(!container || idx==null) return;
+
+  const roster = rqmRoster(idx);
+  const uploadRows = rqmUploadRows(idx);
+  const formRows = rqmFormRows();
+
+  if(travelerListEl){
+    travelerListEl.innerHTML = roster.map((t,i) =>
+      '<div class="rqm-trav-row">'
+      + '<div class="rqm-trav-avatar" style="background:'+RQM_AVATAR_COLORS[i%RQM_AVATAR_COLORS.length]+'">'+rqmInitials(t.name)+'</div>'
+      + '<div style="flex:1"><div class="rqm-trav-name">'+escHtml(t.name)+'</div></div>'
+      + '<span class="rqm-trav-badge">'+t.badge+'</span>'
+      + '</div>'
+    ).join('') || '<div style="padding:14px 18px;color:var(--gray);font-size:12px">No travelers linked yet.</div>';
+  }
+
+  container.style.setProperty('--rqmtc', roster.length || 1);
+
+  let pending=0, submitted=0;
+
+  function rowsHtml(rows){
+    return rows.map(row => {
+      const cells = roster.map(t => {
+        const status = rqmCellStatus(idx, row, t.travKey);
+        if(status==='pending') pending++;
+        if(status==='submitted') submitted++;
+        let inner;
+        if(status==='unassigned'){
+          inner = '<button class="rqm-toggle" onclick="rqmToggleAssign(\''+row.reqKey+'\',\''+t.travKey+'\',\''+row.type+'\')">+ Assign</button>';
+        } else if(status==='pending'){
+          inner = '<div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center">'
+            + '<button class="rqm-toggle rqm-unassign" onclick="rqmToggleAssign(\''+row.reqKey+'\',\''+t.travKey+'\',\''+row.type+'\')"> Unassign</button>'
+            + '<button class="rqm-send" onclick="rqmSendReminder(\''+escHtml(t.name).replace(/'/g,"\\'")+'\',\''+escHtml(row.label).replace(/'/g,"\\'")+'\',this)"> Send</button>'
+            + '</div>';
+        } else {
+          inner = '<button class="rqm-toggle rqm-unassign" onclick="rqmToggleAssign(\''+row.reqKey+'\',\''+t.travKey+'\',\''+row.type+'\')"> Unassign</button>';
+        }
+        const pillCls = status==='unassigned' ? 'rqm-pill-unassigned' : status==='pending' ? 'rqm-pill-pending' : 'rqm-pill-submitted';
+        const pillText = status==='unassigned' ? 'Not assigned' : status==='pending' ? 'Pending' : 'Submitted';
+        return '<div class="rqm-cell"><span class="rqm-pill '+pillCls+'"><span class="rqm-dot"></span>'+pillText+'</span>'+inner+'</div>';
+      }).join('');
+      const removeBtn = (row.entryIndex!=null)
+        ? '<button class="rqm-remove" onclick="rqmRemoveUploadRow(\''+row.reqKey+'\','+row.entryIndex+')" title="Remove request"></button>' : '';
+      return '<div class="rqm-row">'
+        + '<div class="rqm-req-label"><div class="rqm-req-icon">'+row.icon+'</div>'+escHtml(row.label)+removeBtn+'</div>'
+        + cells
+        + '<div class="rqm-actions"><button class="btn btn-sm btn-outline" onclick="rqmAssignAll(\''+row.reqKey+'\',\''+row.type+'\')">Assign All</button></div>'
+        + '</div>';
+    }).join('');
+  }
+
+  const headerCells = roster.map((t,i) =>
+    '<div class="rqm-header-cell"><div class="rqm-th-avatar" style="background:'+RQM_AVATAR_COLORS[i%RQM_AVATAR_COLORS.length]+'">'+rqmInitials(t.name)+'</div><div>'+escHtml((t.name||'').split(' ')[0]||'')+'</div></div>'
+  ).join('');
+
+  container.innerHTML =
+    '<div class="rqm-header-row"><div class="rqm-header-cell"></div>'+headerCells+'<div class="rqm-header-cell" style="text-align:right">Assign All</div></div>'
+    + '<div class="rqm-section-head"><span>Uploads</span><span class="rqm-section-line"></span></div>'
+    + rowsHtml(uploadRows)
+    + '<div class="rqm-add-row"><input type="text" id="rqm-new-upload" placeholder="Add a custom upload requirement"><button class="btn btn-sm btn-outline" onclick="rqmAddCustomUpload()">+ Add Upload</button></div>'
+    + '<div class="rqm-section-head"><span>Forms</span><span class="rqm-section-line"></span></div>'
+    + rowsHtml(formRows);
+
+  if(summaryEl){
+    summaryEl.innerHTML =
+      '<div><div class="rqm-num">'+roster.length+'</div><div class="rqm-label">Travelers</div></div>'
+      + '<div class="rqm-div"></div>'
+      + '<div><div class="rqm-num" style="color:#b7791f">'+pending+'</div><div class="rqm-label">Pending<br>items</div></div>'
+      + '<div class="rqm-div"></div>'
+      + '<div><div class="rqm-num" style="color:#48bb78">'+submitted+'</div><div class="rqm-label">Completed<br>items</div></div>';
+  }
+}
+
+
 function renderPortalReqs(idx){
   const container=document.getElementById('portal-req-list'); if(!container) return;
   const reqs=(loadData('portal_reqs',{})[idx])||[];
