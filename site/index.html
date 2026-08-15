@@ -64,14 +64,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:#fff;box-shadow:
 .btn-outline:hover{border-color:#fff;background:rgba(255,255,255,0.1)}
 
 /* HERO CARDS */
-.hero-cards{position:absolute;bottom:0;left:0;right:0;z-index:2;background:rgba(27,52,100,0.92);backdrop-filter:blur(4px)}
-.hero-cards-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid rgba(74,184,213,0.3)}
-.hero-card{padding:20px 28px;border-right:1px solid rgba(74,184,213,0.2);cursor:pointer;transition:background .2s}
-.hero-card:last-child{border-right:none}
-.hero-card:hover{background:rgba(74,184,213,0.1)}
-.hero-card-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:6px}
-.hero-card-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:4px}
-.hero-card-sub{font-size:12px;color:rgba(255,255,255,0.6)}
 
 /* SECTION COMMONS */
 section{padding:72px 24px}
@@ -311,10 +303,7 @@ footer{background:var(--navy-dark);color:rgba(255,255,255,0.75);padding:48px 24p
   .services-grid,.bi-grid,.why-grid,.promo-grid,.blog-grid,.testi-grid,.gallery-grid,.showcase-grid{grid-template-columns:1fr 1fr}
   .footer-grid{grid-template-columns:1fr 1fr}
   .about-grid,.contact-grid{grid-template-columns:1fr}
-  .hero-cards-inner{grid-template-columns:1fr}
-  .hero-card{border-right:none;border-bottom:1px solid rgba(74,184,213,0.2)}
-  .hero-card:last-child{border-bottom:none}
-  .stats-row{grid-template-columns:1fr 1fr}
+        .stats-row{grid-template-columns:1fr 1fr}
   .admin-sidebar{width:180px}
   .field-row{grid-template-columns:1fr}
 }
@@ -331,8 +320,7 @@ footer{background:var(--navy-dark);color:rgba(255,255,255,0.75);padding:48px 24p
   .admin-sidebar a{padding:8px 12px}
   .admin-sidebar .sidebar-section{display:none}
   .stats-row{grid-template-columns:1fr 1fr}
-  .hero-cards{display:none}
-  .hero-content{padding-top:72px}
+    .hero-content{padding-top:72px}
   .page-hero{padding:82px 24px 50px}
 }
 </style>
@@ -537,26 +525,7 @@ body.admin-open .admin-topbar{top:24px}
     <div class="slideshow-dots" id="slideshow-dots"></div>
     <div class="hero-content">
     </div>
-    <div class="hero-cards">
-      <div class="hero-cards-inner">
-        <div class="hero-card" onclick="document.getElementById('section-services').scrollIntoView({behavior:'smooth'})">
-          <div class="hero-card-label">LEISURE TRAVEL</div>
-          <div class="hero-card-title">Romantic &amp; Family Getaways</div>
-          <div class="hero-card-sub">Customized for every traveler</div>
-        </div>
-        <div class="hero-card" onclick="document.getElementById('section-services').scrollIntoView({behavior:'smooth'})">
-          <div class="hero-card-label">THEMED TRAVEL</div>
-          <div class="hero-card-title">Celebrate in Style</div>
-          <div class="hero-card-sub">Birthdays, milestones &amp; more</div>
-        </div>
-        <div class="hero-card" onclick="document.getElementById('section-services').scrollIntoView({behavior:'smooth'})">
-          <div class="hero-card-label">GROUP TRAVEL</div>
-          <div class="hero-card-title">Hosted Group Adventures</div>
-          <div class="hero-card-sub">From 10 to 100+ travelers</div>
-        </div>
-      </div>
-    </div>
-  </section>
+      </section>
 
 
   <!-- SERVICES -->
@@ -1613,31 +1582,6 @@ body.admin-open .admin-topbar{top:24px}
 
         <div class="card">
           <div class="card-title">Hero Bottom Cards (3 feature highlights)</div>
-          <div id="hero-cards-editor">
-            <div style="margin-bottom:14px;padding:14px;background:var(--offwhite);border-radius:8px">
-              <div class="field-row cols-3">
-                <div class="field-group"><label>Card 1 Label</label><input type="text" id="hc-1-label" value="LEISURE TRAVEL"></div>
-                <div class="field-group"><label>Card 1 Title</label><input type="text" id="hc-1-title" value="Romantic & Family Getaways"></div>
-                <div class="field-group"><label>Card 1 Subtitle</label><input type="text" id="hc-1-sub" value="Customized for every traveler"></div>
-              </div>
-            </div>
-            <div style="margin-bottom:14px;padding:14px;background:var(--offwhite);border-radius:8px">
-              <div class="field-row cols-3">
-                <div class="field-group"><label>Card 2 Label</label><input type="text" id="hc-2-label" value="THEMED TRAVEL"></div>
-                <div class="field-group"><label>Card 2 Title</label><input type="text" id="hc-2-title" value="Celebrate in Style"></div>
-                <div class="field-group"><label>Card 2 Subtitle</label><input type="text" id="hc-2-sub" value="Birthdays, milestones & more"></div>
-              </div>
-            </div>
-            <div style="padding:14px;background:var(--offwhite);border-radius:8px">
-              <div class="field-row cols-3">
-                <div class="field-group"><label>Card 3 Label</label><input type="text" id="hc-3-label" value="GROUP TRAVEL"></div>
-                <div class="field-group"><label>Card 3 Title</label><input type="text" id="hc-3-title" value="Hosted Group Adventures"></div>
-                <div class="field-group"><label>Card 3 Subtitle</label><input type="text" id="hc-3-sub" value="From 10 to 100+ travelers"></div>
-              </div>
-            </div>
-          </div>
-          <button class="btn btn-primary" style="margin-top:14px" onclick="saveWE('hero-cards')">Save Hero Cards</button>
-          <span class="save-indicator" id="save-we-hero-cards"></span>
         </div>
       </div>
 
@@ -1782,8 +1726,6 @@ Ongoing support before, during, and after your trip</textarea></div>
           <span class="save-indicator" id="save-we-about-content"></span>
         </div>
       
-        <div class="card-title" style="margin-top:22px;padding-top:18px;border-top:1px solid var(--gray-light)">Agent Profile</div>
-        <div style="font-size:11px;color:var(--gray);margin-bottom:12px">Moved here from Settings &mdash; these details feed the public About page.</div>
 
         <div class="card">
           <div class="card-title">Agent / Owner Profile</div>
@@ -1809,9 +1751,7 @@ Ongoing support before, during, and after your trip</textarea></div>
               </div>
             </div>
           </div>
-          <div class="field-group" style="margin-bottom:14px"><label>Professional Bio</label><textarea id="s-agent-bio" style="min-height:120px">Travel isn't just about visiting new places — it's about creating unforgettable memories that last a lifetime. That's why I founded Destined 4 Destinations: to help individuals, couples, families, and groups experience the world with confidence, ease, and excitement.
-
-Since launching my agency in 2018, I've had the privilege of helping travelers plan everything from dream honeymoons and destination weddings to Disney vacations, luxury all-inclusive resorts, cruises, family reunions, birthday celebrations, and bucket-list adventures around the world.</textarea></div>
+          <div style="font-size:11px;color:var(--gray);margin-bottom:14px">Bio lives in <strong>Bio Paragraph 1&ndash;3</strong> above &mdash; that is what renders on the public About page.</div>
           <div class="field-row cols-2">
             <div class="field-group"><label>IATA / CLIA Number</label><input id="s-agent-iata" type="text" placeholder="Your accreditation number"></div>
             <div class="field-group"><label>Host Agency</label><input id="s-agent-host" type="text" placeholder="e.g. Travel Leaders"></div>
@@ -9576,7 +9516,7 @@ function saveSetting(key){
     case 'business': ['biz-name','biz-tagline','biz-phone','biz-email','biz-website','biz-whatsapp','biz-address','biz-city','biz-state','biz-zip'].forEach(f=>{ const el=document.getElementById('s-'+f); if(el) vals[f]=el.value; }); break;
     case 'social': ['social-fb','social-ig','social-tt','social-yt','social-li','social-pi'].forEach(f=>{ const el=document.getElementById('s-'+f); if(el) vals[f]=el.value; }); break;
     case 'payments': ['zelle','venmo','cashapp'].forEach(f=>{ const el=document.getElementById('s-'+f); if(el) vals[f]=el.value; }); break;
-    case 'agent': ['agent-fname','agent-lname','agent-title','agent-agency','agent-phone','agent-email','agent-bio','agent-iata','agent-host','agent-years','agent-specs'].forEach(f=>{ const el=document.getElementById('s-'+f); if(el) vals[f]=el.value; }); break;
+    case 'agent': ['agent-fname','agent-lname','agent-title','agent-agency','agent-phone','agent-email','agent-iata','agent-host','agent-years','agent-specs'].forEach(f=>{ const el=document.getElementById('s-'+f); if(el) vals[f]=el.value; }); break;
     case 'notifications': ['notif-email','notif-sms'].forEach(f=>{ const el=document.getElementById('s-'+f); if(el) vals[f]=el.value; }); break;
     case 'branding': ['brand-name','brand-tag'].forEach(f=>{ const el=document.getElementById('s-'+f); if(el) vals[f]=el.value; }); ['color-navy','color-teal','color-coral','color-bg'].forEach(f=>{ const el=document.getElementById('s-'+f); if(el) vals[f]=el.value; }); break;
   }
@@ -12389,12 +12329,6 @@ function crmSiteSync(){
   const tx=g('we_text',null);
   if(tx){
     const set=(sel,val)=>{ const el=document.querySelector(sel); if(el&&val!=null&&val!=='') el.textContent=val; };
-    ['1','2','3'].forEach((k,i)=>{
-      const card=document.querySelectorAll('.hero-card')[i]; if(!card||!tx['hc'+k]) return;
-      card.querySelector('.hero-card-label').textContent=tx['hc'+k].label;
-      card.querySelector('.hero-card-title').textContent=tx['hc'+k].title;
-      card.querySelector('.hero-card-sub').textContent=tx['hc'+k].sub;
-    });
     set('#section-services .section-label',tx.svcLabel);
     set('#section-services .section-title',tx.svcTitle);
     set('#section-services .section-sub',tx.svcDesc);
@@ -12451,12 +12385,6 @@ function saveWE(key){
       const el=document.getElementById(WE_FIELDS[key][prop]);
       if(el) txt[prop]=el.value;
     }
-  }
-  if(key==='hero-cards'){
-    ['1','2','3'].forEach(i=>{
-      const l=document.getElementById('hc-'+i+'-label'),t=document.getElementById('hc-'+i+'-title'),s=document.getElementById('hc-'+i+'-sub');
-      if(l&&t&&s) txt['hc'+i]={label:l.value,title:t.value,sub:s.value};
-    });
   }
   localStorage.setItem('d4d_we_text',JSON.stringify(txt));
   if(key==='footer'){
