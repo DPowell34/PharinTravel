@@ -1703,14 +1703,13 @@ body.admin-open .admin-topbar{top:24px}
             <div class="field-group"><label>Page Label</label><input id="we-ab-label" type="text" value="MEET YOUR TRAVEL AGENT"></div>
             <div class="field-group"><label>Page Heading</label><input id="we-ab-heading" type="text" value="About Pharin Walker"></div>
           </div>
-          <div class="field-group" style="margin-bottom:14px"><label>Subheading</label><input id="we-ab-sub" type="text" value="Owner & Travel Agent · Destined 4 Destinations LLC"></div>
+          <div class="field-group" style="margin-bottom:14px"><label>Tagline <span style="font-weight:400;color:var(--gray)">&mdash; shown in the banner and under your name</span></label><input id="we-ab-sub" type="text" value="Owner & Travel Agent · Destined 4 Destinations LLC"></div>
           <button class="btn btn-primary" onclick="saveWE('about-hero')">Save About Hero</button>
           <span class="save-indicator" id="save-we-about-hero"></span>
         </div>
         <div class="card">
           <div class="card-title">About Content</div>
           <div class="field-group" style="margin-bottom:14px"><label>Section Heading</label><input id="we-ab-h2" type="text" value="Hi, I'm Pharin Walker"></div>
-          <div class="field-group" style="margin-bottom:14px"><label>Subtitle</label><input id="we-ab-subtitle" type="text" value="Owner & Travel Agent · Destined 4 Destinations"></div>
           <div class="field-group" style="margin-bottom:14px"><label>Bio Paragraph 1</label><textarea id="we-ab-p1" style="min-height:80px">Travel isn't just about visiting new places — it's about creating unforgettable memories that last a lifetime. That's why I founded Destined 4 Destinations: to help individuals, couples, families, and groups experience the world with confidence, ease, and excitement.</textarea></div>
           <div class="field-group" style="margin-bottom:14px"><label>Bio Paragraph 2</label><textarea id="we-ab-p2" style="min-height:80px">Since launching my agency in 2018, I've had the privilege of helping travelers plan everything from dream honeymoons and destination weddings to Disney vacations, luxury all-inclusive resorts, cruises, family reunions, birthday celebrations, and bucket-list adventures around the world.</textarea></div>
           <div class="field-group" style="margin-bottom:14px"><label>Bio Paragraph 3</label><textarea id="we-ab-p3" style="min-height:80px">I believe every vacation should be as unique as the traveler taking it. Whether you're looking for a relaxing Caribbean escape, an unforgettable European journey, or a magical family vacation, I take the time to understand your vision and create an experience designed specifically for you.</textarea></div>
@@ -12315,8 +12314,12 @@ function crmSiteSync(){
     set('#faq-label-text',tx.faqLabel); set('#faq-title-text',tx.faqTitle); set('#faq-sub-text',tx.faqDesc);
     set('#page-about .page-hero .section-label',tx.abLabel);
     set('#page-about .page-hero h1',tx.abHeading);
-    set('#page-about .page-hero p',tx.abSub);
-    set('#about-h2',tx.abH2); set('#about-subtitle',tx.abSubtitle);
+    // One tagline, two places: the banner here and the line under "Hi, I'm ...".
+    // abSubtitle is the retired second field, still read so text saved before the
+    // two were merged still renders.
+    set('#page-about .page-hero p',tx.abSub||tx.abSubtitle);
+    set('#about-h2',tx.abH2);
+    set('#about-subtitle',tx.abSub||tx.abSubtitle);
     if(tx.abP1||tx.abP2||tx.abP3){
       document.getElementById('about-bio').innerHTML=[tx.abP1,tx.abP2,tx.abP3].filter(Boolean).map(p=>'<p>'+p+'</p>').join('');
     }
@@ -12352,7 +12355,7 @@ const WE_FIELDS = {
   'dest-header':     {destLabel:'we-dest-label',destTitle:'we-dest-title',destDesc:'we-dest-desc'},
   'faq-header':      {faqLabel:'we-faq-label',faqTitle:'we-faq-title',faqDesc:'we-faq-desc'},
   'about-hero':      {abLabel:'we-ab-label',abHeading:'we-ab-heading',abSub:'we-ab-sub'},
-  'about-content':   {abH2:'we-ab-h2',abSubtitle:'we-ab-subtitle',abP1:'we-ab-p1',abP2:'we-ab-p2',abP3:'we-ab-p3',abWhy:'we-ab-why'},
+  'about-content':   {abH2:'we-ab-h2',abP1:'we-ab-p1',abP2:'we-ab-p2',abP3:'we-ab-p3',abWhy:'we-ab-why'},
   'footer':          {ftName:'we-ft-name',ftTag:'we-ft-tag',ftDesc:'we-ft-desc',ftPhone:'we-ft-phone',ftEmail:'we-ft-email',ftCopy:'we-ft-copy'},
   'cta':             {ctaText:'we-cta-text',ctaColor:'we-cta-color'}
 };

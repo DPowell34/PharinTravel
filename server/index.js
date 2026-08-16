@@ -788,6 +788,26 @@ app.post("/api/data-bulk-import", requireApiKey, async (req, res) => {
   }
 });
 
+// The blob API above is the only thing standing between an admin Save and the
+// database, and the table it writes to is created solely by server/schema.sql --
+// which nothing runs automatically. A database that has never had that file
+// applied therefore accepts the deploy and then 500s on every save, which looks
+// exactly like "the Save button does nothing". Creating it on boot makes the
+// deploy self-sufficient: check out, restart, done.
+async function ensureAdminDataBlobs() {
+  await q(`CREATE TABLE IF NOT EXISTS admin_data_blobs (
+    key TEXT PRIMARY KEY,
+    data JSONB NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT now()
+  )`);
+}
+
+// Deliberately not awaited: a database hiccup should not stop the site itself
+// from coming up. The log line is what to check if saves are not persisting.
+ensureAdminDataBlobs()
+  .then(() => console.log("admin_data_blobs table is present"))
+  .catch((err) => console.error("FAILED to ensure admin_data_blobs -- admin saves will not persist:", err.message));
+
 app.listen(PORT, () => {
   console.log(`Pharin's Travel server (Postgres-backed) listening on port ${PORT}`);
 });
